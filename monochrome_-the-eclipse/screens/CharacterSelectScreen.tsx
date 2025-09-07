@@ -2,7 +2,7 @@ import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CharacterClass, LucideIcon, GameState } from '../types';
 import { characterData } from '../dataCharacters';
-import { Zap, Target, ShieldCheck, Ghost, Layers, BrainCircuit } from "lucide-react";
+import { Zap, Target, ShieldCheck, Ghost, Layers, BrainCircuit, BookOpen, Map, Swords, ArrowUpCircle } from "lucide-react";
 
 const playerClassIcons: { [key in CharacterClass]: LucideIcon } = {
   [CharacterClass.WARRIOR]: Zap,
@@ -95,6 +95,28 @@ export const CharacterSelectScreen = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="mt-8 bg-gray-800/80 p-6 rounded-lg border border-gray-700">
+                    <h3 className="font-bold text-xl text-gray-300 mb-4 border-b border-gray-600 pb-3 flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-gray-400"/>
+                        게임 규칙
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-300">
+                        <div className="space-y-2">
+                            <h4 className="font-semibold text-white flex items-center gap-2"><Map size={18} className="text-yellow-400" /> 탐험</h4>
+                            <p className="text-gray-400">던전의 각 층에서 전투, 상점, 이벤트 등 다양한 노드 중 하나를 선택하여 나아가세요. 최종 목표는 스테이지 보스를 처치하는 것입니다.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="font-semibold text-white flex items-center gap-2"><Swords size={18} className="text-red-400" /> 전투</h4>
+                            <p className="text-gray-400">매 턴 5개의 동전을 뒤집어 생성되는 '족보(패턴)'를 조합하여 기술을 사용합니다. 적의 행동을 예측하고 최적의 수를 선택하여 승리하세요.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <h4 className="font-semibold text-white flex items-center gap-2"><ArrowUpCircle size={18} className="text-green-400" /> 성장</h4>
+                            <p className="text-gray-400">자원을 모아 상점에서 기술을 구매하거나, '기억의 제단'에서 영구적인 능력치를 강화하여 다음 탐험을 더 수월하게 만들 수 있습니다.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
