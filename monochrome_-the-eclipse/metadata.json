@@ -1,0 +1,6 @@
+{
+  "name": "Monochrome: The Eclipse",
+  "description": "A roguelike deck-builder game where players navigate a desolate world, battling foes using a unique coin-flipping combat system. Collect resources, upgrade abilities, and uncover the secrets of the eclipse.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
