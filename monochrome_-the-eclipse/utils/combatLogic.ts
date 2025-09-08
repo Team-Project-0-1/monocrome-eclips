@@ -10,12 +10,13 @@ import {
   StatusEffectType,
   CoinFace,
   AbilityEffect,
+  MonsterPatternDefinition,
 } from '../types';
 import { monsterData, monsterPatterns } from '../dataMonsters';
 import { characterData } from '../dataCharacters';
 import { patternUpgrades } from '../dataUpgrades';
 import { getPlayerAbility } from '../dataSkills';
-import { detectPatterns } from './gameLogic';
+import { detectPatterns, generateCoins } from './gameLogic';
 
 // --- TYPE DEFINITIONS ---
 type GameStoreDraft = {
@@ -42,6 +43,16 @@ const applyAndLogStatus = (target: Character, type: StatusEffectType, value: num
     if (target.statusEffects[type] !== prevValue) {
       log(`${target.name}에게 ${effectName} ${Math.abs(value)} ${action}. (총: ${target.statusEffects[type]})`, 'status');
     }
+
+    // NEW: Frenzy trigger
+    if (type === StatusEffectType.PURSUIT && 'class' in target && target.statusEffects[type]! >= 10) {
+        const hasFrenzy = target.temporaryEffects?.frenzy;
+        if (!hasFrenzy) {
+            target.temporaryEffects = target.temporaryEffects || {};
+            target.temporaryEffects.frenzy = { name: 'frenzy', value: true, duration: 4 }; // lasts for 3 turns
+            log(`${target.name}의 추적이 10에 도달하여 광분 상태가 됩니다!`, 'status');
+        }
+    }
 };
 
 const applyHeal = (target: Character, amount: number, log: LogFn) => {
@@ -54,19 +65,38 @@ const applyHeal = (target: Character, amount: number, log: LogFn) => {
     }
 }
 
-const applyDamage = (caster: Character, target: Character, damage: number, log: LogFn, state: GameStoreDraft, options: { isFixed?: boolean, ignoreDefense?: boolean } = {}) => {
+const applyDamage = (caster: Character, target: Character, damage: number, log: LogFn, state: GameStoreDraft, options: { isFixed?: boolean, ignoreDefense?: boolean, isCounterAttack?: boolean } = {}) => {
     if (damage <= 0) return 0;
     
     let totalDamage = damage;
+    
+    // 1. Caster's attack modifiers
     if (!options.isFixed) {
-      const amplify = caster.statusEffects.AMPLIFY || 0;
-      if (amplify > 0) {
-          totalDamage += amplify;
-          log(`${caster.name}의 증폭 효과로 피해량이 ${amplify} 증가!`, 'status');
+      // Amplify (new logic: permanent bonus, not consumed)
+      const amplifyBonus = Math.floor((caster.statusEffects.AMPLIFY || 0) / 2);
+      if (amplifyBonus > 0) {
+          totalDamage += amplifyBonus;
+          log(`${caster.name}의 증폭 효과로 피해량이 ${amplifyBonus} 증가!`, 'status');
+      }
+      
+      // Seal (new logic)
+      const sealStacks = caster.statusEffects.SEAL || 0;
+      if (sealStacks > 0) {
+          const reduction = Math.floor(totalDamage * (sealStacks * 0.15));
+          totalDamage = Math.max(0, totalDamage - reduction);
+          log(`${caster.name}의 봉인 효과로 피해량이 ${reduction} 감소!`, 'status');
       }
     }
 
-    const targetDefense = options.ignoreDefense ? 0 : target.temporaryDefense;
+    // 2. Target's defense modifiers
+    let targetDefense = options.ignoreDefense ? 0 : target.temporaryDefense;
+    const shatterStacks = target.statusEffects.SHATTER || 0;
+    if (shatterStacks > 0) {
+        const reduction = Math.floor(targetDefense * (shatterStacks * 0.15));
+        targetDefense = Math.max(0, targetDefense - reduction);
+        log(`${target.name}의 분쇄 효과로 방어력이 ${reduction} 감소!`, 'status');
+    }
+
     const finalDamage = Math.max(0, totalDamage - targetDefense);
     
     const prevHp = target.currentHp;
@@ -75,10 +105,34 @@ const applyDamage = (caster: Character, target: Character, damage: number, log: 
 
     if (actualDamage > 0) {
         log(`${caster.name}(이)가 ${target.name}에게 ${actualDamage} 피해. (${totalDamage} - ${targetDefense})`, 'damage');
-        applyPassives(state, 'ON_DAMAGE_TAKEN', log, { character: target, damage: actualDamage });
-        if (caster.statusEffects[StatusEffectType.BLEED]) {
-            applyAndLogStatus(caster, StatusEffectType.BLEED, -1, log);
+        
+        // 3. On Damage Taken effects
+        
+        // Bleed (new logic)
+        const bleedStacks = target.statusEffects[StatusEffectType.BLEED] || 0;
+        if (bleedStacks > 0) {
+            const bleedDamage = Math.floor(target.maxHp * 0.05);
+            if (bleedDamage > 0) {
+                const prevHpBleed = target.currentHp;
+                target.currentHp = Math.max(0, target.currentHp - bleedDamage);
+                const actualBleedDamage = prevHpBleed - target.currentHp;
+                if (actualBleedDamage > 0) {
+                    log(`[출혈] ${target.name}(이)가 ${actualBleedDamage} 피해를 입었다!`, 'damage');
+                }
+            }
+            applyAndLogStatus(target, StatusEffectType.BLEED, -1, log);
         }
+
+        // Counter (new logic)
+        const counterStacks = target.statusEffects[StatusEffectType.COUNTER] || 0;
+        if (counterStacks > 0 && !options.isCounterAttack) {
+            const counterDamage = counterStacks * 2;
+            log(`[반격] ${target.name}이(가) ${caster.name}에게 ${counterDamage} 피해를 돌려줍니다!`, 'player');
+            applyDamage(target, caster, counterDamage, log, state, { isFixed: true, isCounterAttack: true });
+            applyAndLogStatus(target, StatusEffectType.COUNTER, -1, log);
+        }
+        
+        applyPassives(state, 'ON_DAMAGE_TAKEN', log, { character: target, damage: actualDamage });
     }
 
     return actualDamage;
@@ -116,7 +170,17 @@ const applyAbilityEffect = (caster: Character, target: Character, effect: Abilit
         const statuses = Array.isArray(effect.status) ? effect.status : [effect.status];
         statuses.forEach((s) => {
             if (s && typeof s === 'object' && s.type && typeof s.value === 'number') {
-                const finalTarget = (s.target === 'player' || (s.target === 'self' && 'class' in caster)) ? caster : target;
+                const isPlayerCasting = 'class' in caster;
+                let finalTarget: Character;
+
+                if (isPlayerCasting) {
+                    // Player is casting. 'enemy' means the opponent. Everything else ('player', 'self', undefined) means self.
+                    finalTarget = s.target === 'enemy' ? target : caster;
+                } else {
+                    // Enemy is casting. 'player' means the opponent. Everything else ('self', undefined) means self.
+                    finalTarget = s.target === 'player' ? target : caster;
+                }
+                
                 applyAndLogStatus(finalTarget, s.type, s.value, log);
             }
         });
@@ -144,22 +208,7 @@ const applyAbilityEffect = (caster: Character, target: Character, effect: Abilit
        applyAndLogStatus(caster, StatusEffectType.AMPLIFY, 10, log);
     }
     
-    // Handle legacy monster pursuit logic
-    if (typeof effect.pursuitCost === 'number' && effect.pursuitCost > 0) {
-        if (!('class' in caster) && typeof caster.pursuit === 'number') {
-            caster.pursuit = Math.max(0, caster.pursuit - effect.pursuitCost);
-            log(`${caster.name}가 추적 스택 ${effect.pursuitCost}를 소모합니다.`, 'status');
-        }
-    }
-    if (typeof effect.addPursuit === 'number' && effect.addPursuit > 0) {
-         if (!('class' in caster)) {
-            caster.pursuit = (caster.pursuit || 0) + effect.addPursuit;
-            log(`${caster.name}의 추적 스택이 ${effect.addPursuit} 증가합니다.`, 'status');
-        }
-    }
-
     // Damage
-    let totalDamageDealt = 0;
     let damagePayload = 0;
     if (typeof effect.fixedDamage === 'number') damagePayload += effect.fixedDamage;
     if (effect.bonusDamage) { // legacy property
@@ -168,18 +217,12 @@ const applyAbilityEffect = (caster: Character, target: Character, effect: Abilit
     }
 
     if (damagePayload > 0) {
-        totalDamageDealt += applyDamage(caster, target, damagePayload, log, state, { isFixed: true });
+        applyDamage(caster, target, damagePayload, log, state, { isFixed: false });
     }
     if (effect.multiHit && typeof effect.multiHit === 'object' && typeof effect.multiHit.count === 'number' && typeof effect.multiHit.damage === 'number') {
         for (let i = 0; i < effect.multiHit.count; i++) {
-            totalDamageDealt += applyDamage(caster, target, effect.multiHit.damage, log, state, { isFixed: true });
+            applyDamage(caster, target, effect.multiHit.damage, log, state, { isFixed: false });
         }
-    }
-
-    // Consume Amplify after dealing damage
-    if (totalDamageDealt > 0 && (caster.statusEffects.AMPLIFY || 0) > 0) {
-        log(`${caster.name}의 증폭 효과가 소모되었습니다.`, 'status');
-        caster.statusEffects.AMPLIFY = 0;
     }
 };
 
@@ -247,6 +290,32 @@ export const applyPassives = (
         });
     }
 
+    if (trigger === 'ENEMY_TURN_START') {
+        const enemyDef = monsterData[enemy.key];
+        enemyDef.passives?.forEach(passiveKey => {
+            switch (passiveKey) {
+                case 'PASSIVE_REAPER_FLOWING_DARKNESS':
+                    if ((player.statusEffects[StatusEffectType.CURSE] || 0) <= 2) {
+                        applyAndLogStatus(player, StatusEffectType.CURSE, 1, log);
+                        log(`[흐르는 어둠] ${enemy.name}이(가) ${player.name}에게 저주를 부여합니다.`, 'status');
+                    }
+                    break;
+                case 'PASSIVE_REAPER_AMBUSH':
+                    if ((player.statusEffects[StatusEffectType.CURSE] || 0) >= 4) {
+                        applyAndLogStatus(player, StatusEffectType.SEAL, 1, log);
+                        log(`[기습] ${enemy.name}이(가) ${player.name}에게 봉인을 부여합니다.`, 'status');
+                    }
+                    break;
+                case 'PASSIVE_REAPER_VITAL_STRIKE':
+                    if ((player.statusEffects[StatusEffectType.CURSE] || 0) >= 6) {
+                        applyAndLogStatus(player, StatusEffectType.BLEED, 1, log);
+                        log(`[급소 긋기] ${enemy.name}이(가) ${player.name}에게 출혈을 부여합니다.`, 'status');
+                    }
+                    break;
+            }
+        });
+    }
+
     if (trigger === 'ON_DAMAGE_TAKEN') {
         if (character === player) {
             unlockedPatterns.forEach(id => {
@@ -260,10 +329,11 @@ export const applyPassives = (
         if (character === enemy) {
             const enemyDef = monsterData[enemy.key];
             enemyDef.passives?.forEach(passiveKey => {
-                if (passiveKey === 'onDamageTakenGainCounterOnce') {
-                     if(!enemy.temporaryEffects?.onDamageTakenGainCounterOnceTriggered) {
-                        applyAndLogStatus(enemy, StatusEffectType.COUNTER, 1, log);
-                        enemy.temporaryEffects = { ...enemy.temporaryEffects, onDamageTakenGainCounterOnceTriggered: true };
+                if (passiveKey === 'PASSIVE_LEADER_HARD_SKIN') {
+                     if(!enemy.temporaryEffects?.hardSkinTriggered) {
+                        applyAndLogStatus(enemy, StatusEffectType.COUNTER, 5, log);
+                        log(`[단단한 피부] ${enemy.name}이(가) 반격을 5 얻습니다!`, 'status');
+                        enemy.temporaryEffects = { ...enemy.temporaryEffects, hardSkinTriggered: true };
                     }
                 }
             });
@@ -303,10 +373,60 @@ export const resolveEnemyActions = (state: GameStoreDraft, log: LogFn) => {
             applyAbilityEffect(enemy, player, effect, state, log);
         }
     }
+
+    // Post-action passives
+    if (enemy.key === 'marauder1') {
+        const usedTailsSkill = enemyIntent.sourcePatternKeys.some(key => {
+            const skill = monsterPatterns[key];
+            return skill && skill.face === CoinFace.TAILS;
+        });
+        if (usedTailsSkill) {
+            enemy.temporaryEffects = enemy.temporaryEffects || {};
+            enemy.temporaryEffects.guaranteedFirstCoinHeads = { name: 'guaranteedFirstCoinHeads', value: true, duration: 2 };
+            log(`[잔혹한 내면] ${enemy.name}이(가) 다음 턴을 준비합니다.`, 'status');
+        }
+    }
 };
 
 
 // --- TURN PHASE MANAGEMENT ---
+export const processStartOfTurn = (character: Character, opponent: Character, log: LogFn, state: GameStoreDraft) => {
+    // Curse
+    const curse = character.statusEffects[StatusEffectType.CURSE] || 0;
+    if (curse > 0) {
+        character.currentHp = Math.max(0, character.currentHp - curse);
+        log(`[저주] ${character.name} (은)는 ${curse} 피해를 입었다.`, 'status');
+    }
+
+    // Resonance (on character)
+    if (character.temporaryEffects?.resonance?.value > 0) {
+        const res = character.temporaryEffects.resonance;
+        if (res.duration <= 1) { // It will be 1 at the start of the turn it should trigger
+             applyDamage(character, opponent, res.value, log, state, { isFixed: true, ignoreDefense: true });
+             delete character.temporaryEffects.resonance; // Consume it
+        }
+    }
+    
+    // Frenzy (player only)
+    if ('class' in character && character.temporaryEffects?.frenzy) {
+        const headsCount = state.playerCoins.filter(c => c.face === CoinFace.HEADS).length;
+        if (headsCount > 0) {
+            log(`[광분] ${character.name}이(가) ${headsCount}회 자동 공격합니다!`, 'player');
+            for (let i = 0; i < headsCount; i++) {
+                if (opponent.currentHp > 0) {
+                    applyDamage(character, opponent, 2, log, state, { isFixed: true });
+                }
+            }
+        }
+    }
+
+    // Enemy start-of-turn passives
+    if (!('class' in character)) {
+        applyPassives(state, 'ENEMY_TURN_START', log);
+    }
+};
+
+
 const processCharacterEndOfTurn = (character: Character, opponent: Character, log: LogFn, state: GameStoreDraft) => {
     // Pursuit
     const pursuit = character.statusEffects[StatusEffectType.PURSUIT] || 0;
@@ -315,19 +435,15 @@ const processCharacterEndOfTurn = (character: Character, opponent: Character, lo
         character.statusEffects[StatusEffectType.PURSUIT] = Math.max(0, pursuit - 3);
     }
 
-    // Resonance (on enemy)
-    if ('class' in opponent && character.temporaryEffects?.resonance?.value > 0) {
-        const res = character.temporaryEffects.resonance;
-        if (res.duration <= 1) {
-             applyDamage(character, opponent, res.value, log, state, { isFixed: true, ignoreDefense: true });
-        }
+    // Status effect duration decrease
+    if ((character.statusEffects[StatusEffectType.CURSE] || 0) > 0) {
+        applyAndLogStatus(character, StatusEffectType.CURSE, -1, log);
     }
-
-    // Curse
-    const curse = character.statusEffects[StatusEffectType.CURSE] || 0;
-    if (curse > 0) {
-        character.currentHp = Math.max(0, character.currentHp - curse);
-        log(`[저주] ${character.name} (은)는 ${curse} 피해를 입었다.`, 'status');
+    if ((character.statusEffects[StatusEffectType.SHATTER] || 0) > 0) {
+        applyAndLogStatus(character, StatusEffectType.SHATTER, -1, log);
+    }
+    if ((character.statusEffects[StatusEffectType.SEAL] || 0) > 0) {
+        applyAndLogStatus(character, StatusEffectType.SEAL, -1, log);
     }
 
     // Tick down temporary effects
@@ -358,6 +474,30 @@ export const setupNextTurn = (state: GameStoreDraft) => {
     player.temporaryDefense = 0;
     enemy.temporaryDefense = 0;
 
+    // Re-roll enemy coins for the new turn
+    enemy.coins = generateCoins();
+
+    // Handle enemy coin manipulation passives before re-detecting patterns
+    if (enemy.key === 'marauder2') {
+        const amplify = enemy.statusEffects.AMPLIFY || 0;
+        const headsChance = amplify * 0.05;
+        if (headsChance > 0) {
+            enemy.coins.forEach(coin => {
+                if (coin.face === CoinFace.TAILS && Math.random() < headsChance) {
+                    coin.face = CoinFace.HEADS;
+                }
+            });
+        }
+    }
+
+    if (enemy.temporaryEffects?.guaranteedFirstCoinHeads?.value) {
+        enemy.coins[0].face = CoinFace.HEADS;
+    }
+    if (enemy.temporaryEffects?.guaranteedFirstCoinTails?.value) {
+        enemy.coins[0].face = CoinFace.TAILS;
+    }
+
+    // Enemy coins are re-rolled, then manipulated by passives before patterns are detected
     enemy.detectedPatterns = detectPatterns(enemy.coins);
     state.enemyIntent = determineEnemyIntent(enemy);
 };
@@ -365,42 +505,51 @@ export const setupNextTurn = (state: GameStoreDraft) => {
 
 // --- PREDICTION LOGIC ---
 export const determineEnemyIntent = (enemy: EnemyCharacter): EnemyIntent => {
-  const availablePatterns = [...enemy.detectedPatterns].sort((a, b) => b.count - a.count);
-  let bestPattern: DetectedPattern | null = null;
+  // Get the list of skill keys allowed for this specific monster.
+  const allowedSkillKeys = monsterData[enemy.key]?.patterns || [];
   
-  for(const p of availablePatterns) {
-    const skillDef = Object.values(monsterPatterns).find((mp) => mp.type === p.type && (!mp.face || mp.face === p.face));
-    if (skillDef) {
-        bestPattern = p;
-        break;
+  // Get the monster's currently available patterns from its coins, sorted by priority.
+  const availableDetectedPatterns = [...enemy.detectedPatterns].sort((a, b) => b.count - a.count);
+
+  let bestMatch: { patternKey: string; skillDef: MonsterPatternDefinition } | null = null;
+  
+  // Find the best available skill from the allowed list that matches a detected pattern.
+  for (const detectedPattern of availableDetectedPatterns) {
+    // Search within the allowed skills for a match.
+    const matchingSkillKey = allowedSkillKeys.find(key => {
+        const skillDef = monsterPatterns[key];
+        return skillDef && skillDef.type === detectedPattern.type && (!skillDef.face || skillDef.face === detectedPattern.face);
+    });
+
+    if (matchingSkillKey) {
+        bestMatch = { patternKey: matchingSkillKey, skillDef: monsterPatterns[matchingSkillKey] };
+        break; // Found the highest-priority match, so we can stop.
     }
   }
 
-  if (!bestPattern) {
+  if (!bestMatch) {
     return { description: '숨을 고른다', damage: 0, defense: 0, sourcePatternKeys: [] };
   }
 
-  const skillDefKey = Object.keys(monsterPatterns).find(key => {
-      const skill = monsterPatterns[key];
-      return skill.type === bestPattern!.type && (!skill.face || skill.face === bestPattern!.face)
-  });
-  
-  if (!skillDefKey) return { description: '알 수 없는 행동', damage: 0, defense: 0, sourcePatternKeys: [] };
-
-  const skillDef = monsterPatterns[skillDefKey];
+  const { patternKey, skillDef } = bestMatch;
   const effect = skillDef.effect(enemy, { statusEffects: {} } as PlayerCharacter);
   
   let damage = (effect.fixedDamage || 0) + enemy.baseAtk;
   if(effect.multiHit) damage += effect.multiHit.count * effect.multiHit.damage;
-  if(enemy.statusEffects.AMPLIFY && enemy.statusEffects.AMPLIFY > 0) damage += enemy.statusEffects.AMPLIFY;
 
+  // Predict Amplify
+  const amplifyBonus = Math.floor((enemy.statusEffects.AMPLIFY || 0) / 2);
+  if (amplifyBonus > 0) {
+      damage += amplifyBonus;
+  }
+  
   const defense = (effect.defense || 0) + enemy.baseDef;
   
   return {
     description: skillDef.name,
     damage: Math.round(damage),
     defense: Math.round(defense),
-    sourcePatternKeys: [skillDefKey],
+    sourcePatternKeys: [patternKey],
   };
 };
 
@@ -415,7 +564,7 @@ export const calculateCombatPrediction = (
   const tempPlayer = JSON.parse(JSON.stringify(player));
   const tempEnemy = JSON.parse(JSON.stringify(enemy));
   
-  let playerAttack = tempPlayer.baseAtk;
+  let playerAttack = 0; // Base attack is handled by Amplify now
   let playerDefense = tempPlayer.baseDef;
   
   selectedPlayerPatterns.forEach(p => {
@@ -430,16 +579,23 @@ export const calculateCombatPrediction = (
     }
   });
 
-  if(tempPlayer.statusEffects.AMPLIFY && tempPlayer.statusEffects.AMPLIFY > 0 && playerAttack > tempPlayer.baseAtk) {
-    playerAttack += tempPlayer.statusEffects.AMPLIFY;
+  const amplifyBonus = Math.floor((tempPlayer.statusEffects.AMPLIFY || 0) / 2);
+  if (amplifyBonus > 0 && playerAttack > 0) {
+    playerAttack += amplifyBonus;
+  }
+  
+  let predictedEnemyDefense = tempEnemy.baseDef + enemyIntent.defense;
+  const shatterStacks = tempEnemy.statusEffects.SHATTER || 0;
+  if(shatterStacks > 0) {
+      predictedEnemyDefense = Math.max(0, predictedEnemyDefense - Math.floor(predictedEnemyDefense * (shatterStacks * 0.15)));
   }
 
-  const damageToEnemy = Math.max(0, playerAttack - (tempEnemy.baseDef + enemyIntent.defense));
+  const damageToEnemy = Math.max(0, playerAttack - predictedEnemyDefense);
   const damageToPlayer = Math.max(0, enemyIntent.damage - playerDefense);
 
   return {
     player: {
-      attack: { formula: `${player.baseAtk} + ...`, total: playerAttack },
+      attack: { formula: `...`, total: playerAttack },
       defense: { formula: `${player.baseDef} + ...`, total: playerDefense },
     },
     enemy: {

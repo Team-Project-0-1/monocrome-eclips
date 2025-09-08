@@ -1,5 +1,4 @@
 
-
 import { StateCreator } from 'zustand';
 import { produce } from 'immer';
 import { GameStore } from '../gameStore';
@@ -7,7 +6,7 @@ import { EnemyCharacter, Coin, DetectedPattern, CombatPrediction, EnemyIntent, C
 import { monsterData } from '../../dataMonsters';
 import { stageData } from '../../dataStages';
 import { generateCoins, detectPatterns } from '../../utils/gameLogic';
-import { determineEnemyIntent, calculateCombatPrediction, applyInnatePassives, applyPassives, resolvePlayerActions, resolveEnemyActions, processEndOfTurn, setupNextTurn } from '../../utils/combatLogic';
+import { determineEnemyIntent, calculateCombatPrediction, applyInnatePassives, applyPassives, resolvePlayerActions, resolveEnemyActions, processEndOfTurn, setupNextTurn, processStartOfTurn } from '../../utils/combatLogic';
 import { STAGE_TURNS } from '../../constants';
 import { eventData } from '../../dataEvents';
 
@@ -120,26 +119,36 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
     if (selectedPatterns.length === 0 || !player || !enemy) return;
 
     set(produce((draft: GameStore) => {
-      // 1. Increment turn and setup logging
+      // 1. Setup
       draft.combatTurn += 1;
       const log = (message: string, type: CombatLogMessage['type']) => {
         draft.combatLog.push({ id: Date.now() + Math.random(), turn: draft.combatTurn, message, type });
       };
       log(`--- ${draft.combatTurn}턴 ---`, 'system');
 
-      // 2. Resolve Turn Actions
-      applyPassives(draft, 'PLAYER_TURN_START', log);
-      resolvePlayerActions(draft, log);
+      const isCombatOver = () => !draft.player || draft.player.currentHp <= 0 || !draft.enemy || draft.enemy.currentHp <= 0;
 
-      if (draft.enemy && draft.enemy.currentHp > 0) {
-        resolveEnemyActions(draft, log);
-      }
-      
-      if (draft.player && draft.player.currentHp > 0 && draft.enemy && draft.enemy.currentHp > 0) {
-        processEndOfTurn(draft, log);
+      // 2. Start of Turn Phase
+      if (draft.player && draft.enemy) processStartOfTurn(draft.player, draft.enemy, log, draft);
+      if (!isCombatOver() && draft.player && draft.enemy) {
+        processStartOfTurn(draft.enemy, draft.player, log, draft);
       }
 
-      // 3. Check for Win/Loss/Continue
+      // 3. Action Phase
+      if (!isCombatOver()) {
+          applyPassives(draft, 'PLAYER_TURN_START', log);
+          resolvePlayerActions(draft, log);
+          if (draft.enemy && draft.enemy.currentHp > 0) {
+              resolveEnemyActions(draft, log);
+          }
+      }
+
+      // 4. End of Turn Phase
+      if (!isCombatOver()) {
+          processEndOfTurn(draft, log);
+      }
+
+      // 5. Resolution Phase
       const playerIsDead = !draft.player || draft.player.currentHp <= 0;
       const enemyIsDead = !draft.enemy || draft.enemy.currentHp <= 0;
 
@@ -161,12 +170,14 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
                 draft.gameState = GameState.STAGE_CLEAR;
             }
         } else {
-            // This logic is a simplified version of proceedToNextTurn, inlined
             draft.currentTurn += 1;
             draft.gameState = GameState.EXPLORATION;
-            if (draft.player) draft.player.temporaryDefense = 0;
+            if (draft.player) {
+              draft.player.temporaryDefense = 0;
+              draft.player.statusEffects = {};
+              draft.player.temporaryEffects = {};
+            }
             
-            // Reset transient combat/event states
             draft.currentEvent = null;
             draft.eventPhase = 'choice';
             draft.enemy = null;
@@ -178,7 +189,6 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
       } else if (playerIsDead) {
         log(`플레이어가 쓰러졌습니다...`, 'system');
         
-        // Update meta on run end
         draft.metaProgress.totalRuns += 1;
         if (draft.currentStage > draft.metaProgress.highestStage) {
             draft.metaProgress.highestStage = draft.currentStage;
@@ -187,14 +197,8 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
         draft.gameState = GameState.GAME_OVER;
       } else {
         // --- Combat Continues: Setup next turn ---
+        setupNextTurn(draft);
         
-        // Logic from setupNextTurn
-        draft.player!.temporaryDefense = 0;
-        draft.enemy!.temporaryDefense = 0;
-        draft.enemy!.detectedPatterns = detectPatterns(draft.enemy!.coins);
-        draft.enemyIntent = determineEnemyIntent(draft.enemy!);
-        
-        // Logic from flipAllCoins
         const headsChance = (draft.player!.temporaryEffects?.headsChanceUp?.value || 0) + 0.5;
         draft.playerCoins = generateCoins(5, headsChance);
         if (draft.player!.temporaryEffects?.firstCoinHeads) {
@@ -203,10 +207,8 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
         draft.selectedPatterns = [];
         draft.usedCoinIndices = [];
         
-        // Logic from _updatePatternsAndPrediction
         draft.detectedPatterns = detectPatterns(draft.playerCoins);
-        // enemyIntent already updated above
-        draft.combatPrediction = calculateCombatPrediction(draft.player!, draft.enemy!, draft.selectedPatterns, draft.enemyIntent, draft.playerCoins);
+        draft.combatPrediction = calculateCombatPrediction(draft.player!, draft.enemy!, draft.selectedPatterns, draft.enemyIntent!, draft.playerCoins);
       }
     }));
   },

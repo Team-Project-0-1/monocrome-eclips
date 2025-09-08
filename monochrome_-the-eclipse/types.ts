@@ -106,7 +106,6 @@ export interface EnemyCharacter extends Character {
   key: string;
   coins: Coin[];
   detectedPatterns: DetectedPattern[];
-  pursuit?: number;
 }
 
 export interface EnemyIntent {
@@ -185,8 +184,6 @@ export interface AbilityEffect {
   temporaryEffect?: TemporaryEffect;
   enemyTemporaryEffect?: TemporaryEffect;
   gainMaxAmplify?: boolean;
-  addPursuit?: number; // For legacy monster logic
-  pursuitCost?: number; // For legacy monster logic
   bonusDamage?: number; // For legacy/complex logic
   damageMultiplierIfEnemyHasDefense?: number;
   healIfPairedWithSame?: number;
