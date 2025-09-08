@@ -28,16 +28,24 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
   stageNodes: [],
   visitedNodes: [],
   startStage: (stageNumber) => {
-    set({
-      currentStage: stageNumber,
-      currentTurn: 1,
-      stageNodes: generateStageNodes(stageNumber),
-      visitedNodes: [],
-      gameState: GameState.EXPLORATION,
-      // Reset resources/patterns for the new stage.
-      resources: { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 },
-      unlockedPatterns: [],
-    });
+    set(produce((draft: GameStore) => {
+        draft.currentStage = stageNumber;
+        draft.currentTurn = 1;
+        draft.stageNodes = generateStageNodes(stageNumber);
+        draft.visitedNodes = [];
+        draft.gameState = GameState.EXPLORATION;
+        
+        // Reset resources/patterns for the new stage.
+        draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
+        draft.unlockedPatterns = [];
+
+        // Reset player combat state for the new stage
+        if (draft.player) {
+            draft.player.statusEffects = {};
+            draft.player.temporaryEffects = {};
+            draft.player.temporaryDefense = 0;
+        }
+    }));
   },
   selectNode: (node) => {
     set(produce((draft: GameStore) => {
