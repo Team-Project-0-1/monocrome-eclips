@@ -1,4 +1,5 @@
 
+
 import React, { useMemo } from 'react';
 import { DetectedPattern, PatternType, CoinFace, CharacterClass } from '../types';
 import { getPlayerAbility } from '../dataSkills';
@@ -81,8 +82,8 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
             !p.indices.some(idx => usedCoinIndices.includes(idx))
           );
           
-          const isDisabled = !isNextAvailable && numSelected === 0;
-          const isMaxedOut = !isNextAvailable && numSelected > 0;
+          const isDisabled = numSelected === 0 && !isNextAvailable;
+          const isMaxedOut = numSelected >= 2 || (numSelected > 0 && !isNextAvailable);
 
           const patternTypeName = patternTypeNames[type] || type;
           const faceName = face ? `(${coinFaceNames[face]})` : "(특수)";

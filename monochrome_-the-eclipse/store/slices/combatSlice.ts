@@ -1,4 +1,5 @@
 
+
 import { StateCreator } from 'zustand';
 import { produce } from 'immer';
 import { GameStore } from '../gameStore';
@@ -84,23 +85,30 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
   },
   togglePattern: (type, face) => {
     set(produce((draft: GameStore) => {
-      const { detectedPatterns, selectedPatterns, usedCoinIndices, player, enemy, playerCoins } = draft;
-      const isCurrentlySelected = selectedPatterns.some(p => p.type === type && p.face === face);
+      const { detectedPatterns, selectedPatterns, player, enemy, playerCoins } = draft;
+      
+      const selectedInstances = selectedPatterns.filter(p => p.type === type && p.face === face);
+      const numSelected = selectedInstances.length;
+      
+      // Find an available instance that doesn't conflict with currently used coins
+      const currentlyUsedIndices = Array.from(new Set(selectedPatterns.flatMap(p => p.indices)));
+      const availableInstance = detectedPatterns.find(p =>
+        p.type === type && 
+        p.face === face && 
+        !selectedPatterns.some(sp => sp.id === p.id) && // not already selected
+        !p.indices.some(i => currentlyUsedIndices.includes(i)) // no coin conflict
+      );
 
-      if (isCurrentlySelected) {
-        draft.selectedPatterns = selectedPatterns.filter(p => !(p.type === type && p.face === face));
+      // New logic: if we have capacity (less than 2) and an available instance, add it. 
+      // Otherwise, remove all instances from this group.
+      if (numSelected < 2 && availableInstance) {
+        draft.selectedPatterns.push(availableInstance);
       } else {
-        const availableInstance = detectedPatterns.find(p =>
-          p.type === type && p.face === face && !p.indices.some(i => usedCoinIndices.includes(i))
-        );
-        if (availableInstance) {
-          draft.selectedPatterns.push(availableInstance);
-        }
+        draft.selectedPatterns = selectedPatterns.filter(p => !(p.type === type && p.face === face));
       }
       
+      // Recalculate used indices and prediction
       draft.usedCoinIndices = Array.from(new Set(draft.selectedPatterns.flatMap(p => p.indices)));
-      
-      // Inlined _updatePatternsAndPrediction
       if (player && enemy) {
           draft.enemyIntent = determineEnemyIntent(enemy);
           draft.combatPrediction = calculateCombatPrediction(player, enemy, draft.selectedPatterns, draft.enemyIntent, playerCoins);

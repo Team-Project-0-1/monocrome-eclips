@@ -388,7 +388,7 @@ export const determineEnemyIntent = (enemy: EnemyCharacter): EnemyIntent => {
   if (!skillDefKey) return { description: '알 수 없는 행동', damage: 0, defense: 0, sourcePatternKeys: [] };
 
   const skillDef = monsterPatterns[skillDefKey];
-  const effect = skillDef.effect(enemy, {} as PlayerCharacter);
+  const effect = skillDef.effect(enemy, { statusEffects: {} } as PlayerCharacter);
   
   let damage = (effect.fixedDamage || 0) + enemy.baseAtk;
   if(effect.multiHit) damage += effect.multiHit.count * effect.multiHit.damage;
