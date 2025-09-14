@@ -144,7 +144,7 @@ export const monsterPatterns: { [key: string]: MonsterPatternDefinition } = {
         type: PatternType.TRIPLE, 
         face: CoinFace.HEADS, 
         description: "피해를 6 줍니다. 저주를 2 부여합니다.", 
-        effect: (): AbilityEffect => ({ fixedDamage: 6, status: {type: StatusEffectType.CURSE, value: 2, target: "player"} }) 
+        effect: (): AbilityEffect => ({ fixedDamage: 6, status: {type: StatusEffectType.CURSE, value: 2, target: "enemy"} }) 
     },
     INFECTEDDOG_PUS: { 
         name: "차오르는 고름", 
@@ -196,7 +196,7 @@ export const monsterPatterns: { [key: string]: MonsterPatternDefinition } = {
         type: PatternType.PAIR, 
         face: CoinFace.HEADS, 
         description: "피해를 4 줍니다. 저주를 2 부여합니다.", 
-        effect: (): AbilityEffect => ({ fixedDamage: 4, status: {type: StatusEffectType.CURSE, value: 2, target: "player"} }) 
+        effect: (): AbilityEffect => ({ fixedDamage: 4, status: {type: StatusEffectType.CURSE, value: 2, target: "enemy"} }) 
     },
     LUMENREAPER_SHADOW_STRIKE: { 
         name: "그림자 강타", 
@@ -224,6 +224,6 @@ export const monsterPatterns: { [key: string]: MonsterPatternDefinition } = {
         type: PatternType.QUAD, 
         face: CoinFace.TAILS, 
         description: "방어를 8 얻습니다. 저주를 3 부여합니다.", 
-        effect: (): AbilityEffect => ({ defense: 8, status: {type: StatusEffectType.CURSE, value: 3, target: "player"} }) 
+        effect: (): AbilityEffect => ({ defense: 8, status: {type: StatusEffectType.CURSE, value: 3, target: "enemy"} }) 
     },
 };

@@ -53,7 +53,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         draft.player = player;
         
         // --- COMPLETE STATE RESET & NEW RUN INITIALIZATION (ATOMIC) ---
-        draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
+        draft.resources = { echoRemnants: 100, senseFragments: 0, memoryPieces: 0 };
         draft.unlockedPatterns = [];
         draft.reserveCoins = [];
         draft.reserveCoinShopCost = 100;

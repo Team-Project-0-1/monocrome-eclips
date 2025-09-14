@@ -7,6 +7,7 @@ import ResourceDisplay from '../components/ResourceDisplay';
 export const MemoryAltarScreen = () => {
     const player = useGameStore(state => state.player);
     const resources = useGameStore(state => state.resources);
+    const reserveCoins = useGameStore(state => state.reserveCoins);
     const handleMemoryUpgrade = useGameStore(state => state.handleMemoryUpgrade);
     const proceedToNextTurn = useGameStore(state => state.proceedToNextTurn);
 
@@ -24,7 +25,7 @@ export const MemoryAltarScreen = () => {
                     <p className="text-gray-400 mt-2">기억 조각을 사용하여 영구적인 능력을 각인합니다.</p>
                 </div>
                 <div className="mb-6">
-                    <ResourceDisplay resources={resources} />
+                    <ResourceDisplay resources={resources} reserveCoins={reserveCoins} />
                 </div>
                 <div className="space-y-4">
                     {Object.entries(MEMORY_UPGRADE_DATA).map(([key, data]) => {

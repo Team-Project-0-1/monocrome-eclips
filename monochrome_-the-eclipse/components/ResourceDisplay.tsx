@@ -7,13 +7,15 @@ interface ResourceDisplayProps {
     senseFragments: number;
     memoryPieces: number;
   };
+  reserveCoins?: { face: string | null; locked: boolean; id: number }[];
 }
 
-const ResourceDisplay: React.FC<ResourceDisplayProps> = ({ resources }) => {
+const ResourceDisplay: React.FC<ResourceDisplayProps> = ({ resources, reserveCoins = [] }) => {
   const resourceItems = [
     { name: "에코", value: resources.echoRemnants, icon: "⚡", color: "text-yellow-400", hoverColor: "hover:text-yellow-300", description: "주요 화폐, 상점 이용 및 일부 이벤트에 사용됩니다." },
     { name: "감각", value: resources.senseFragments, icon: "🔮", color: "text-purple-400", hoverColor: "hover:text-purple-300", description: "족보 강화에 사용되는 특수 재화입니다." },
     { name: "기억", value: resources.memoryPieces, icon: "💎", color: "text-blue-400", hoverColor: "hover:text-blue-300", description: "기억의 제단에서 영구 능력치 강화에 사용됩니다." },
+    { name: "예비 동전", value: `${reserveCoins.length}/3`, icon: "🪙", color: "text-orange-400", hoverColor: "hover:text-orange-300", description: "전투 중 교체 가능한 예비 동전입니다." },
   ];
 
   return (

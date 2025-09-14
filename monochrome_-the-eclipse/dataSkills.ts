@@ -49,7 +49,7 @@ export const playerAbilities: { [key: string]: any } = {
             }}, 
         },
         [PatternType.UNIQUE]: { 
-            [CoinFace.HEADS]: { name: "공진", description: "피해를 4 줍니다. 상대방에게 공명을 1 부여합니다.", effect: (): AbilityEffect => ({ fixedDamage: 4, enemyTemporaryEffect: { name: 'resonance', value: 1, duration: 3, accumulative: true } }) }, 
+            [CoinFace.HEADS]: { name: "공진", description: "피해를 4 줍니다. 상대방에게 공명을 1 부여합니다.", effect: (): AbilityEffect => ({ fixedDamage: 4, status: { type: StatusEffectType.RESONANCE, value: 1, target: 'enemy' } }) }, 
             [CoinFace.TAILS]: { name: "충격 전달", description: "방어를 4 얻습니다. 다음 턴 시작 시 첫번째 동전을 앞면으로 만듭니다.", effect: (): AbilityEffect => ({ defense: 4, temporaryEffect: { name: 'firstCoinHeads', value: true, duration: 2 } }) }, 
         },
         [PatternType.AWAKENING]: {
@@ -175,8 +175,8 @@ export const playerAbilities: { [key: string]: any } = {
     },
     [CharacterClass.MAGE]: {
         [PatternType.PAIR]: { 
-            [CoinFace.HEADS]: { name: "저주의 흔적", description: "피해를 4 줍니다. 자신에게 저주를 2 부여합니다.", effect: (): AbilityEffect => ({ fixedDamage: 4, status: { type: StatusEffectType.CURSE, value: 2, target: 'player' } }) }, 
-            [CoinFace.TAILS]: { name: "혐오", description: "방어를 4 얻습니다. 자신에게 저주를 1 부여합니다.", effect: (): AbilityEffect => ({ defense: 4, status: { type: StatusEffectType.CURSE, value: 1, target: 'player' } }) }, 
+            [CoinFace.HEADS]: { name: "저주의 흔적", description: "피해를 4 줍니다. 상대방에게 저주를 2 부여합니다.", effect: (): AbilityEffect => ({ fixedDamage: 4, status: { type: StatusEffectType.CURSE, value: 2, target: 'enemy' } }) }, 
+            [CoinFace.TAILS]: { name: "혐오", description: "방어를 4 얻습니다. 상대방에게 저주를 1 부여합니다.", effect: (): AbilityEffect => ({ defense: 4, status: { type: StatusEffectType.CURSE, value: 1, target: 'enemy' } }) }, 
         },
         [PatternType.UNIQUE]: { 
             [CoinFace.HEADS]: { name: "저주 악화", description: "피해를 4 줍니다. 스킬 사용 후, 1턴간 상대방의 무작위 동전 1개를 뒷면으로 고정시킵니다.", effect: (): AbilityEffect => ({ fixedDamage: 4, enemyTemporaryEffect: { name: 'lockRandomCoinTails', value: 1, duration: 2 } }) }, 
@@ -207,7 +207,7 @@ export const playerAbilities: { [key: string]: any } = {
                 const currentCurse = p.statusEffects.CURSE || 0;
                 return { 
                     defense: 6, 
-                    status: { type: StatusEffectType.CURSE, value: 2, target: 'player' }, 
+                    status: { type: StatusEffectType.CURSE, value: 2, target: 'enemy' }, 
                     temporaryEffect: { name: 'damageNextTurn', value: (currentCurse + 2) * 2, duration: 2 } 
                 }
             }},
@@ -233,10 +233,10 @@ export const playerAbilities: { [key: string]: any } = {
                 }
                 return { multiHit: { count: hits, damage: curse }, statusCost: { type: StatusEffectType.CURSE, value: curse } };
             }},
-            [CoinFace.TAILS]: { name: "생과 사", description: "방어를 10 얻습니다. 자신에게 저주를 15 부여합니다. 다음 턴 시작 시, 피해를 자신의 저주*(잃은 체력) 만큼 주고 회복하고, 모든 저주를 잃습니다.", effect: (): AbilityEffect => ({
+            [CoinFace.TAILS]: { name: "생과 사", description: "방어를 10 얻습니다. 자신에게 저주를 15 부여합니다. 2 턴 뒤, 자신의 저주 만큼 체력을 회복하고, 자신에게 걸린 모든 저주를 잃습니다.", effect: (): AbilityEffect => ({
                 defense: 10,
                 status: { type: StatusEffectType.CURSE, value: 15, target: 'player' },
-                temporaryEffect: { name: 'lifeAndDeath', value: true, duration: 2 }
+                temporaryEffect: { name: 'lifeAndDeathHeal', value: true, duration: 3 }
             })},
         }
     }

@@ -434,7 +434,20 @@ const processCharacterEndOfTurn = (character: Character, opponent: Character, lo
             const effect = character.temporaryEffects[key];
             if (effect?.duration) {
                 effect.duration -= 1;
-                if (effect.duration <= 0) delete character.temporaryEffects[key];
+                if (effect.duration <= 0) {
+                    // Handle lifeAndDeathHeal effect before removing it
+                    if (key === 'lifeAndDeathHeal' && 'class' in character) {
+                        const curseAmount = character.statusEffects[StatusEffectType.CURSE] || 0;
+                        if (curseAmount > 0) {
+                            // Heal for curse amount
+                            allEffects.push(...applyHeal(character, curseAmount, log));
+                            // Remove all curses
+                            allEffects.push(...applyAndLogStatus(character, StatusEffectType.CURSE, -curseAmount, log));
+                            log(`[생과 사] ${character.name}이(가) 저주 ${curseAmount}만큼 체력을 회복하고 모든 저주를 정화합니다!`, 'heal');
+                        }
+                    }
+                    delete character.temporaryEffects[key];
+                }
             }
         }
     }

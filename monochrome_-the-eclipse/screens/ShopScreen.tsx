@@ -49,7 +49,7 @@ export const ShopScreen = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1">
-                        <ResourceDisplay resources={resources} />
+                        <ResourceDisplay resources={resources} reserveCoins={reserveCoins} />
                     </div>
                     <div className="md:col-span-2 bg-gray-800 p-4 rounded-lg border border-gray-700">
                         <div className="flex border-b border-gray-600 mb-4">

@@ -10,6 +10,7 @@ import { GameState } from '../types';
 export const ExplorationScreen = () => {
     const player = useGameStore(state => state.player);
     const resources = useGameStore(state => state.resources);
+    const reserveCoins = useGameStore(state => state.reserveCoins);
     const stageNodes = useGameStore(state => state.stageNodes);
     const currentTurn = useGameStore(state => state.currentTurn);
     const path = useGameStore(state => state.path);
@@ -31,7 +32,7 @@ export const ExplorationScreen = () => {
                 {/* Left Panel */}
                 <div className="lg:col-span-1 flex flex-col gap-4">
                     <CharacterStatus character={player} isPlayer={true} />
-                    <ResourceDisplay resources={resources} />
+                    <ResourceDisplay resources={resources} reserveCoins={reserveCoins} />
                     <div className="flex flex-col gap-2">
                         <button onClick={() => setInventoryOpen(true)} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg">
                             <Package className="w-5 h-5" /> 능력 목록
