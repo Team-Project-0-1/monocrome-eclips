@@ -9,7 +9,7 @@ export const MenuScreen = () => {
         <div 
             className="relative min-h-screen text-white p-4 sm:p-8 flex items-center justify-center overflow-hidden scanlines"
             style={{
-                backgroundImage: `url('/mono.png')`,   // ✅ public/mono.png 사용
+                backgroundImage: `url('./mono.png')`,   // ✅ public/mono.png 사용
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
