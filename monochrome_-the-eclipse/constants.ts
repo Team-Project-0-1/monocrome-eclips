@@ -7,7 +7,7 @@ import {
 export const COIN_COUNT = 5;
 export const TURN_COOLDOWN = 3;
 export const STAGE_TURNS = 15;
-export const MINIBOSS_TURN_RANGE = [7, 8];
+export const MINIBOSS_TURN = 8;
 export const BOSS_TURN = 15;
 export const MAX_SKILLS = 12;
 

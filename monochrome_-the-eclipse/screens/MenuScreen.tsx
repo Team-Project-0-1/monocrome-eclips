@@ -6,7 +6,18 @@ export const MenuScreen = () => {
     const startGame = useGameStore(state => state.startGame);
 
     return (
-        <div className="relative min-h-screen bg-gray-900 text-white p-4 sm:p-8 flex items-center justify-center overflow-hidden scanlines">
+        <div 
+            className="relative min-h-screen text-white p-4 sm:p-8 flex items-center justify-center overflow-hidden scanlines"
+            style={{
+                backgroundImage: `url('/mono.png')`,   // ✅ public/mono.png 사용
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+            }}
+        >
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/60"></div>
+
             <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full bg-blue-500/10 blur-3xl animate-pulse"></div>
             <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-red-500/10 blur-3xl animate-pulse [animation-delay:2s]"></div>
 

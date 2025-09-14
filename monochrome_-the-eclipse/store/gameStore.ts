@@ -50,24 +50,27 @@ export const useGameStore = create<GameStore>()(
                 draft.player = null;
                 draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
                 draft.unlockedPatterns = [];
+                draft.reserveCoins = [];
+                draft.reserveCoinShopCost = 100;
                 
                 // explorationSlice reset
                 draft.currentStage = 1;
                 draft.currentTurn = 1;
                 draft.stageNodes = [];
-                draft.visitedNodes = [];
+                draft.path = [];
 
                 // combatSlice reset
                 draft.enemy = null;
                 draft.playerCoins = [];
                 draft.detectedPatterns = [];
                 draft.selectedPatterns = [];
-                // FIX: usedCoinIndices should be an array, not a Set.
                 draft.usedCoinIndices = [];
                 draft.combatPrediction = null;
                 draft.enemyIntent = null;
                 draft.combatLog = [];
                 draft.combatTurn = 1;
+                // FIX: Updated the reset logic for `swapState` to match its type definition. The property `isSwapping` was removed and replaced with `phase: 'idle'` and `revealedFace: null` to correctly initialize the state.
+                draft.swapState = { phase: 'idle', reserveCoinIndex: null, revealedFace: null };
 
                 // eventSlice reset
                 draft.currentEvent = null;
@@ -78,6 +81,10 @@ export const useGameStore = create<GameStore>()(
                 // uiSlice reset
                 draft.isInventoryOpen = false;
                 draft.skillReplacementState = null;
+                draft.combatEffects = [];
+                draft.playerHit = 0;
+                draft.enemyHit = 0;
+
 
                 // main store reset
                 draft.gameState = GameState.MENU;

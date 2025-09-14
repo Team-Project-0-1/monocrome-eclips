@@ -54,9 +54,15 @@ export const CharacterSelectScreen = () => {
                                     <h3 className="font-bold text-lg mb-1">{data.name}</h3>
                                     <p className="text-xs text-gray-400 mb-2">{data.title}</p>
                                     {isUnlocked ? (
-                                        <div className="text-xs space-y-0.5 text-gray-300">
-                                        <p>HP: {data.hp + metaProgress.memoryUpgrades.maxHp * 5}</p>
-                                        <p>공격: {data.baseAtk + metaProgress.memoryUpgrades.baseAtk} / 방어: {data.baseDef + metaProgress.memoryUpgrades.baseDef}</p>
+                                        <div className="text-xs space-y-1 text-gray-300 mt-2 text-center w-full">
+                                            <p>HP: {data.hp + metaProgress.memoryUpgrades.maxHp * 5}</p>
+                                            <div className="border-t border-gray-600 my-2"></div>
+                                            <h4 className="font-semibold text-gray-200">고유 패시브</h4>
+                                            {data.innatePassives.map((passive, index) => (
+                                                <p key={index} className="text-gray-400 leading-tight">
+                                                    - {passive}
+                                                </p>
+                                            ))}
                                         </div>
                                     ) : (<p className="text-xs text-red-400 mt-2">{unlockHint[classType] || "잠김"}</p>)}
                                     </button>
@@ -108,7 +114,12 @@ export const CharacterSelectScreen = () => {
                         </div>
                         <div className="space-y-2">
                             <h4 className="font-semibold text-white flex items-center gap-2"><Swords size={18} className="text-red-400" /> 전투</h4>
-                            <p className="text-gray-400">매 턴 5개의 동전을 뒤집어 생성되는 '족보(패턴)'를 조합하여 기술을 사용합니다. 적의 행동을 예측하고 최적의 수를 선택하여 승리하세요.</p>
+                            <p className="text-gray-400">매 턴 5개의 동전을 뒤집어 생성되는 '족보(패턴)'를 조합하여 기술을 사용합니다. 적의 행동을 예측하고 최적의 수를 선택하여 승리하세요. 주요 족보는 다음과 같습니다:</p>
+                            <ul className="list-disc list-inside text-xs text-gray-400 space-y-1 pl-2">
+                                <li><span className="font-semibold text-gray-300">n연 (2~5연):</span> 같은 면의 동전이 n개 연속으로 배열.</li>
+                                <li><span className="font-semibold text-gray-300">유일:</span> 5개 중 한 면을 가진 동전이 단 하나만 존재.</li>
+                                <li><span className="font-semibold text-gray-300">각성:</span> 5개 동전의 면이 모두 번갈아 나타나는 특수 배열.</li>
+                            </ul>
                         </div>
                         <div className="space-y-2">
                             <h4 className="font-semibold text-white flex items-center gap-2"><ArrowUpCircle size={18} className="text-green-400" /> 성장</h4>

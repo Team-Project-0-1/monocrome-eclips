@@ -29,8 +29,8 @@ const CombatLog: React.FC<CombatLogProps> = ({ messages }) => {
   };
 
   return (
-    <div className="bg-gray-900/50 p-3 rounded-lg flex-grow flex flex-col border border-gray-700">
-      <h4 className="text-sm font-bold text-gray-300 mb-2 text-center">전투 기록</h4>
+    <div className="bg-gray-900/50 p-3 rounded-lg h-full flex flex-col border border-gray-700 overflow-hidden">
+      <h4 className="text-sm font-bold text-gray-300 mb-2 text-center flex-shrink-0">전투 기록</h4>
       <div ref={logContainerRef} className="flex-grow overflow-y-auto space-y-1 pr-2 text-xs">
         {messages.map((msg) => (
           <div key={msg.id} className={`${getMessageColor(msg.type)}`}>

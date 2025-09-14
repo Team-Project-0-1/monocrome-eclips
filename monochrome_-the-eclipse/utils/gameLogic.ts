@@ -1,12 +1,12 @@
 import { Coin, CoinFace, DetectedPattern, PatternType, StageNode, NodeType, PlayerCharacter, CharacterClass } from '../types';
-import { COIN_COUNT, STAGE_TURNS, MINIBOSS_TURN_RANGE, BOSS_TURN } from '../constants';
+import { COIN_COUNT, STAGE_TURNS, MINIBOSS_TURN, BOSS_TURN } from '../constants';
 
 export const flipCoin = (headsChance: number = 0.5): CoinFace => Math.random() < headsChance ? CoinFace.HEADS : CoinFace.TAILS;
 
-export const generateCoins = (count = COIN_COUNT, headsChance: number = 0.5): Coin[] => {
+export const generateCoins = (count = COIN_COUNT): Coin[] => {
   return Array(count)
     .fill(null)
-    .map((_, idx) => ({ face: flipCoin(headsChance), locked: false, id: idx }));
+    .map((_, idx) => ({ face: flipCoin(), locked: false, id: Date.now() + Math.random() + idx }));
 };
 
 export const detectPatterns = (coins: Coin[]): DetectedPattern[] => {
@@ -84,20 +84,35 @@ export const generateStageNodes = (stageNumber: number): StageNode[][] => {
   let nodes: StageNode[][] = [];
   for (let turn = 1; turn <= STAGE_TURNS; turn++) {
     const turnNodes: StageNode[] = [];
+
+    const generateWithGuaranteedNode = (guaranteedType: NodeType) => {
+        const guaranteedPosition = Math.floor(Math.random() * 3);
+        for (let i = 0; i < 3; i++) {
+            const type = i === guaranteedPosition ? guaranteedType : getRandomNodeType(turn);
+            turnNodes.push({ type, id: `${turn}-${i}` });
+        }
+    };
+    
     if (turn === 1) {
       for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.COMBAT, id: `${turn}-${i}` });
+    } else if (turn === 4) {
+      generateWithGuaranteedNode(NodeType.REST);
+    } else if (turn === 7) {
+      generateWithGuaranteedNode(NodeType.SHOP);
+    } else if (turn === MINIBOSS_TURN) {
+      generateWithGuaranteedNode(NodeType.MINIBOSS);
     } else if (turn === 9) {
-      const restPosition = Math.floor(Math.random() * 3);
-      for (let i = 0; i < 3; i++) turnNodes.push({ type: i === restPosition ? NodeType.REST : getRandomNodeType(turn), id: `${turn}-${i}` });
+      generateWithGuaranteedNode(NodeType.REST);
     } else if (turn === 14) {
       for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.REST, id: `${turn}-${i}` });
     } else if (turn === BOSS_TURN) {
       for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.BOSS, id: `${turn}-${i}` });
-    } else if (turn >= MINIBOSS_TURN_RANGE[0] && turn <= MINIBOSS_TURN_RANGE[1]) {
-      const minibossPosition = Math.floor(Math.random() * 3);
-      for (let i = 0; i < 3; i++) turnNodes.push({ type: i === minibossPosition ? NodeType.MINIBOSS : getRandomNodeType(turn), id: `${turn}-${i}` });
     } else {
-      for (let i = 0; i < 3; i++) turnNodes.push({ type: getRandomNodeType(turn), id: `${turn}-${i}` });
+      for (let i = 0; i < 3; i++) {
+          const type = getRandomNodeType(turn);
+          const node: StageNode = { type, id: `${turn}-${i}`};
+          turnNodes.push(node);
+      }
     }
     nodes.push(turnNodes);
   }

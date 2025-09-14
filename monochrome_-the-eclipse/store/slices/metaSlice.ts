@@ -15,7 +15,7 @@ export const initialMetaProgress: MetaProgress = {
   totalRuns: 0,
   highestStage: 1,
   totalEchoCollected: 0,
-  unlockedCharacters: [CharacterClass.WARRIOR, CharacterClass.ROGUE, CharacterClass.TANK, CharacterClass.MAGE], // Unlock all for dev
+  unlockedCharacters: [CharacterClass.WARRIOR], // FIX: Default to only the starting character being unlocked.
   memoryUpgrades: { maxHp: 0, baseAtk: 0, baseDef: 0 },
 };
 
@@ -27,6 +27,6 @@ export interface MetaSlice {
 
 export const createMetaSlice: StateCreator<GameStore, [], [], MetaSlice> = (set, get, api) => ({
   metaProgress: initialMetaProgress,
-  testMode: true,
+  testMode: false,
   setTestMode: (testMode) => set({ testMode }),
 });

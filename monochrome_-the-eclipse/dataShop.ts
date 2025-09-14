@@ -8,6 +8,14 @@ export const shopData: { basic: { name: string; items: ShopItem[] } } = {
     name: "유기체 상점",
     items: [
       {
+        id: "reserve_coin",
+        name: "예비 동전",
+        description: "전투 중 동전을 교체할 수 있는 예비 동전입니다. (최대 3개 소지)",
+        cost: 100, // This is a placeholder, the actual cost is dynamic
+        type: 'consumable',
+        effect: {},
+      },
+      {
         id: "heal_potion",
         name: "치유의 물약",
         description: "체력을 30% 회복합니다",

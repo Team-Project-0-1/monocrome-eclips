@@ -1,6 +1,7 @@
 import React from "react";
 import { useGameStore } from './store/gameStore';
 import { GameState } from "./types";
+import { AnimatePresence } from 'framer-motion';
 
 import { MenuScreen } from './screens/MenuScreen';
 import { CharacterSelectScreen } from './screens/CharacterSelectScreen';
@@ -16,6 +17,7 @@ import { MemoryAltarScreen } from './screens/MemoryAltarScreen';
 
 import InventoryPanel from './components/InventoryPanel';
 import SkillReplacementModal from './components/modals/SkillReplacementModal';
+import KeywordTooltip from "./components/KeywordTooltip";
 
 export const App: React.FC = () => {
   const gameState = useGameStore(state => state.gameState);
@@ -24,6 +26,8 @@ export const App: React.FC = () => {
   const player = useGameStore(state => state.player);
   const unlockedPatterns = useGameStore(state => state.unlockedPatterns);
   const forgetSkill = useGameStore(state => state.forgetSkill);
+  const tooltip = useGameStore(state => state.tooltip);
+  const hideTooltip = useGameStore(state => state.hideTooltip);
 
   const renderGame = () => {
     switch (gameState) {
@@ -56,7 +60,18 @@ export const App: React.FC = () => {
 
   return (
     <>
+      <AnimatePresence>
+        {tooltip && <KeywordTooltip />}
+      </AnimatePresence>
+      {tooltip && (
+        <div 
+          className="fixed inset-0 z-[49]"
+          onClick={hideTooltip}
+        />
+      )}
+      
       {renderGame()}
+      
       {player && (
         <InventoryPanel
           isOpen={isInventoryOpen}

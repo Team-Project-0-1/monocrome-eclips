@@ -1,4 +1,5 @@
 import React from 'react';
+// FIX: Updated the import for ReactDOM to use 'react-dom/client' to access the createRoot API as required by React 18.
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
 

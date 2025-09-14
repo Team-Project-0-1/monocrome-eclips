@@ -4,6 +4,7 @@ import { playerSkillUnlocks, playerAbilities } from '../dataSkills';
 import { patternUpgrades } from '../dataUpgrades';
 import { MAX_SKILLS } from '../constants';
 import { X, Trash2, Zap, Droplet, Shield, Ghost, BookOpen, Star } from 'lucide-react';
+import SkillDescription from './SkillDescription';
 
 interface InventoryPanelProps {
   isOpen: boolean;
@@ -241,7 +242,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ isOpen, onClose, player
                             <p className="text-xs text-gray-400 mb-2">
                               {isBaseSkill ? `기본 기술 (${patternString})` : `교체: ${baseAbility?.name || '알 수 없음'} (${patternString})`}
                             </p>
-                            <p className="text-sm text-gray-300">{skill.description}</p>
+                            <SkillDescription text={skill.description} className="text-sm" />
                         </div>
                         {!isBaseSkill && (
                           <button 
@@ -270,7 +271,7 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ isOpen, onClose, player
               {passiveSkills.map(skill => (
                 <div key={skill.id} className="p-4 rounded-lg border bg-purple-900/40 border-purple-600">
                   <h4 className="font-bold text-lg text-purple-300">{skill.name}</h4>
-                  <p className="text-sm text-gray-300 mt-2">{skill.description}</p>
+                  <SkillDescription text={skill.description} className="text-sm text-gray-300 mt-2" />
                 </div>
               ))}
               {passiveSkills.length === 0 && (
