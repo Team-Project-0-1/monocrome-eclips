@@ -1,8 +1,8 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
 import { CharacterClass, LucideIcon, GameState } from '../types';
-import { characterData } from '../dataCharacters';
-import { Zap, Target, ShieldCheck, Ghost, Layers, BrainCircuit, BookOpen, Map, Swords, ArrowUpCircle } from "lucide-react";
+import { characterData, characterActiveSkills } from '../dataCharacters';
+import { Zap, Target, ShieldCheck, Ghost, Layers, BrainCircuit, BookOpen, Map, Swords, ArrowUpCircle, Cpu } from "lucide-react";
 
 const playerClassIcons: { [key in CharacterClass]: LucideIcon } = {
   [CharacterClass.WARRIOR]: Zap,
@@ -63,6 +63,20 @@ export const CharacterSelectScreen = () => {
                                                     - {passive}
                                                 </p>
                                             ))}
+                                            <div className="border-t border-gray-600 my-2"></div>
+                                            <h4 className="font-semibold text-gray-200 flex items-center gap-1 justify-center">
+                                                <Cpu size={12} className="text-cyan-400" />
+                                                액티브 스킬
+                                            </h4>
+                                            {(() => {
+                                                const activeSkill = characterActiveSkills[classType as CharacterClass];
+                                                return (
+                                                    <div className="text-gray-400 leading-tight space-y-1">
+                                                        <p className="font-semibold text-cyan-300">{activeSkill.name}</p>
+                                                        <p className="text-gray-400">{activeSkill.description}</p>
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
                                     ) : (<p className="text-xs text-red-400 mt-2">{unlockHint[classType] || "잠김"}</p>)}
                                     </button>
