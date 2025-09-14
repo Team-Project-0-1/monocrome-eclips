@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
-import { PlayerCharacter, EnemyCharacter, EnemyIntent, StatusEffectType, LucideIcon, CharacterClass } from '../types';
+import React, { useMemo, useEffect } from 'react';
+import { PlayerCharacter, EnemyCharacter, StatusEffectType, LucideIcon, CharacterClass, CombatPrediction } from '../types';
 import HealthBar from './HealthBar';
 import EnhancedStatusEffectDisplay from './EnhancedStatusEffectDisplay';
 import { Heart, Swords, Shield, AlertTriangle, Zap, Target, ShieldCheck, Ghost, Star, Skull, Square } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
+import { useGameStore } from '../store/gameStore';
 
 interface CharacterStatusProps {
   character: PlayerCharacter | EnemyCharacter;
   isPlayer?: boolean;
+  prediction?: CombatPrediction | null;
 }
 
 const playerIcons: { [key in CharacterClass]: LucideIcon } = {
@@ -29,7 +32,30 @@ const monsterIcons: { [key: string]: LucideIcon } = {
   chimera: Star,
 };
 
-const CharacterStatus: React.FC<CharacterStatusProps> = ({ character, isPlayer = false }) => {
+const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterStatusProps): React.JSX.Element => {
+  const hitCount = useGameStore(state => isPlayer ? state.playerHit : state.enemyHit);
+  const flashControls = useAnimation();
+  const shakeControls = useAnimation();
+
+  useEffect(() => {
+    // Only trigger if hitCount actually changes and is not the initial render
+    if (hitCount > 0) {
+      // More intense flash for both player and enemy
+      flashControls.start({
+        backgroundColor: ["rgba(255, 80, 80, 0.6)", "rgba(255, 80, 80, 0)"],
+        transition: { duration: 0.5, ease: "easeOut" }
+      });
+
+      // Add a shake animation only for the player character
+      if (isPlayer) {
+        shakeControls.start({
+          x: [0, -8, 8, -8, 8, -5, 5, 0],
+          transition: { type: "spring", stiffness: 1000, damping: 15, duration: 0.4 }
+        });
+      }
+    }
+  }, [hitCount, flashControls, shakeControls, isPlayer]);
+
   const getIcon = () => {
     if (isPlayer) {
       const pc = character as PlayerCharacter;
@@ -42,83 +68,67 @@ const CharacterStatus: React.FC<CharacterStatusProps> = ({ character, isPlayer =
 
   const Icon = getIcon();
 
-  const currentHp = Number(character.currentHp) || 0;
-  const maxHp = Number(character.maxHp) || 1;
-  const baseDef = Number(character.baseDef) || 0;
   const temporaryDefense = Number(character.temporaryDefense) || 0;
-  
-  const baseAtk = Number(character.baseAtk) || 0;
 
   const containerClass = isPlayer
-    ? "bg-gray-800 border-blue-700 text-blue-100"
-    : "bg-gray-800 border-red-700 text-red-100";
+    ? "bg-gray-800/90 border-blue-700/50 text-blue-100"
+    : "bg-gray-800/90 border-red-700/50 text-red-100";
   
-  const iconBgClass = isPlayer ? "bg-blue-700" : "bg-red-700";
+  const iconBgClass = isPlayer ? "bg-blue-900" : "bg-red-900";
 
-  const effectsToShow = useMemo(() => {
-    const allEffects = { ...character.statusEffects };
-    const resonanceEffect = (character as EnemyCharacter).temporaryEffects?.resonance;
-    
-    if (!isPlayer && resonanceEffect && typeof resonanceEffect.value === 'number' && resonanceEffect.value > 0) {
-        allEffects[StatusEffectType.RESONANCE] = (allEffects[StatusEffectType.RESONANCE] || 0) + resonanceEffect.value;
-    }
-    return allEffects;
-  }, [character.statusEffects, (character as EnemyCharacter).temporaryEffects, isPlayer]);
-  
-  const frenzyEffect = isPlayer ? (character as PlayerCharacter).temporaryEffects?.frenzy : undefined;
+  const predictedDamage = isPlayer ? prediction?.damageToPlayer : prediction?.damageToEnemy;
 
   return (
-    <div className={`p-4 rounded-lg border-2 shadow-xl ${containerClass} relative`}>
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-full ${iconBgClass} shadow-md`}>
-            <Icon className="w-7 h-7" />
+    <motion.div 
+      animate={shakeControls}
+      className={`p-4 rounded-lg border shadow-xl ${containerClass} relative backdrop-blur-sm`}
+    >
+       <motion.div
+        className="absolute inset-0 rounded-lg pointer-events-none z-0"
+        animate={flashControls}
+      />
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className={`p-2.5 rounded-md ${iconBgClass} shadow-md`}>
+              <Icon className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-xl font-orbitron">{character.name}</h3>
+              {"title" in character && character.title && (
+                <p className="text-xs opacity-80 font-medium">
+                  {character.title}
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-xl">{character.name}</h3>
-            {"title" in character && character.title && (
-              <p className="text-xs opacity-80 font-medium">
-                {character.title}
-              </p>
-            )}
+          <div className="grid grid-cols-2 gap-2 text-center">
+             <div className="flex flex-col items-center px-2 py-1 rounded-md bg-black/20">
+                <div className="flex items-center gap-1 text-xs text-red-300 opacity-80"><Swords size={12}/>공격</div>
+                <div className="font-bold text-lg font-orbitron">{character.baseAtk}</div>
+             </div>
+             <div className="flex flex-col items-center px-2 py-1 rounded-md bg-black/20">
+                <div className="flex items-center gap-1 text-xs text-blue-300 opacity-80"><Shield size={12}/>방어</div>
+                <div className="font-bold text-lg font-orbitron">{character.baseDef}</div>
+             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mb-3">
-        <HealthBar current={currentHp} max={maxHp} isPlayer={isPlayer} />
-      </div>
-
-      {frenzyEffect && (
-          <div className="mb-3 p-2 rounded-md bg-red-800 border border-red-600 text-center animate-pulse">
-              <p className="font-bold text-white">🔥 광분! ({frenzyEffect.duration - 1}턴 남음)</p>
-          </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-        <div className={`p-3 rounded-md shadow bg-opacity-70 ${isPlayer ? 'bg-blue-900' : 'bg-red-900'}`}>
-          <div className={`flex items-center gap-2 text-xs opacity-80 mb-1 ${isPlayer ? 'text-blue-300' : 'text-red-300'}`}>
-            <Swords size={14} />
-            <span>기본 공격</span>
-          </div>
-          <p className="font-bold text-2xl text-center">{baseAtk}</p>
+        <div className="mb-4">
+          <HealthBar 
+            current={character.currentHp} 
+            max={character.maxHp}
+            temporaryDefense={temporaryDefense}
+            predictedDamage={predictedDamage}
+            isPlayer={isPlayer} 
+          />
         </div>
-        <div className={`p-3 rounded-md shadow bg-opacity-70 ${isPlayer ? 'bg-blue-900' : 'bg-red-900'}`}>
-          <div className={`flex items-center gap-2 text-xs opacity-80 mb-1 ${isPlayer ? 'text-blue-300' : 'text-red-300'}`}>
-            <Shield size={14} />
-            <span>방어력</span>
-          </div>
-          <p className="font-bold text-2xl text-center">
-            {baseDef + temporaryDefense}
-            {temporaryDefense > 0 && <span className="text-xs text-blue-300 ml-1">(+{temporaryDefense})</span>}
-          </p>
+        
+        <div className="min-h-[4rem]">
+          <EnhancedStatusEffectDisplay effects={character.statusEffects} />
         </div>
       </div>
-      
-      <div className="min-h-[4rem]">
-        <EnhancedStatusEffectDisplay effects={effectsToShow} />
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,9 +1,8 @@
-
-
 import React, { useMemo } from 'react';
 import { DetectedPattern, PatternType, CoinFace, CharacterClass } from '../types';
 import { getPlayerAbility } from '../dataSkills';
 import { CheckCircle, PlusCircle, XCircle } from 'lucide-react';
+import SkillDescription from './SkillDescription';
 
 interface PatternDisplayProps {
   patterns: DetectedPattern[];
@@ -61,14 +60,14 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
   }, [patterns, playerClass, acquiredSkills]);
 
   return (
-    <div>
-      <div className="text-center mb-3">
+    <div className="flex flex-col h-full">
+      <div className="text-center mb-3 flex-shrink-0">
         <h3 className="font-bold text-white">가능한 족보 선택</h3>
         <p className="text-xs text-gray-400">
           ({groupedPatterns.length} 종류)
         </p>
       </div>
-      <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+      <div className="space-y-2 flex-grow overflow-y-auto pr-2">
         {groupedPatterns.map((group) => {
           const { type, face, abilityDef, allInstances } = group;
           const key = `${type}-${face || 'special'}`;
@@ -102,22 +101,20 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
                 onClick={() => onPatternGroupClick(type, face)}
                 disabled={isDisabled}
                 className={`group w-full p-3 rounded-lg border-2 transition-all duration-200 text-left relative
-                            ${numSelected > 0 ? "bg-blue-600 text-white border-blue-500 shadow-lg ring-2 ring-yellow-400" 
+                            ${numSelected > 0 ? "bg-blue-600 text-white border-blue-500 shadow-lg ring-2 ring-yellow-400 scale-105" 
                                         : isDisabled 
                                         ? "bg-gray-800 text-gray-500 border-gray-700 opacity-60 cursor-not-allowed"
                                         : "bg-gray-700 text-gray-200 border-gray-600 hover:border-blue-400 hover:bg-gray-600"}`}
               >
                 <div className="flex items-center justify-between">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold text-sm">{abilityDef.name}</span>
                         <span className="text-xs opacity-75">
                           {patternTypeName} {faceName}
                         </span>
                       </div>
-                      <p className="text-xs text-blue-200 opacity-90 truncate pr-16">
-                        {abilityDef.description}
-                      </p>
+                      <SkillDescription text={abilityDef.description} className="text-xs text-blue-200 opacity-90 pr-16" />
                     </div>
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
                         isMaxedOut ? 'bg-red-500' : numSelected > 0 ? 'bg-blue-500' : 'bg-gray-600'
@@ -137,7 +134,7 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
         })}
       </div>
       {groupedPatterns.length === 0 && (
-        <div className="text-center py-6 text-gray-400 bg-gray-700 rounded-lg">
+        <div className="text-center py-6 text-gray-400 bg-gray-700 rounded-lg flex-grow flex flex-col justify-center items-center">
           <div className="text-3xl mb-2">🎲</div>
           <div className="font-semibold">사용 가능한 패턴이 없습니다</div>
           <div className="text-sm mt-1">동전을 다시 굴려보세요</div>

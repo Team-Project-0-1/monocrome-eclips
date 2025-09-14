@@ -1,8 +1,7 @@
-
 import { StateCreator } from 'zustand';
 import { produce } from 'immer';
 import { GameStore } from '../gameStore';
-import { StageNode, NodeType, EventDefinition, GameState, EnemyCharacter, CombatLogMessage } from '../../types';
+import { StageNode, NodeType, EventDefinition, GameState, EnemyCharacter, CombatLogMessage, CharacterClass, CoinFace } from '../../types';
 import { generateStageNodes, detectPatterns, generateCoins } from '../../utils/gameLogic';
 import { stageData } from '../../dataStages';
 import { eventData } from '../../dataEvents';
@@ -15,9 +14,9 @@ export interface ExplorationSlice {
   currentStage: number;
   currentTurn: number;
   stageNodes: StageNode[][];
-  visitedNodes: string[];
+  path: { turn: number; nodeIndex: number; nodeId: string; }[];
   startStage: (stageNumber: number) => void;
-  selectNode: (node: StageNode) => void;
+  selectNode: (node: StageNode, nodeIndex: number) => void;
   proceedToNextTurn: () => void;
   handleRestChoice: (choice: 'heal' | 'memory_altar') => void;
 }
@@ -26,13 +25,13 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
   currentStage: 1,
   currentTurn: 1,
   stageNodes: [],
-  visitedNodes: [],
+  path: [],
   startStage: (stageNumber) => {
     set(produce((draft: GameStore) => {
         draft.currentStage = stageNumber;
         draft.currentTurn = 1;
         draft.stageNodes = generateStageNodes(stageNumber);
-        draft.visitedNodes = [];
+        draft.path = [];
         draft.gameState = GameState.EXPLORATION;
         
         // Reset resources/patterns for the new stage.
@@ -44,12 +43,14 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
             draft.player.statusEffects = {};
             draft.player.temporaryEffects = {};
             draft.player.temporaryDefense = 0;
+            draft.player.activeSkillCooldown = 0;
+            draft.playerCoins = [];
         }
     }));
   },
-  selectNode: (node) => {
+  selectNode: (node, nodeIndex) => {
     set(produce((draft: GameStore) => {
-        draft.visitedNodes.push(node.id);
+        draft.path.push({ turn: draft.currentTurn, nodeIndex, nodeId: node.id });
 
         switch (node.type) {
             case NodeType.COMBAT:
@@ -60,9 +61,10 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                 if (node.type === NodeType.MINIBOSS) monsterKey = stageInfo.miniboss;
                 if (node.type === NodeType.BOSS) monsterKey = stageInfo.boss;
 
-                // --- Inlined startCombat logic ---
                 const player = draft.player;
                 if (!player) return;
+
+                player.activeSkillCooldown = 0;
 
                 const monsterTemplate = monsterData[monsterKey];
                 const enemyCoins = generateCoins();
@@ -79,15 +81,16 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                     coins: enemyCoins,
                     detectedPatterns: detectPatterns(enemyCoins),
                     temporaryEffects: {},
+                    tier: monsterTemplate.tier,
                 };
                 
                 draft.enemy = enemy;
-                draft.playerCoins = generateCoins();
+                
                 draft.combatLog = [];
                 draft.combatTurn = 1;
                 draft.selectedPatterns = [];
-                // FIX: usedCoinIndices should be an array, not a Set.
                 draft.usedCoinIndices = [];
+                draft.activeSkillState = { phase: 'idle', selection: [] };
                 
                 const log = (message: string, type: CombatLogMessage['type']) => {
                   draft.combatLog.push({ id: Date.now() + Math.random(), turn: draft.combatTurn, message, type });
@@ -96,10 +99,22 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                 log(`--- 전투 시작 ---`, 'system');
                 log(`${enemy.name} 등장!`, 'system');
                 
+                // REFACTOR: Generate a fresh set of coins for EVERY combat encounter.
+                draft.playerCoins = generateCoins();
+                
+                // Apply innate passives at the start of every combat.
                 applyInnatePassives(draft, log);
+                
+                // Specifically apply Rogue's passive to the newly generated coins.
+                if (player.class === CharacterClass.ROGUE) {
+                    if (draft.playerCoins.length > 0) {
+                        draft.playerCoins[0].face = CoinFace.HEADS;
+                    }
+                }
                 
                 draft.gameState = GameState.COMBAT;
 
+                // With the definitive coin state set, calculate patterns and predictions.
                 draft.detectedPatterns = detectPatterns(draft.playerCoins);
                 draft.enemyIntent = determineEnemyIntent(enemy);
                 draft.combatPrediction = calculateCombatPrediction(player, enemy, draft.selectedPatterns, draft.enemyIntent, draft.playerCoins);

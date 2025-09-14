@@ -1,4 +1,3 @@
-// FIX: Populated file with all necessary type definitions for the application.
 import { LucideIcon as OriginalLucideIcon } from 'lucide-react';
 
 // Re-exporting to be used in other files.
@@ -39,7 +38,7 @@ export enum CoinFace {
 }
 
 export interface Coin {
-  face: CoinFace;
+  face: CoinFace | null;
   locked: boolean;
   id: number;
 }
@@ -100,12 +99,14 @@ export interface PlayerCharacter extends Character {
   title: string;
   acquiredSkills: string[];
   memoryUpgrades: { [key in MemoryUpgradeType]: number };
+  activeSkillCooldown: number;
 }
 
 export interface EnemyCharacter extends Character {
   key: string;
   coins: Coin[];
   detectedPatterns: DetectedPattern[];
+  tier: 'normal' | 'miniboss' | 'boss';
 }
 
 export interface EnemyIntent {
@@ -113,6 +114,7 @@ export interface EnemyIntent {
   damage: number;
   defense: number;
   sourcePatternKeys: string[];
+  sourceCoinIndices?: number[];
 }
 
 export interface CombatPrediction {
@@ -120,6 +122,8 @@ export interface CombatPrediction {
   enemy: { attack: { formula: string; total: number }; defense: { formula: string; total: number } };
   damageToPlayer: number;
   damageToEnemy: number;
+  playerHp: number;
+  enemyHp: number;
 }
 
 export enum MemoryUpgradeType {
@@ -185,8 +189,8 @@ export interface AbilityEffect {
   enemyTemporaryEffect?: TemporaryEffect;
   gainMaxAmplify?: boolean;
   bonusDamage?: number; // For legacy/complex logic
-  damageMultiplierIfEnemyHasDefense?: number;
-  healIfPairedWithSame?: number;
+  damageMultiplier?: number;
+  healIfPairedWithSame?: boolean;
   enemyFlipMiddleCoinIfBreakDefense?: boolean;
   playerFlipCoinIfBreakDefense?: number;
   addShatterIfNotAttacking?: number;
@@ -201,7 +205,7 @@ export interface SkillUpgradeDefinition {
         type: PatternType;
         face?: CoinFace;
     };
-    effect: (player: PlayerCharacter, enemy: EnemyCharacter, coins?: Coin[]) => AbilityEffect;
+    effect: (player: PlayerCharacter, enemy: EnemyCharacter, coins?: Coin[], selectedPatterns?: DetectedPattern[]) => AbilityEffect;
 }
 
 export interface MonsterPatternDefinition {
@@ -251,7 +255,36 @@ export interface CombatLogMessage {
     type: 'player' | 'enemy' | 'system' | 'roll' | 'damage' | 'defense' | 'heal' | 'status';
 }
 
+export interface CombatEffect {
+  id: number;
+  type: 'damage' | 'status' | 'skill' | 'heal' | 'defense' | 'temp_stat';
+  target: 'player' | 'enemy';
+  data: any; // e.g., { amount: 10 } for damage, { statusType: 'BLEED', value: 2 } for status
+}
+
 export interface SkillReplacementState {
     isModalOpen: boolean;
     newSkill: SkillUpgradeDefinition;
+}
+
+export interface TooltipContent {
+  icon: string;
+  name: string;
+  description: string;
+  color: string;
+}
+
+export interface TooltipState {
+  content: TooltipContent;
+  position: {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+}
+
+export interface ActiveSkillState {
+    phase: 'idle' | 'rogue_flip' | 'tank_swap_1' | 'tank_swap_2' | 'mage_lock';
+    selection: number[];
 }

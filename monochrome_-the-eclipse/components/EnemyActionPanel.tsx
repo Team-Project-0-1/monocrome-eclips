@@ -1,7 +1,9 @@
-import React, { useMemo } from 'react';
-import { Coin, DetectedPattern, EnemyCharacter, PatternType, CoinFace, EnemyIntent } from '../types';
-import { monsterPatterns } from '../dataMonsters';
+import React from 'react';
+import { CoinFace, EnemyCharacter, EnemyIntent, PatternType } from '../types';
+import { monsterData, monsterPatterns } from '../dataMonsters';
 import { Swords, Shield, Eye } from 'lucide-react';
+import { motion } from 'framer-motion';
+import SkillDescription from './SkillDescription';
 
 interface EnemyActionPanelProps {
   enemy: EnemyCharacter | null;
@@ -21,25 +23,33 @@ const coinFaceNames: { [key in CoinFace]: string } = {
   [CoinFace.TAILS]: "뒷면",
 };
 
-const EnemyActionPanel: React.FC<EnemyActionPanelProps> = ({ enemy, intent }) => {
+// FIX: Changed component from React.FC to a standard function component to resolve framer-motion prop type errors.
+const EnemyActionPanel = ({ enemy, intent }: EnemyActionPanelProps): React.JSX.Element | null => {
   if (!enemy || !intent) return null;
 
-  const patterns = enemy.detectedPatterns || [];
   const coins = enemy.coins || [];
-
-  const usedSkillDefs = useMemo(() => {
-    if (!intent) return [];
-    return intent.sourcePatternKeys.map(key => monsterPatterns[key]).filter(Boolean);
-  }, [intent]);
+  const usedCoinIndices = intent.sourceCoinIndices || [];
+  const allPossibleSkillKeys = monsterData[enemy.key]?.patterns || [];
 
   return (
-    <div className="bg-gray-800 p-3 rounded-lg border-2 border-red-900/50 mb-4">
-      <h3 className="text-center font-bold text-red-400 mb-3 flex items-center justify-center gap-2">
+    <div className="bg-gray-800 p-4 rounded-lg border-2 border-red-900/50 h-full flex flex-col">
+      <h3 className="text-center font-bold text-red-400 mb-3 flex items-center justify-center gap-2 flex-shrink-0">
         <Eye className="w-5 h-5" />
         적의 행동
       </h3>
 
-      <div className="p-3 mb-4 bg-gray-900/50 rounded-md text-center border border-gray-700">
+      <motion.div 
+        className="p-3 mb-4 bg-gray-900/50 rounded-md text-center border border-gray-700 flex-shrink-0"
+        animate={{
+            borderColor: ["rgba(220, 38, 38, 0.5)", "rgba(252, 165, 165, 0.7)", "rgba(220, 38, 38, 0.5)"],
+            boxShadow: ["0 0 5px rgba(220, 38, 38, 0.3)", "0 0 15px rgba(252, 165, 165, 0.5)", "0 0 5px rgba(220, 38, 38, 0.3)"],
+        }}
+        transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+        }}
+      >
         <p className="font-bold text-lg text-white">{intent.description}</p>
         <div className="flex justify-center items-center gap-4 text-sm mt-2 text-gray-300">
           {intent.damage > 0 && (
@@ -55,55 +65,75 @@ const EnemyActionPanel: React.FC<EnemyActionPanelProps> = ({ enemy, intent }) =>
             </span>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="flex justify-center gap-3 mb-4">
-        {coins.map((coin) => (
-          <div key={coin.id} className="relative text-center">
-            <div
-              className={`relative w-12 h-12 rounded-full border-2 flex items-center justify-center font-bold text-xl shadow-md transition-transform hover:scale-110 ${
-                coin.face === CoinFace.HEADS
-                  ? "bg-red-500 border-red-300 text-white"
-                  : "bg-blue-500 border-blue-300 text-white"
-              }`}
-            >
-              {coin.face === CoinFace.HEADS ? (
-                <Swords size={20} />
-              ) : (
-                <Shield size={20} />
-              )}
+      <div className="flex justify-center gap-3 mb-4 flex-shrink-0">
+        {coins.map((coin, index) => {
+          const isUsed = usedCoinIndices.includes(index);
+          return (
+            <div key={coin.id} className="relative text-center flex flex-col items-center">
+              <div className="relative w-16 h-16">
+                 <div
+                    className={`relative w-full h-full rounded-full border-4 flex items-center justify-center font-bold text-xl shadow-md transition-transform hover:scale-110 ${
+                    coin.face === CoinFace.HEADS
+                        ? "bg-red-500 border-red-300 text-white"
+                        : "bg-blue-500 border-blue-300 text-white"
+                    } ${isUsed ? "ring-4 ring-yellow-400 ring-offset-2 ring-offset-gray-800" : ""}`}
+                >
+                    {coin.face === CoinFace.HEADS ? (
+                    <Swords size={28} />
+                    ) : (
+                    <Shield size={28} />
+                    )}
+                 </div>
+              </div>
+              <span className="text-xs text-gray-400 mt-1">#{index + 1}</span>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <div className="space-y-1 max-h-32 overflow-y-auto pr-2">
-        <h4 className="text-xs font-bold text-gray-400 mb-2 text-center">감지된 족보</h4>
-        {patterns.length > 0 ? (
-          patterns.map((p) => {
-            const isUsed = usedSkillDefs.some(
-              (skillDef) =>
-                skillDef.type === p.type &&
-                (!skillDef.face || skillDef.face === p.face)
-            );
+      <div className="flex-grow min-h-0 overflow-y-auto pr-2 space-y-2">
+        <h4 className="text-sm font-bold text-gray-400 mb-2 text-center">보유한 기술</h4>
+        {allPossibleSkillKeys.length > 0 ? (
+          allPossibleSkillKeys.map((skillKey) => {
+            const skillDef = monsterPatterns[skillKey];
+            if (!skillDef) return null;
+
+            const isUsed = intent.sourcePatternKeys.includes(skillKey);
+            const isDetected = enemy.detectedPatterns.some(p => p.type === skillDef.type && (!skillDef.face || p.face === skillDef.face));
+
+            const patternTypeName = patternTypeNames[skillDef.type];
+            const faceName = skillDef.face ? `(${coinFaceNames[skillDef.face]})` : '';
+            
             return (
               <div
-                key={p.id}
-                className={`p-1.5 rounded-md bg-gray-700/60 text-sm flex justify-between items-center transition-all ${
-                  isUsed ? 'ring-2 ring-yellow-400 shadow-lg' : ''
+                key={skillKey}
+                className={`p-3 rounded-lg border-2 transition-all ${
+                  isUsed
+                    ? 'bg-red-900/40 border-yellow-400 shadow-lg'
+                    : isDetected
+                    ? 'bg-gray-700/80 border-gray-600'
+                    : 'bg-gray-800 border-gray-700 opacity-50'
                 }`}
               >
-                <span className="font-semibold text-gray-300">
-                  {patternTypeNames[p.type]}
-                </span>
-                <span className="text-xs text-gray-400">
-                  {p.face ? coinFaceNames[p.face] : '특수'} x{p.count}
-                </span>
+                <div className="flex items-center justify-between mb-1">
+                    <span className={`font-bold ${isDetected ? 'text-gray-100' : 'text-gray-500'}`}>
+                    {skillDef.name}
+                    </span>
+                    <span className={`text-xs ${isDetected ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {patternTypeName} {faceName}
+                    </span>
+                </div>
+                <SkillDescription
+                    text={skillDef.description}
+                    className={`text-xs ${isDetected ? 'text-gray-300' : 'text-gray-500'}`}
+                />
               </div>
             );
           })
         ) : (
           <p className="text-center text-gray-500 text-sm py-4">
-            족보 없음
+            기술 없음
           </p>
         )}
       </div>

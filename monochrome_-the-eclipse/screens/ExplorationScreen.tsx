@@ -12,7 +12,7 @@ export const ExplorationScreen = () => {
     const resources = useGameStore(state => state.resources);
     const stageNodes = useGameStore(state => state.stageNodes);
     const currentTurn = useGameStore(state => state.currentTurn);
-    const visitedNodes = useGameStore(state => state.visitedNodes);
+    const path = useGameStore(state => state.path);
     const setInventoryOpen = useGameStore(state => state.setInventoryOpen);
     const setGameState = useGameStore(state => state.setGameState);
     const selectNode = useGameStore(state => state.selectNode);
@@ -22,31 +22,34 @@ export const ExplorationScreen = () => {
     if (!player) return <div>로딩 중...</div>;
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-6 flex flex-col">
-            <header className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                <div className="md:col-span-1">
+        <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-6 scanlines relative" style={{
+            background: 'radial-gradient(ellipse at center, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 1) 70%)'
+        }}>
+             <div className="absolute inset-0 bg-black/30 z-0"></div>
+             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-4 gap-6 h-full-minus-padding">
+
+                {/* Left Panel */}
+                <div className="lg:col-span-1 flex flex-col gap-4">
                     <CharacterStatus character={player} isPlayer={true} />
-                </div>
-                <div className="md:col-span-1">
                     <ResourceDisplay resources={resources} />
+                    <div className="flex flex-col gap-2">
+                        <button onClick={() => setInventoryOpen(true)} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg">
+                            <Package className="w-5 h-5" /> 능력 목록
+                        </button>
+                        <button onClick={() => setGameState(GameState.MENU)} className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg">
+                            메인 메뉴로
+                        </button>
+                    </div>
                 </div>
-                <div className="md:col-span-1 flex flex-col gap-2">
-                    <button onClick={() => setInventoryOpen(true)} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <Package className="w-5 h-5" /> 능력 목록
-                    </button>
-                    <button onClick={() => setGameState(GameState.MENU)} className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        메인 메뉴로
-                    </button>
+
+                {/* Right Panel */}
+                <div className="lg:col-span-3 flex flex-col gap-6">
+                    <div className="flex-grow flex items-center justify-center">
+                        <NodeSelection nodes={currentNodes} onSelect={(node, index) => selectNode(node, index)} currentTurn={currentTurn} />
+                    </div>
+                    <MiniMap nodes={stageNodes} currentTurn={currentTurn} path={path} />
                 </div>
-            </header>
-            <main className="flex-grow flex flex-col">
-                <div className="mb-4">
-                    <MiniMap nodes={stageNodes} currentTurn={currentTurn} visitedNodes={visitedNodes} />
-                </div>
-                <div className="flex-grow flex items-center justify-center">
-                    <NodeSelection nodes={currentNodes} onSelect={(node) => selectNode(node)} currentTurn={currentTurn} />
-                </div>
-            </main>
+            </div>
         </div>
     );
 };

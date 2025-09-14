@@ -6,11 +6,14 @@ import { playerSkillUnlocks } from '../dataSkills';
 import ResourceDisplay from '../components/ResourceDisplay';
 import { ShoppingBag } from 'lucide-react';
 import { PatternUpgradeDefinition, SkillUpgradeDefinition } from '../types';
+import SkillDescription from '../components/SkillDescription';
 
 export const ShopScreen = () => {
     const player = useGameStore(state => state.player);
     const resources = useGameStore(state => state.resources);
     const unlockedPatterns = useGameStore(state => state.unlockedPatterns);
+    const reserveCoins = useGameStore(state => state.reserveCoins);
+    const reserveCoinShopCost = useGameStore(state => state.reserveCoinShopCost);
     const handlePurchase = useGameStore(state => state.handlePurchase);
     const handleSkillUpgradePurchase = useGameStore(state => state.handleSkillUpgradePurchase);
     const proceedToNextTurn = useGameStore(state => state.proceedToNextTurn);
@@ -56,22 +59,35 @@ export const ShopScreen = () => {
                         </div>
                         
                         <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                            {activeShopTab === 'items' && shopData.basic.items.map(item => (
+                            {activeShopTab === 'items' && shopData.basic.items.map(item => {
+                                const isReserveCoin = item.id === 'reserve_coin';
+                                const cost = isReserveCoin ? reserveCoinShopCost : item.cost;
+                                const canAfford = resources.echoRemnants >= cost;
+                                const isFull = isReserveCoin && reserveCoins.length >= 3;
+                                const isDisabled = !canAfford || isFull;
+                                let description = item.description;
+                                if (isReserveCoin && isFull) {
+                                    description = "소지 한도에 도달했습니다. (최대 3개)";
+                                }
+
+
+                                return (
                                 <div key={item.id} className="bg-gray-700 p-3 rounded-lg flex justify-between items-center">
                                     <div>
                                         <h4 className="font-bold text-white">{item.name}</h4>
-                                        <p className="text-xs text-gray-400">{item.description}</p>
+                                        <SkillDescription text={description} className="text-xs text-gray-400" />
                                     </div>
-                                    <button onClick={() => handlePurchase(item)} disabled={resources.echoRemnants < item.cost} className="px-3 py-1.5 bg-yellow-600 text-white rounded-md text-sm font-semibold hover:bg-yellow-500 disabled:bg-gray-500 disabled:cursor-not-allowed">
-                                        {item.cost} 에코
+                                    <button onClick={() => handlePurchase(item)} disabled={isDisabled} className="px-3 py-1.5 bg-yellow-600 text-white rounded-md text-sm font-semibold hover:bg-yellow-500 disabled:bg-gray-500 disabled:cursor-not-allowed">
+                                        {cost} 에코
                                     </button>
                                 </div>
-                            ))}
+                                )
+                            })}
                             {activeShopTab === 'upgrades' && availableUpgrades.map(item => (
                                 <div key={item.id} className="bg-gray-700 p-3 rounded-lg flex justify-between items-center">
                                     <div>
                                         <h4 className="font-bold text-white">{item.name}</h4>
-                                        <p className="text-xs text-gray-400">{item.description}</p>
+                                        <SkillDescription text={item.description} className="text-xs text-gray-400" />
                                     </div>
                                     <button onClick={() => handlePurchase({ ...item, type: "upgrade" })} disabled={resources.senseFragments < item.cost.senseFragments} className="px-3 py-1.5 bg-purple-600 text-white rounded-md text-sm font-semibold hover:bg-purple-500 disabled:bg-gray-500 disabled:cursor-not-allowed">
                                         {item.cost.senseFragments} 감각
@@ -82,7 +98,7 @@ export const ShopScreen = () => {
                                 <div key={item.id} className="bg-gray-700 p-3 rounded-lg flex justify-between items-center">
                                     <div>
                                         <h4 className="font-bold text-white">{item.name}</h4>
-                                        <p className="text-xs text-gray-400">{item.description}</p>
+                                        <SkillDescription text={item.description} className="text-xs text-gray-400" />
                                     </div>
                                     <button onClick={() => handleSkillUpgradePurchase(item)} disabled={resources.echoRemnants < item.cost.echoRemnants} className="px-3 py-1.5 bg-cyan-600 text-white rounded-md text-sm font-semibold hover:bg-cyan-500 disabled:bg-gray-500 disabled:cursor-not-allowed">
                                         {item.cost.echoRemnants} 에코

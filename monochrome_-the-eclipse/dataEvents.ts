@@ -141,4 +141,49 @@ export const eventData: { [key: string]: EventDefinition } = {
       },
     ],
   },
+  event_coin_pouch: {
+    id: "event_coin_pouch",
+    title: "낡은 동전 주머니",
+    description: "길가에서 낡은 가죽 주머니를 발견했습니다. 묵직한 것이 들어있습니다.",
+    choices: [
+      {
+        text: "열어본다",
+        guaranteed: true,
+        result: {
+          message: "안에 낡았지만 쓸만한 동전이 들어있었다.",
+          reserveCoinsGained: 1
+        },
+      },
+      {
+        text: "무시하고 지나간다",
+        guaranteed: true,
+        result: { message: "안전하게 지나갔습니다." },
+      },
+    ],
+  },
+  event_wishing_well: {
+    id: "event_wishing_well",
+    title: "오래된 우물",
+    description: "오래된 우물을 발견했습니다. 안에서 희미한 빛이 납니다. 에코를 던져 소원을 빌어볼 수 있을 것 같습니다.",
+    choices: [
+      {
+        text: "에코 10개를 던져본다",
+        baseSuccessRate: 50,
+        success: {
+          echoRemnants: -10,
+          message: "우물이 빛나며 새로운 동전을 뱉어냈다!",
+          reserveCoinsGained: 1
+        },
+        failure: {
+          echoRemnants: -10,
+          message: "에코가 물에 빠지는 소리만 들릴 뿐, 아무 일도 일어나지 않았다.",
+        },
+      },
+      {
+        text: "지나간다",
+        guaranteed: true,
+        result: { message: "우물을 뒤로하고 길을 계속 걸었습니다." },
+      },
+    ],
+  }
 };

@@ -24,22 +24,22 @@ export const characterData = {
   [CharacterClass.TANK]: {
     name: "곽장환",
     title: "손끝으로 바람을 읽는 자",
-    hp: 75,
+    hp: 70,
     baseAtk: 0,
     baseDef: 0,
     mainEffect: StatusEffectType.COUNTER,
     subEffect: StatusEffectType.SHATTER,
-    innatePassives: ["반사", "정밀 누적"],
+    innatePassives: ["전투 시작 시 공격과 방어를 3 얻습니다."],
   },
   [CharacterClass.MAGE]: {
     name: "박재석",
     title: "영적인 시야를 보는 자",
-    hp: 70,
+    hp: 65,
     baseAtk: 0,
     baseDef: 0,
     mainEffect: StatusEffectType.CURSE,
     subEffect: StatusEffectType.SEAL,
-    innatePassives: ["내면 침묵", "의지 절단"],
+    innatePassives: ["5턴간 디버프 피해를 받지 않고 저장했다가, 5턴 후 누적된 피해를 한번에 받습니다."],
   },
 };
 
@@ -55,13 +55,13 @@ export const characterActiveSkills = {
       cooldown: 3,
     },
     [CharacterClass.TANK]: {
-      name: "불괴",
-      description: "첫 번째 동전을 잠그고, 반격 +3을 얻습니다.",
-      cooldown: 3,
+      name: "위치 변경",
+      description: "자신의 동전 2개의 위치를 서로 바꿉니다. (재사용 8턴)",
+      cooldown: 8,
     },
     [CharacterClass.MAGE]: {
-      name: "주문 배치",
-      description: "첫 두 동전의 위치를 바꾸고, 적에게 저주 +2.",
+      name: "동전 고정",
+      description: "1턴간 원하는 동전 1개를 고정 시킵니다. (재사용 3턴)",
       cooldown: 3,
     },
   };

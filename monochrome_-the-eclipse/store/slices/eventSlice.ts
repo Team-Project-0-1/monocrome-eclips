@@ -1,10 +1,9 @@
-
 import { StateCreator } from 'zustand';
 import { produce } from 'immer';
 import { GameStore } from '../gameStore';
 import { EventDefinition, EventChoice, GameState, EnemyCharacter, CombatLogMessage } from '../../types';
 import { monsterData } from '../../dataMonsters';
-import { generateCoins, detectPatterns } from '../../utils/gameLogic';
+import { generateCoins, detectPatterns, flipCoin } from '../../utils/gameLogic';
 import { determineEnemyIntent, calculateCombatPrediction, applyInnatePassives } from '../../utils/combatLogic';
 
 
@@ -67,6 +66,7 @@ export const createEventSlice: StateCreator<GameStore, [], [], EventSlice> = (se
               coins: enemyCoins,
               detectedPatterns: detectPatterns(enemyCoins),
               temporaryEffects: {},
+              tier: monsterTemplate.tier,
           };
           
           state.enemy = enemy;
@@ -74,7 +74,6 @@ export const createEventSlice: StateCreator<GameStore, [], [], EventSlice> = (se
           state.combatLog = []; // Reset combat log for the new fight
           state.combatTurn = 1;
           state.selectedPatterns = [];
-          // FIX: usedCoinIndices should be an array, not a Set.
           state.usedCoinIndices = [];
           
           const log = (message: string, type: CombatLogMessage['type']) => {
@@ -109,8 +108,18 @@ export const createEventSlice: StateCreator<GameStore, [], [], EventSlice> = (se
               senseFragments: '획득한 감각 조각',
               memoryPieces: '획득한 기억 조각',
               curse: '저주 부여',
+              reserveCoinsGained: '획득한 예비 동전',
           };
           const displayItems: { label: string; value: string | number; }[] = [];
+          
+          if (eventOutcome.reserveCoinsGained) {
+              for (let i = 0; i < eventOutcome.reserveCoinsGained; i++) {
+                  if (state.reserveCoins.length < 3) {
+                      state.reserveCoins.push({ face: null, locked: false, id: Date.now() + Math.random() });
+                  }
+              }
+          }
+
           for (const key in eventOutcome) {
               if (knownResultLabels[key]) {
                   const value = eventOutcome[key];

@@ -1,33 +1,36 @@
-
 import { StateCreator } from 'zustand';
 import { produce } from 'immer';
 import { GameStore } from '../gameStore';
-import { PlayerCharacter, CharacterClass, ShopItem, PatternUpgradeDefinition, SkillUpgradeDefinition, MemoryUpgradeType, GameState } from '../../types';
+import { PlayerCharacter, CharacterClass, ShopItem, PatternUpgradeDefinition, SkillUpgradeDefinition, MemoryUpgradeType, GameState, CoinFace, Coin } from '../../types';
 import { characterData } from '../../dataCharacters';
 import { MAX_SKILLS, MEMORY_UPGRADE_DATA } from '../../constants';
-import { generateStageNodes } from '../../utils/gameLogic';
+import { generateStageNodes, flipCoin, generateCoins } from '../../utils/gameLogic';
 
 export interface PlayerSlice {
   player: PlayerCharacter | null;
   resources: {
     echoRemnants: number;
     senseFragments: number;
-
     memoryPieces: number;
   };
   unlockedPatterns: string[];
+  reserveCoins: Coin[];
+  reserveCoinShopCost: number;
   selectCharacter: (characterClass: CharacterClass) => void;
   handlePurchase: (item: ShopItem | (PatternUpgradeDefinition & { type: 'upgrade' })) => void;
   handleSkillUpgradePurchase: (skill: SkillUpgradeDefinition) => void;
   handleMemoryUpgrade: (upgradeType: MemoryUpgradeType) => void;
   forgetSkill: (skillId: string) => void;
   executeSkillReplacement: (skillToForgetId: string) => void;
+  flipReserveCoin: (index: number) => void;
 }
 
 export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (set, get, api) => ({
   player: null,
   resources: { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 },
   unlockedPatterns: [],
+  reserveCoins: [],
+  reserveCoinShopCost: 100,
   selectCharacter: (characterClass) => {
     set(produce((draft: GameStore) => {
         const data = characterData[characterClass];
@@ -45,16 +48,47 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
           memoryUpgrades: meta.memoryUpgrades,
           statusEffects: {},
           temporaryEffects: {},
+          activeSkillCooldown: 0,
         };
         draft.player = player;
-
-        // Inlined startStage(1) logic to create an atomic update
+        
+        // --- COMPLETE STATE RESET & NEW RUN INITIALIZATION (ATOMIC) ---
+        draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
+        draft.unlockedPatterns = [];
+        draft.reserveCoins = [];
+        draft.reserveCoinShopCost = 100;
+        
         draft.currentStage = 1;
         draft.currentTurn = 1;
         draft.stageNodes = generateStageNodes(1);
-        draft.visitedNodes = [];
-        draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
-        draft.unlockedPatterns = [];
+        draft.path = [];
+        
+        // Reset ALL combat-related states for a completely clean slate.
+        draft.enemy = null;
+        draft.playerCoins = []; // Coins are now generated upon entering combat.
+        draft.detectedPatterns = [];
+        draft.selectedPatterns = [];
+        draft.usedCoinIndices = [];
+        draft.combatPrediction = null;
+        draft.enemyIntent = null;
+        draft.combatLog = [];
+        draft.combatTurn = 1;
+        draft.swapState = { phase: 'idle', reserveCoinIndex: null, revealedFace: null };
+        draft.activeSkillState = { phase: 'idle', selection: [] };
+
+        // Also reset event state to prevent carry-over from a previous aborted run
+        draft.currentEvent = null;
+        draft.eventPhase = 'choice';
+        draft.eventResultData = null;
+        draft.eventDisplayItems = [];
+
+        // Also reset UI state for a clean start
+        draft.isInventoryOpen = false;
+        draft.skillReplacementState = null;
+        draft.combatEffects = [];
+        draft.playerHit = 0;
+        draft.enemyHit = 0;
+        draft.tooltip = null;
         
         draft.gameState = GameState.EXPLORATION;
     }));
@@ -64,7 +98,13 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         const { resources, player, unlockedPatterns } = state;
         if (!player) return;
 
-        if ('cost' in item && typeof item.cost === 'object' && 'senseFragments' in item.cost) { // PatternUpgrade
+        if (item.id === 'reserve_coin') {
+            if (resources.echoRemnants >= state.reserveCoinShopCost && state.reserveCoins.length < 3) {
+                resources.echoRemnants -= state.reserveCoinShopCost;
+                state.reserveCoinShopCost += 50;
+                state.reserveCoins.push({ face: null, locked: false, id: Date.now() + Math.random() });
+            }
+        } else if ('cost' in item && typeof item.cost === 'object' && 'senseFragments' in item.cost) { // PatternUpgrade
             const upgrade = item as PatternUpgradeDefinition;
             if (resources.senseFragments >= upgrade.cost.senseFragments) {
                 resources.senseFragments -= upgrade.cost.senseFragments;
@@ -141,6 +181,19 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
             if (upgradeType === 'baseDef') player.baseDef += upgradeData.effect;
             
             player.memoryUpgrades = metaProgress.memoryUpgrades;
+        }
+    }));
+  },
+  flipReserveCoin: (index) => {
+    set(produce((draft: GameStore) => {
+        if (!get().testMode) return;
+        const coin = draft.reserveCoins[index];
+        if (coin) {
+            if (coin.face === null) {
+                coin.face = CoinFace.HEADS;
+            } else {
+                coin.face = coin.face === CoinFace.HEADS ? CoinFace.TAILS : CoinFace.HEADS;
+            }
         }
     }));
   },
