@@ -49,6 +49,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
           statusEffects: {},
           temporaryEffects: {},
           activeSkillCooldown: 0,
+          sprite: data.sprite,
         };
         draft.player = player;
         

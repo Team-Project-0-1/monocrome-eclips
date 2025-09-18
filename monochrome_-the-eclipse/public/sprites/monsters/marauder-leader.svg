@@ -1,0 +1,15 @@
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="320" rx="28" fill="#1F2937"/>
+  <g filter="url(#shadow)">
+    <path d="M90 244L120 188L110 166C106 156 110 144 120 138L152 116L170 84C176 74 190 70 202 74L238 86C248 90 256 100 256 110L252 140L272 168C280 180 278 196 268 204L236 230L218 260C210 272 194 274 182 266L152 244L126 258C112 266 94 258 90 242L86 228L90 244Z" fill="#E2E8F0"/>
+    <path d="M170 124L186 94" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+    <path d="M214 176L240 174" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+    <path d="M140 210L168 216" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <text x="24" y="296" fill="#60A5FA" font-family="'Orbitron', sans-serif" font-size="20" letter-spacing="4">RINGLEADER</text>
+  <defs>
+    <filter id="shadow" x="76" y="72" width="212" height="220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#020617" flood-opacity="0.65"/>
+    </filter>
+  </defs>
+</svg>

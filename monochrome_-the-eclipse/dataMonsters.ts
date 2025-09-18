@@ -13,61 +13,66 @@ import {
 // This data structure defines the core stats and available skills for each monster.
 export const monsterData: MonsterData = {
     // Stage 1 Monsters
-    marauder1: { 
+    marauder1: {
         name: "약탈자1", // 도적형 (Rogue)
-        hp: 30, 
-        baseAtk: 0, 
-        baseDef: 0, 
-        patterns: ["MARAUDER1_PURSUE", "MARAUDER1_MANGLE", "MARAUDER1_SHARPEN"], 
-        tier: "normal", 
-        passives: ["PASSIVE_MARAUDER1_CRUEL_INTERIOR"] 
+        hp: 30,
+        baseAtk: 0,
+        baseDef: 0,
+        patterns: ["MARAUDER1_PURSUE", "MARAUDER1_MANGLE", "MARAUDER1_SHARPEN"],
+        tier: "normal",
+        passives: ["PASSIVE_MARAUDER1_CRUEL_INTERIOR"],
+        sprite: "/sprites/monsters/marauder1.svg",
     },
-    marauder2: { 
+    marauder2: {
         name: "약탈자2", // 전사형 (Warrior)
-        hp: 35, 
-        baseAtk: 0, 
-        baseDef: 0, 
-        patterns: ["MARAUDER2_SWING", "MARAUDER2_JUGGERNAUT", "MARAUDER2_CHARGE"], 
-        tier: "normal", 
-        passives: ["PASSIVE_MARAUDER2_MUSCLE_GROWTH"] 
+        hp: 35,
+        baseAtk: 0,
+        baseDef: 0,
+        patterns: ["MARAUDER2_SWING", "MARAUDER2_JUGGERNAUT", "MARAUDER2_CHARGE"],
+        tier: "normal",
+        passives: ["PASSIVE_MARAUDER2_MUSCLE_GROWTH"],
+        sprite: "/sprites/monsters/marauder2.svg",
     },
-    infectedDog: { 
+    infectedDog: {
         name: "감염된 들개", // 마법형 (Mage)
-        hp: 24, 
-        baseAtk: 0, 
-        baseDef: 0, 
-        patterns: ["INFECTEDDOG_BITE", "INFECTEDDOG_NECKBITE", "INFECTEDDOG_PUS"], 
-        tier: "normal" 
+        hp: 24,
+        baseAtk: 0,
+        baseDef: 0,
+        patterns: ["INFECTEDDOG_BITE", "INFECTEDDOG_NECKBITE", "INFECTEDDOG_PUS"],
+        tier: "normal",
+        sprite: "/sprites/monsters/infected-dog.svg",
     },
     // Stage 1 Miniboss
-    marauderLeader: { 
+    marauderLeader: {
         name: "약탈자 리더", // 방어형 (Tank)
-        hp: 45, 
-        baseAtk: 0, 
-        baseDef: 0, 
-        patterns: ["LEADER_QUESTION", "LEADER_DEMAND", "LEADER_WAIT", "LEADER_STAY"], 
-        tier: "miniboss", 
-        passives: ["PASSIVE_LEADER_HARD_SKIN"]
+        hp: 45,
+        baseAtk: 0,
+        baseDef: 0,
+        patterns: ["LEADER_QUESTION", "LEADER_DEMAND", "LEADER_WAIT", "LEADER_STAY"],
+        tier: "miniboss",
+        passives: ["PASSIVE_LEADER_HARD_SKIN"],
+        sprite: "/sprites/monsters/marauder-leader.svg",
     },
     // Stage 1 Boss
-    lumenReaper: { 
+    lumenReaper: {
         name: "루멘 리퍼", // 마법형 (Mage)
-        hp: 50, 
-        baseAtk: 0, 
-        baseDef: 0, 
+        hp: 50,
+        baseAtk: 0,
+        baseDef: 0,
         patterns: [
-            "LUMENREAPER_EROSION_SCYTHE", 
-            "LUMENREAPER_SHADOW_STRIKE", 
-            "LUMENREAPER_NIGHT_PLUNDER", 
-            "LUMENREAPER_STEALTH", 
+            "LUMENREAPER_EROSION_SCYTHE",
+            "LUMENREAPER_SHADOW_STRIKE",
+            "LUMENREAPER_NIGHT_PLUNDER",
+            "LUMENREAPER_STEALTH",
             "LUMENREAPER_SHADOW_SHROUD"
-        ], 
-        tier: "boss", 
+        ],
+        tier: "boss",
         passives: [
-            "PASSIVE_REAPER_FLOWING_DARKNESS", 
-            "PASSIVE_REAPER_AMBUSH", 
+            "PASSIVE_REAPER_FLOWING_DARKNESS",
+            "PASSIVE_REAPER_AMBUSH",
             "PASSIVE_REAPER_VITAL_STRIKE"
         ],
+        sprite: "/sprites/monsters/lumen-reaper.svg",
     },
 };
 

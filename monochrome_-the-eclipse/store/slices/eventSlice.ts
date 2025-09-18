@@ -67,6 +67,7 @@ export const createEventSlice: StateCreator<GameStore, [], [], EventSlice> = (se
               detectedPatterns: detectPatterns(enemyCoins),
               temporaryEffects: {},
               tier: monsterTemplate.tier,
+              sprite: monsterTemplate.sprite,
           };
           
           state.enemy = enemy;

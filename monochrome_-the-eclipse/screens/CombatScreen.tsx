@@ -8,6 +8,7 @@ import EnemyActionPanel from '../components/EnemyActionPanel';
 import CombatLog from '../components/CombatLog';
 import { ArrowRight, Dices, Info, Swords, Shield } from 'lucide-react';
 import CombatEffect from '../components/combat/CombatEffect';
+import CombatPortrait from '../components/combat/CombatPortrait';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { ReserveCoinArea } from '../components/ReserveCoinArea';
 import ActiveSkillButton from '../components/ActiveSkillButton';
@@ -145,12 +146,17 @@ export const CombatScreen: React.FC = () => {
             >
                 {/* Left Column: Player Info & Actions */}
                 <div className="flex flex-col gap-4 min-h-0">
-                    <div className={`relative ${transitionClasses} ${nonTargetClasses}`}>
-                        <CharacterStatus character={player} isPlayer={true} prediction={combatPrediction} />
-                        <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
-                            {combatEffects.filter(e => e.target === 'player').map(effect => (
-                                <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
-                            ))}
+                    <div className={`${transitionClasses} ${nonTargetClasses}`}>
+                        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+                            <CombatPortrait character={player} isPlayer subdued={isFocusMode} />
+                            <div className="relative flex-1">
+                                <CharacterStatus character={player} isPlayer={true} prediction={combatPrediction} />
+                                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
+                                    {combatEffects.filter(e => e.target === 'player').map(effect => (
+                                        <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className={`bg-gray-800 p-4 rounded-lg ${transitionClasses} ${isFocusMode ? 'shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-500' : ''}`}>
@@ -229,12 +235,17 @@ export const CombatScreen: React.FC = () => {
 
                 {/* Right Column: Enemy Info */}
                 <div className={`flex flex-col gap-4 min-h-0 ${transitionClasses} ${nonTargetClasses}`}>
-                    <div className="relative">
-                        <CharacterStatus character={enemy} prediction={combatPrediction} />
-                         <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
-                            {combatEffects.filter(e => e.target === 'enemy').map(effect => (
-                                <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
-                            ))}
+                    <div>
+                        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+                            <div className="relative flex-1 order-2 sm:order-1">
+                                <CharacterStatus character={enemy} prediction={combatPrediction} />
+                                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
+                                    {combatEffects.filter(e => e.target === 'enemy').map(effect => (
+                                        <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
+                                    ))}
+                                </div>
+                            </div>
+                            <CombatPortrait character={enemy} subdued={isFocusMode} />
                         </div>
                     </div>
                     <div className="bg-gray-800 rounded-lg flex-grow min-h-0">

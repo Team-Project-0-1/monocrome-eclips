@@ -92,6 +92,7 @@ interface Character {
   temporaryDefense: number;
   statusEffects: StatusEffects;
   temporaryEffects?: { [key: string]: any };
+  sprite?: string;
 }
 
 export interface PlayerCharacter extends Character {
@@ -245,6 +246,7 @@ export interface MonsterData {
         patterns: string[];
         tier: 'normal' | 'miniboss' | 'boss';
         passives?: string[];
+        sprite: string;
     };
 }
 

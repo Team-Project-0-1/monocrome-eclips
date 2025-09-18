@@ -82,6 +82,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                     detectedPatterns: detectPatterns(enemyCoins),
                     temporaryEffects: {},
                     tier: monsterTemplate.tier,
+                    sprite: monsterTemplate.sprite,
                 };
                 
                 draft.enemy = enemy;

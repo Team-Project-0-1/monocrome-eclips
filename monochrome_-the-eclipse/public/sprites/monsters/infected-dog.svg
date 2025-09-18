@@ -1,0 +1,15 @@
+<svg width="320" height="320" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="320" rx="28" fill="#111827"/>
+  <g filter="url(#shadow)">
+    <path d="M62 216L86 176L72 150C66 138 72 122 86 118L126 106L150 80C158 70 172 68 184 74L230 96C244 102 250 118 244 132L232 158L256 182C266 192 264 210 252 218L214 244L182 264C170 272 154 268 146 256L128 228L98 244C86 250 72 244 66 232L60 218L62 216Z" fill="#E4E4E7"/>
+    <path d="M148 110L170 86" stroke="#1F2937" stroke-width="12" stroke-linecap="round"/>
+    <path d="M194 176L220 176" stroke="#1F2937" stroke-width="12" stroke-linecap="round"/>
+    <path d="M122 200L148 210" stroke="#1F2937" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <text x="24" y="296" fill="#F59E0B" font-family="'Orbitron', sans-serif" font-size="20" letter-spacing="4">CARRIER</text>
+  <defs>
+    <filter id="shadow" x="48" y="70" width="224" height="206" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#020617" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+</svg>
