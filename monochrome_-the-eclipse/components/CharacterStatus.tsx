@@ -5,6 +5,7 @@ import EnhancedStatusEffectDisplay from './EnhancedStatusEffectDisplay';
 import { Heart, Swords, Shield, AlertTriangle, Zap, Target, ShieldCheck, Ghost, Star, Skull, Square } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
+import { characterData } from '../dataCharacters';
 
 interface CharacterStatusProps {
   character: PlayerCharacter | EnemyCharacter;
@@ -89,13 +90,35 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
       />
       <div className="relative z-10">
         {/* Character Info Row */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-md ${iconBgClass} shadow-md flex-shrink-0`}>
-              <Icon className="w-4 h-4" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            {/* Character Image/Icon */}
+            <div className={`relative p-2 rounded-lg ${iconBgClass} shadow-md flex-shrink-0 border border-gray-600/50`}>
+              {isPlayer ? (
+                <div className="relative w-12 h-12 flex items-center justify-center">
+                  <img
+                    src={characterData[(character as PlayerCharacter).class].sprite}
+                    alt={character.name}
+                    className="w-10 h-10 object-contain filter brightness-110"
+                    style={{ imageRendering: 'pixelated' }}
+                    onError={(e) => {
+                      // Fallback to icon if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <Icon className="w-6 h-6 hidden text-blue-300" />
+                </div>
+              ) : (
+                <div className="w-12 h-12 flex items-center justify-center">
+                  <Icon className="w-6 h-6" />
+                </div>
+              )}
             </div>
+
+            {/* Character Info */}
             <div>
-              <h3 className="font-bold text-sm font-orbitron">{character.name}</h3>
+              <h3 className="font-bold text-base font-orbitron">{character.name}</h3>
               {"title" in character && character.title && (
                 <p className="text-xs opacity-70 font-medium">
                   {character.title}

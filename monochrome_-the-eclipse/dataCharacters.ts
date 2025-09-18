@@ -10,7 +10,7 @@ export const characterData = {
     mainEffect: StatusEffectType.AMPLIFY,
     subEffect: StatusEffectType.RESONANCE,
     innatePassives: ["전투 시작 시 증폭을 2 얻습니다."],
-    sprite: "/monocrome-eclips/sprites/characters/warrior.png",
+    sprite: "/monocrome-eclips/sprites/characters/tank.png",
   },
   [CharacterClass.ROGUE]: {
     name: "신제우",
@@ -32,7 +32,7 @@ export const characterData = {
     mainEffect: StatusEffectType.COUNTER,
     subEffect: StatusEffectType.SHATTER,
     innatePassives: ["전투 시작 시 공격과 방어를 3 얻습니다."],
-    sprite: "/monocrome-eclips/sprites/characters/tank.png",
+    sprite: "/monocrome-eclips/sprites/characters/warrior.png",
   },
   [CharacterClass.MAGE]: {
     name: "박재석",

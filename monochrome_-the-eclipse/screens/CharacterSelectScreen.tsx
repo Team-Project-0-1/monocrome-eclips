@@ -50,7 +50,22 @@ export const CharacterSelectScreen = () => {
                                             ${isUnlocked ? "bg-gray-800 hover:bg-gray-700 hover:shadow-blue-500/30 cursor-pointer border-2 border-gray-700 hover:border-blue-500"
                                                         : "bg-gray-700 cursor-not-allowed opacity-60 border-2 border-gray-600"}`}>
                                     {testMode && !metaProgress.unlockedCharacters.includes(classType as CharacterClass) && (<div className="absolute top-2 right-2 text-xs bg-yellow-500 text-black px-1.5 py-0.5 rounded-full font-semibold">TEST</div>)}
-                                    <TypedIcon className={`w-12 h-12 mx-auto mb-3 ${isUnlocked ? 'text-blue-400 group-hover:text-blue-300' : 'text-gray-500'}`} />
+
+                                    {/* Character Sprite */}
+                                    <div className="relative w-24 h-24 mx-auto mb-3 flex items-center justify-center">
+                                        {isUnlocked ? (
+                                            <img
+                                                src={data.sprite}
+                                                alt={data.name}
+                                                className="w-20 h-20 object-contain filter group-hover:brightness-110 transition-all duration-200"
+                                                style={{ imageRendering: 'pixelated' }}
+                                            />
+                                        ) : (
+                                            <div className="w-20 h-20 bg-gray-600 rounded-lg flex items-center justify-center">
+                                                <TypedIcon className="w-10 h-10 text-gray-500" />
+                                            </div>
+                                        )}
+                                    </div>
                                     <h3 className="font-bold text-lg mb-1">{data.name}</h3>
                                     <p className="text-xs text-gray-400 mb-2">{data.title}</p>
                                     {isUnlocked ? (

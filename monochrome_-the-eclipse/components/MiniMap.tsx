@@ -48,15 +48,21 @@ const MiniMap: React.FC<MiniMapProps> = ({ nodes, currentTurn, path }) => {
     }, [path]);
 
     return (
-      <div className="bg-gray-800/80 p-3 rounded-lg border border-gray-700/50 backdrop-blur-sm">
-        <h3 className="text-white text-sm font-bold mb-3 flex items-center justify-between">
+      <div className="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50 backdrop-blur-sm shadow-lg relative">
+        {/* Header with enhanced styling */}
+        <h3 className="text-white text-base font-bold mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Map className="w-4 h-4" />
-            던전 진행도
+            <div className="p-1 rounded bg-blue-500/20">
+              <Map className="w-5 h-5 text-blue-400" />
+            </div>
+            <span className="text-gray-200">던전 진행도</span>
           </div>
-          <span className="text-yellow-400 text-xs">
-            {currentTurn} / {STAGE_TURNS}층
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">현재</span>
+            <span className="text-yellow-400 text-sm font-bold bg-yellow-400/10 px-2 py-1 rounded">
+              {currentTurn} / {STAGE_TURNS}층
+            </span>
+          </div>
         </h3>
         <div className="overflow-x-auto">
           <div className="relative">
@@ -85,14 +91,14 @@ const MiniMap: React.FC<MiniMapProps> = ({ nodes, currentTurn, path }) => {
                 const isPastTurn = turnNumber < currentTurn;
 
                 return (
-                  <div key={turnIndex} className={`flex flex-col items-center gap-1 min-w-[40px] p-1 rounded-md transition-all ${isCurrentTurn ? 'bg-yellow-500/10' : ''}`}>
+                  <div key={turnIndex} className={`flex flex-col items-center gap-2 min-w-[48px] p-2 rounded-lg transition-all ${isCurrentTurn ? 'bg-yellow-500/15 border border-yellow-500/30' : 'bg-gray-700/30'}`}>
                     <div
-                      className={`text-xs font-bold px-1 rounded ${
+                      className={`text-xs font-bold px-2 py-1 rounded-full border transition-all ${
                         isCurrentTurn
-                          ? 'text-yellow-400'
+                          ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/50 shadow-sm'
                           : isPastTurn
-                          ? 'text-gray-400'
-                          : 'text-gray-500'
+                          ? 'text-green-400 bg-green-400/10 border-green-400/30'
+                          : 'text-gray-500 bg-gray-600/20 border-gray-600/30'
                       }`}
                     >
                       {turnNumber}
@@ -106,16 +112,20 @@ const MiniMap: React.FC<MiniMapProps> = ({ nodes, currentTurn, path }) => {
                           <div
                             key={node.id}
                             title={tooltipText}
-                            className={`w-7 h-7 rounded-md border-2 flex items-center justify-center transition-all 
+                            className={`w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all duration-300 shadow-sm
                                         ${
                                           visited
-                                            ? 'bg-green-700 border-green-500'
+                                            ? 'bg-green-700/80 border-green-500 shadow-green-500/30'
                                             : isCurrentTurn
-                                            ? 'bg-gray-700 border-gray-500 animate-pulse'
-                                            : 'bg-gray-700 border-gray-600'
+                                            ? 'bg-yellow-600/60 border-yellow-500 animate-pulse shadow-yellow-500/30'
+                                            : 'bg-gray-700/60 border-gray-600 hover:border-gray-500'
                                         }`}
                           >
                             <NodeIcon type={node.type} size="sm" />
+                            {/* Subtle glow effect for visited nodes */}
+                            {visited && (
+                              <div className="absolute inset-0 rounded-lg bg-green-400/10 animate-pulse"></div>
+                            )}
                           </div>
                         )
                       })}

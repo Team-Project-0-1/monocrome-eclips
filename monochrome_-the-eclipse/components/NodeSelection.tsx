@@ -52,12 +52,20 @@ const NodeSelection: React.FC<NodeSelectionProps> = ({ nodes, onSelect, currentT
   };
 
   return (
-    <div className="space-y-4 p-4 bg-gray-800/50 rounded-lg shadow-xl backdrop-blur-sm border border-gray-700/50">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-white">
-          층 {currentTurn} - 어느 길로 가시겠습니까?
+    <div className="space-y-6 p-6 bg-gray-800/70 rounded-xl shadow-2xl backdrop-blur-md border border-gray-600/50 relative">
+      {/* Atmospheric header */}
+      <div className="text-center relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent rounded-lg"></div>
+        <h2 className="text-3xl font-bold text-white mb-2 relative z-10">
+          <span className="text-blue-400">던전</span> {currentTurn}층
         </h2>
-        <p className="text-sm text-gray-400">선택지를 클릭하여 진행하세요</p>
+        <p className="text-base text-gray-300 mb-1 relative z-10">어느 길로 가시겠습니까?</p>
+        <p className="text-xs text-gray-500 relative z-10">선택지를 클릭하여 진행하세요</p>
+
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
+          <Skull className="w-6 h-6 text-gray-600/30" />
+        </div>
       </div>
       <div className="flex flex-col md:flex-row justify-center items-stretch gap-4">
         {nodes.map((node, index) => {
@@ -67,16 +75,30 @@ const NodeSelection: React.FC<NodeSelectionProps> = ({ nodes, onSelect, currentT
               onClick={() => handleSelect(node, index)}
               animate={selectedNode?.id === node.id ? { scale: 1.5, opacity: 0, zIndex: 50 } : {}}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
-              className={`p-6 rounded-lg shadow-md hover:shadow-xl transition-all border-2 flex-1 max-w-sm flex flex-col items-center text-center group
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={`p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-2 flex-1 max-w-sm flex flex-col items-center text-center group relative overflow-hidden
                         ${nodeColors[node.type] || 'border-gray-600 hover:border-gray-400 bg-gray-700 text-gray-200'}`}
             >
-              <div className="mb-3 transition-transform group-hover:scale-110">
+              {/* Background glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              {/* Icon container with enhanced effects */}
+              <div className="relative mb-4 p-3 rounded-full bg-black/20 group-hover:bg-black/30 transition-all duration-300 group-hover:shadow-lg">
+                <div className="transition-transform group-hover:scale-125 duration-300">
                   <NodeIcon type={node.type} size="lg" />
+                </div>
+                {/* Subtle pulse effect for emphasis */}
+                <div className="absolute inset-0 rounded-full bg-white/5 animate-pulse opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
+
+              <h3 className="font-bold text-xl mb-2 flex items-center gap-2 relative z-10">
                 {nodeTypeNames[node.type]}
               </h3>
-              <p className="text-xs opacity-80 leading-tight flex-grow">{nodeTypeDescriptions[node.type]}</p>
+              <p className="text-sm opacity-90 leading-relaxed flex-grow relative z-10">{nodeTypeDescriptions[node.type]}</p>
+
+              {/* Bottom accent line */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
             </motion.button>
           );
         })}
