@@ -49,13 +49,13 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
             const effectKey = effectNameMap.get(part);
             if (effectKey) {
                 return (
-                    <button 
-                        key={index} 
-                        onClick={(e) => handleClickKeyword(e, effectKey)} 
-                        className={`${keywordStyles[part]} cursor-help underline decoration-dotted decoration-gray-500 hover:decoration-white transition-colors focus:outline-none`}
+                    <span
+                        key={index}
+                        onClick={(e) => handleClickKeyword(e, effectKey)}
+                        className={`${keywordStyles[part]} cursor-help underline decoration-dotted decoration-gray-500 hover:decoration-white transition-colors`}
                     >
                         {part}
-                    </button>
+                    </span>
                 );
             }
             if (/^\d+$/.test(part)) {

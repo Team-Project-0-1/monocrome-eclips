@@ -21,7 +21,7 @@ export const monsterData: MonsterData = {
         patterns: ["MARAUDER1_PURSUE", "MARAUDER1_MANGLE", "MARAUDER1_SHARPEN"],
         tier: "normal",
         passives: ["PASSIVE_MARAUDER1_CRUEL_INTERIOR"],
-        sprite: "/sprites/monsters/marauder1.svg",
+        sprite: "/monocrome-eclips/sprites/monsters/001_looter1.png",
     },
     marauder2: {
         name: "약탈자2", // 전사형 (Warrior)
@@ -31,7 +31,7 @@ export const monsterData: MonsterData = {
         patterns: ["MARAUDER2_SWING", "MARAUDER2_JUGGERNAUT", "MARAUDER2_CHARGE"],
         tier: "normal",
         passives: ["PASSIVE_MARAUDER2_MUSCLE_GROWTH"],
-        sprite: "/sprites/monsters/marauder2.svg",
+        sprite: "/monocrome-eclips/sprites/monsters/002_looter2.png",
     },
     infectedDog: {
         name: "감염된 들개", // 마법형 (Mage)
@@ -40,7 +40,7 @@ export const monsterData: MonsterData = {
         baseDef: 0,
         patterns: ["INFECTEDDOG_BITE", "INFECTEDDOG_NECKBITE", "INFECTEDDOG_PUS"],
         tier: "normal",
-        sprite: "/sprites/monsters/infected-dog.svg",
+        sprite: "/monocrome-eclips/sprites/monsters/003_wild_dog.png",
     },
     // Stage 1 Miniboss
     marauderLeader: {
@@ -51,7 +51,7 @@ export const monsterData: MonsterData = {
         patterns: ["LEADER_QUESTION", "LEADER_DEMAND", "LEADER_WAIT", "LEADER_STAY"],
         tier: "miniboss",
         passives: ["PASSIVE_LEADER_HARD_SKIN"],
-        sprite: "/sprites/monsters/marauder-leader.svg",
+        sprite: "/monocrome-eclips/sprites/monsters/004_looter_leader.png",
     },
     // Stage 1 Boss
     lumenReaper: {
@@ -72,7 +72,7 @@ export const monsterData: MonsterData = {
             "PASSIVE_REAPER_AMBUSH",
             "PASSIVE_REAPER_VITAL_STRIKE"
         ],
-        sprite: "/sprites/monsters/lumen-reaper.svg",
+        sprite: "/monocrome-eclips/sprites/monsters/005_lumen_reaper.png",
     },
 };
 

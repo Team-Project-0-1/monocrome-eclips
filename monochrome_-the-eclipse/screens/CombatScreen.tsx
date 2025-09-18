@@ -146,16 +146,17 @@ export const CombatScreen: React.FC = () => {
             >
                 {/* Left Column: Player Info & Actions */}
                 <div className="flex flex-col gap-4 min-h-0">
-                    <div className={`${transitionClasses} ${nonTargetClasses}`}>
-                        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+                    {/* Large Player Portrait */}
+                    <div className={`${transitionClasses} ${nonTargetClasses} flex flex-col items-center`}>
+                        <div className="w-full max-w-[300px] mb-4">
                             <CombatPortrait character={player} isPlayer subdued={isFocusMode} />
-                            <div className="relative flex-1">
-                                <CharacterStatus character={player} isPlayer={true} prediction={combatPrediction} />
-                                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
-                                    {combatEffects.filter(e => e.target === 'player').map(effect => (
-                                        <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
-                                    ))}
-                                </div>
+                        </div>
+                        <div className="relative w-full">
+                            <CharacterStatus character={player} isPlayer={true} prediction={combatPrediction} />
+                            <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
+                                {combatEffects.filter(e => e.target === 'player').map(effect => (
+                                    <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -235,17 +236,18 @@ export const CombatScreen: React.FC = () => {
 
                 {/* Right Column: Enemy Info */}
                 <div className={`flex flex-col gap-4 min-h-0 ${transitionClasses} ${nonTargetClasses}`}>
-                    <div>
-                        <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-                            <div className="relative flex-1 order-2 sm:order-1">
-                                <CharacterStatus character={enemy} prediction={combatPrediction} />
-                                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
-                                    {combatEffects.filter(e => e.target === 'enemy').map(effect => (
-                                        <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
-                                    ))}
-                                </div>
-                            </div>
+                    {/* Large Enemy Portrait */}
+                    <div className="flex flex-col items-center">
+                        <div className="w-full max-w-[300px] mb-4">
                             <CombatPortrait character={enemy} subdued={isFocusMode} />
+                        </div>
+                        <div className="relative w-full">
+                            <CharacterStatus character={enemy} prediction={combatPrediction} />
+                            <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center overflow-hidden">
+                                {combatEffects.filter(e => e.target === 'enemy').map(effect => (
+                                    <CombatEffect key={effect.id} effect={effect} onComplete={removeCombatEffect} />
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className="bg-gray-800 rounded-lg flex-grow min-h-0">

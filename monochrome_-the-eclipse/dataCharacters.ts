@@ -10,7 +10,7 @@ export const characterData = {
     mainEffect: StatusEffectType.AMPLIFY,
     subEffect: StatusEffectType.RESONANCE,
     innatePassives: ["전투 시작 시 증폭을 2 얻습니다."],
-    sprite: "/sprites/characters/warrior.svg",
+    sprite: "/monocrome-eclips/sprites/characters/warrior.png",
   },
   [CharacterClass.ROGUE]: {
     name: "신제우",
@@ -21,7 +21,7 @@ export const characterData = {
     mainEffect: StatusEffectType.PURSUIT,
     subEffect: StatusEffectType.BLEED,
     innatePassives: ["전투 시작 시 첫번째 동전은 반드시 앞면이 됩니다."],
-    sprite: "/sprites/characters/rogue.svg",
+    sprite: "/monocrome-eclips/sprites/characters/rogue.png",
   },
   [CharacterClass.TANK]: {
     name: "곽장환",
@@ -32,7 +32,7 @@ export const characterData = {
     mainEffect: StatusEffectType.COUNTER,
     subEffect: StatusEffectType.SHATTER,
     innatePassives: ["전투 시작 시 공격과 방어를 3 얻습니다."],
-    sprite: "/sprites/characters/tank.svg",
+    sprite: "/monocrome-eclips/sprites/characters/tank.png",
   },
   [CharacterClass.MAGE]: {
     name: "박재석",
@@ -43,7 +43,7 @@ export const characterData = {
     mainEffect: StatusEffectType.CURSE,
     subEffect: StatusEffectType.SEAL,
     innatePassives: ["5턴간 디버프 피해를 받지 않고 저장했다가, 5턴 후 누적된 피해를 한번에 받습니다."],
-    sprite: "/sprites/characters/mage.svg",
+    sprite: "/monocrome-eclips/sprites/characters/mage.png",
   },
 };
 
