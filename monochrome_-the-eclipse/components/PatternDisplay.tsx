@@ -61,12 +61,6 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
 
   return (
     <div className="flex flex-col h-full">
-      <div className="text-center mb-3 flex-shrink-0">
-        <h3 className="font-bold text-white">가능한 족보 선택</h3>
-        <p className="text-xs text-gray-400">
-          ({groupedPatterns.length} 종류)
-        </p>
-      </div>
       <div className="space-y-2 flex-grow overflow-y-auto pr-2">
         {groupedPatterns.map((group) => {
           const { type, face, abilityDef, allInstances } = group;

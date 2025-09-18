@@ -26,8 +26,7 @@ const ActiveSkillButton: React.FC<ActiveSkillButtonProps> = ({ player, onClick, 
     const Icon = skillIcons[player.class];
 
     return (
-        <div className="bg-gray-900/50 p-3 rounded-lg mt-4 border border-gray-700">
-            <h4 className="text-center text-sm font-bold text-gray-300 mb-2">고유 기술</h4>
+        <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700 h-full">
             <button
                 onClick={onClick}
                 disabled={disabled}
