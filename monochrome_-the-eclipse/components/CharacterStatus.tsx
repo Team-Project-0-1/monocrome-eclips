@@ -79,53 +79,61 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
   const predictedDamage = isPlayer ? prediction?.damageToPlayer : prediction?.damageToEnemy;
 
   return (
-    <motion.div 
+    <motion.div
       animate={shakeControls}
-      className={`p-4 rounded-lg border shadow-xl ${containerClass} relative backdrop-blur-sm`}
+      className={`p-3 rounded-lg border shadow-lg ${containerClass} relative backdrop-blur-sm`}
     >
        <motion.div
         className="absolute inset-0 rounded-lg pointer-events-none z-0"
         animate={flashControls}
       />
       <div className="relative z-10">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-md ${iconBgClass} shadow-md`}>
-              <Icon className="w-6 h-6" />
+        {/* Character Info Row */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className={`p-1.5 rounded-md ${iconBgClass} shadow-md flex-shrink-0`}>
+              <Icon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-xl font-orbitron">{character.name}</h3>
+              <h3 className="font-bold text-sm font-orbitron">{character.name}</h3>
               {"title" in character && character.title && (
-                <p className="text-xs opacity-80 font-medium">
+                <p className="text-xs opacity-70 font-medium">
                   {character.title}
                 </p>
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-center">
-             <div className="flex flex-col items-center px-2 py-1 rounded-md bg-black/20">
-                <div className="flex items-center gap-1 text-xs text-red-300 opacity-80"><Swords size={12}/>공격</div>
-                <div className="font-bold text-lg font-orbitron">{character.baseAtk}</div>
-             </div>
-             <div className="flex flex-col items-center px-2 py-1 rounded-md bg-black/20">
-                <div className="flex items-center gap-1 text-xs text-blue-300 opacity-80"><Shield size={12}/>방어</div>
-                <div className="font-bold text-lg font-orbitron">{character.baseDef}</div>
-             </div>
-          </div>
         </div>
 
-        <div className="mb-4">
-          <HealthBar 
-            current={character.currentHp} 
+        {/* Health Bar */}
+        <div className="mb-2">
+          <HealthBar
+            current={character.currentHp}
             max={character.maxHp}
             temporaryDefense={temporaryDefense}
             predictedDamage={predictedDamage}
-            isPlayer={isPlayer} 
+            isPlayer={isPlayer}
           />
         </div>
-        
-        <div className="min-h-[4rem]">
-          <EnhancedStatusEffectDisplay effects={character.statusEffects} />
+
+        {/* Stats and Status Effects Row */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Attack/Defense Stats */}
+          <div className="flex gap-2">
+             <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-black/20">
+                <Swords size={10} className="text-red-300"/>
+                <span className="text-xs font-bold">{character.baseAtk}</span>
+             </div>
+             <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-black/20">
+                <Shield size={10} className="text-blue-300"/>
+                <span className="text-xs font-bold">{character.baseDef}</span>
+             </div>
+          </div>
+
+          {/* Status Effects */}
+          <div className="flex-1 min-w-0">
+            <EnhancedStatusEffectDisplay effects={character.statusEffects} />
+          </div>
         </div>
       </div>
     </motion.div>
