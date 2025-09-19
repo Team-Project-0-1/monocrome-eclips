@@ -9,52 +9,59 @@ interface CombatPredictionPanelProps {
 const CombatPredictionPanel: React.FC<CombatPredictionPanelProps> = ({ prediction }) => {
   if (!prediction) {
     return (
-      <div className="p-4 bg-gray-800/50 text-gray-400 text-center rounded-lg min-h-[96px] flex flex-col items-center justify-center text-sm border-2 border-dashed border-gray-600">
-        <h3 className="font-bold text-lg mb-2">전투 예측</h3>
-        <p>족보를 선택하여 결과를 예측하세요.</p>
+      <div className="p-3 bg-gray-800/50 text-gray-400 text-center rounded-lg min-h-[80px] flex flex-col items-center justify-center text-sm border-2 border-dashed border-gray-600">
+        <div className="text-xs uppercase tracking-wider mb-1">전투 예측</div>
+        <p className="text-xs">족보 선택 시 결과 표시</p>
       </div>
     );
   }
 
   const { player, enemy, damageToPlayer, damageToEnemy } = prediction;
 
-  const renderSection = (
-    title: string,
-    value: number,
-    color: 'green' | 'blue' | 'red' | 'gray',
-    Icon: React.ElementType
-  ) => (
-    <div className={`p-3 rounded-md bg-black/20 flex-1 text-center`}>
-      <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Icon size={16} className={`text-${color}-400`} />
-          <span className={`font-semibold text-sm text-white`}>{title}</span>
-      </div>
-      <span className={`font-bold text-3xl text-${color}-400 font-orbitron`}>{value}</span>
-    </div>
-  );
-
   return (
-    <div className="p-4 bg-gray-700/80 text-white rounded-lg shadow-inner space-y-4 border border-gray-600">
-        <h3 className="text-center font-bold text-lg text-gray-300">이번 턴 파워</h3>
-        <div className="flex justify-center items-stretch gap-3">
-            {renderSection('나의 공격', player.attack.total, 'green', Swords)}
-            {renderSection('나의 방어', player.defense.total, 'blue', Shield)}
-        </div>
-        
-        <div className="border-b border-gray-600/50"></div>
-      
-        <h3 className="text-center font-bold text-lg text-gray-300">예상 결과</h3>
-        <div className="flex justify-around items-center text-lg font-bold p-2 bg-black/20 rounded-md">
-            <div className="flex flex-col items-center text-green-400">
-                <span>가하는 피해</span>
-                <span className="text-4xl font-orbitron">{damageToEnemy}</span>
+    <div className="bg-gray-800/80 text-white rounded-lg border border-gray-600 overflow-hidden">
+      {/* Compact Battle Preview */}
+      <div className="px-3 py-2 bg-gray-700/50 border-b border-gray-600">
+        <div className="text-xs uppercase tracking-wider text-center text-gray-300">전투 예측</div>
+      </div>
+
+      {/* Damage Exchange */}
+      <div className="p-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Player Damage */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1 mb-1">
+              <Swords size={14} className="text-green-400" />
+              <span className="text-xs text-gray-300">공격</span>
             </div>
-            <ArrowRight size={24} className="text-gray-400" />
-            <div className="flex flex-col items-center text-red-400">
-                <span>받는 피해</span>
-                <span className="text-4xl font-orbitron">{damageToPlayer}</span>
+            <div className="text-lg font-bold text-green-400">{damageToEnemy}</div>
+          </div>
+
+          {/* VS Indicator */}
+          <div className="flex flex-col items-center">
+            <ArrowRight size={16} className="text-gray-500 mb-1" />
+            <div className="text-xs text-gray-400">vs</div>
+          </div>
+
+          {/* Enemy Damage */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-xs text-gray-300">피해</span>
+              <Shield size={14} className="text-red-400" />
             </div>
+            <div className="text-lg font-bold text-red-400">{damageToPlayer}</div>
+          </div>
         </div>
+
+        {/* Power Summary */}
+        <div className="mt-3 pt-2 border-t border-gray-700">
+          <div className="flex justify-center gap-4 text-xs">
+            <span className="text-blue-400">방어 {player.defense.total}</span>
+            <span className="text-gray-500">•</span>
+            <span className="text-green-400">공격 {player.attack.total}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
