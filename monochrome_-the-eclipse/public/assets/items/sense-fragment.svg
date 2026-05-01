@@ -1,0 +1,26 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sense-main" x1="74" y1="32" x2="186" y2="222" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f0fdff"/>
+      <stop offset="0.28" stop-color="#67e8f9"/>
+      <stop offset="0.58" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="sense-edge" x1="49" y1="181" x2="208" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22d3ee"/>
+      <stop offset="0.5" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <filter id="sense-glow" x="-30" y="-30" width="316" height="316" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.24 0 0 0 0 0.86 0 0 0 0 1 0 0 0 0.85 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <path d="M128 20L197 84L172 220H84L59 84L128 20Z" fill="#06101d" opacity="0.82"/>
+  <path d="M128 24L190 86L162 214L128 232L94 214L66 86L128 24Z" fill="url(#sense-main)" filter="url(#sense-glow)"/>
+  <path d="M128 24L128 232M66 86L128 112L190 86M94 214L128 112L162 214" stroke="url(#sense-edge)" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M71 151L38 190L74 182M185 142L221 168L185 176" stroke="#67e8f9" stroke-opacity="0.8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M99 78L128 49L157 78L128 93L99 78Z" fill="#f8fafc" fill-opacity="0.56"/>
+  <circle cx="128" cy="128" r="86" stroke="#f8fafc" stroke-opacity="0.13" stroke-width="2"/>
+</svg>
