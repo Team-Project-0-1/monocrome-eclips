@@ -5,6 +5,7 @@ import EnhancedStatusEffectDisplay from './EnhancedStatusEffectDisplay';
 import { Heart, Swords, Shield, AlertTriangle, Zap, Target, ShieldCheck, Ghost, Star, Skull, Square } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
+import { assetPath } from '../utils/assetPath';
 
 interface CharacterStatusProps {
   character: PlayerCharacter | EnemyCharacter;
@@ -67,6 +68,9 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
   };
 
   const Icon = getIcon();
+  const portraitSrc = 'portraitSrc' in character && character.portraitSrc ? assetPath(character.portraitSrc) : undefined;
+  const weapon = isPlayer && 'weapon' in character ? character.weapon : undefined;
+  const signature = isPlayer && 'signature' in character ? character.signature : undefined;
 
   const temporaryDefense = Number(character.temporaryDefense) || 0;
 
@@ -90,14 +94,30 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-md ${iconBgClass} shadow-md`}>
-              <Icon className="w-6 h-6" />
+            <div className={`h-14 w-14 overflow-hidden rounded-md ${iconBgClass} shadow-md ring-1 ring-white/10`}>
+              {portraitSrc ? (
+                <img src={portraitSrc} alt="" className="h-full w-full object-cover object-center" loading="lazy" decoding="async" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Icon className="w-6 h-6" />
+                </div>
+              )}
             </div>
             <div>
               <h3 className="font-bold text-xl font-orbitron">{character.name}</h3>
               {"title" in character && character.title && (
                 <p className="text-xs opacity-80 font-medium">
                   {character.title}
+                </p>
+              )}
+              {weapon && (
+                <p className="text-xs font-medium text-cyan-200/90">
+                  무기: {weapon}
+                </p>
+              )}
+              {signature && (
+                <p className="text-xs font-medium text-gray-300">
+                  {signature}
                 </p>
               )}
             </div>

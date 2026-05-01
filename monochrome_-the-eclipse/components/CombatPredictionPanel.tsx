@@ -21,15 +21,15 @@ const CombatPredictionPanel: React.FC<CombatPredictionPanelProps> = ({ predictio
   const renderSection = (
     title: string,
     value: number,
-    color: 'green' | 'blue' | 'red' | 'gray',
+    colorClass: string,
     Icon: React.ElementType
   ) => (
     <div className={`p-3 rounded-md bg-black/20 flex-1 text-center`}>
       <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Icon size={16} className={`text-${color}-400`} />
+          <Icon size={16} className={colorClass} />
           <span className={`font-semibold text-sm text-white`}>{title}</span>
       </div>
-      <span className={`font-bold text-3xl text-${color}-400 font-orbitron`}>{value}</span>
+      <span className={`font-bold text-3xl ${colorClass} font-orbitron`}>{value}</span>
     </div>
   );
 
@@ -37,8 +37,8 @@ const CombatPredictionPanel: React.FC<CombatPredictionPanelProps> = ({ predictio
     <div className="p-4 bg-gray-700/80 text-white rounded-lg shadow-inner space-y-4 border border-gray-600">
         <h3 className="text-center font-bold text-lg text-gray-300">이번 턴 파워</h3>
         <div className="flex justify-center items-stretch gap-3">
-            {renderSection('나의 공격', player.attack.total, 'green', Swords)}
-            {renderSection('나의 방어', player.defense.total, 'blue', Shield)}
+            {renderSection('나의 공격', player.attack.total, 'text-green-400', Swords)}
+            {renderSection('나의 방어', player.defense.total, 'text-blue-400', Shield)}
         </div>
         
         <div className="border-b border-gray-600/50"></div>

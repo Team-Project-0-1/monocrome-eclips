@@ -79,25 +79,4 @@ const EventCoinFlip: React.FC<EventCoinFlipProps> = ({ targetHeads, onComplete }
     </div>
   );
 };
-// Add CSS for y-rotation if not already handled by Tailwind utility
-try {
-  const styleSheet = document.styleSheets[0];
-  let ruleExists = false;
-  // A simple check to see if a similar rule already exists.
-  for (let i = 0; i < styleSheet.cssRules.length; i++) {
-    if (styleSheet.cssRules[i].cssText.includes('rotate-y-0')) {
-      ruleExists = true;
-      break;
-    }
-  }
-
-  if (!ruleExists) {
-    styleSheet.insertRule('.rotate-y-0 { transform: rotateY(0deg); }', styleSheet.cssRules.length);
-    styleSheet.insertRule('.rotate-y-180 { transform: rotateY(180deg); }', styleSheet.cssRules.length);
-  }
-} catch (e) {
-    console.warn("Could not insert EventCoinFlip CSS rules, likely because they already exist.");
-}
-
-
 export default EventCoinFlip;

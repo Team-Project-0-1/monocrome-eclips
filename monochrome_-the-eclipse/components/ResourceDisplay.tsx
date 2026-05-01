@@ -1,5 +1,7 @@
-
 import React from 'react';
+import { MAX_RESERVE_COINS } from '../constants';
+import { assetPath } from '../utils/assetPath';
+import { resourceIconPaths } from '../utils/resourceAssets';
 
 interface ResourceDisplayProps {
   resources: {
@@ -12,29 +14,55 @@ interface ResourceDisplayProps {
 
 const ResourceDisplay: React.FC<ResourceDisplayProps> = ({ resources, reserveCoins = [] }) => {
   const resourceItems = [
-    { name: "에코", value: resources.echoRemnants, icon: "⚡", color: "text-yellow-400", hoverColor: "hover:text-yellow-300", description: "주요 화폐, 상점 이용 및 일부 이벤트에 사용됩니다." },
-    { name: "감각", value: resources.senseFragments, icon: "🔮", color: "text-purple-400", hoverColor: "hover:text-purple-300", description: "족보 강화에 사용되는 특수 재화입니다." },
-    { name: "기억", value: resources.memoryPieces, icon: "💎", color: "text-blue-400", hoverColor: "hover:text-blue-300", description: "기억의 제단에서 영구 능력치 강화에 사용됩니다." },
-    { name: "예비 동전", value: `${reserveCoins.length}/3`, icon: "🪙", color: "text-orange-400", hoverColor: "hover:text-orange-300", description: "전투 중 교체 가능한 예비 동전입니다." },
+    {
+      name: '에코',
+      value: resources.echoRemnants,
+      imagePath: resourceIconPaths.echoRemnants,
+      color: 'text-yellow-300',
+      description: '상점과 일부 이벤트에서 사용하는 주 자원입니다.',
+    },
+    {
+      name: '감각',
+      value: resources.senseFragments,
+      imagePath: resourceIconPaths.senseFragments,
+      color: 'text-purple-300',
+      description: '족보 강화에 사용하는 특수 자원입니다.',
+    },
+    {
+      name: '기억',
+      value: resources.memoryPieces,
+      imagePath: resourceIconPaths.memoryPieces,
+      color: 'text-blue-300',
+      description: '기억의 제단에서 영구 능력 강화에 사용합니다.',
+    },
+    {
+      name: '행운 동전',
+      value: `${reserveCoins.length}/${MAX_RESERVE_COINS}`,
+      imagePath: resourceIconPaths.reserveCoin,
+      color: 'text-orange-300',
+      description: '전투 중 교체 가능한 행운 동전입니다.',
+    },
   ];
 
   return (
-    <div className="bg-gray-800 text-white p-4 rounded-lg shadow-xl border border-gray-700">
-      <h3 className="text-md font-bold mb-3 text-center text-gray-300">자원 현황</h3>
-      <div className="space-y-2">
-        {resourceItems.map((item, index) => (
-          <div key={index} className={`group relative flex items-center justify-between p-2 rounded-md bg-gray-700/50 hover:bg-gray-700 transition-colors`} title={item.description}>
+    <section className="resource-status-panel rounded-lg border border-white/10 bg-black/35 p-4 text-white shadow-xl backdrop-blur-md">
+      <h3 className="mb-3 text-center text-xs font-black uppercase tracking-[0.18em] text-slate-400">자원 현황</h3>
+      <div className="grid gap-2">
+        {resourceItems.map(({ name, value, imagePath, color, description }) => (
+          <div
+            key={name}
+            className="resource-status-row group relative flex items-center justify-between rounded-md border border-white/10 bg-white/5 p-2.5 transition-colors hover:bg-white/10"
+            title={description}
+          >
             <div className="flex items-center gap-2">
-              <span className={`text-lg ${item.color} ${item.hoverColor} transition-colors`}>{item.icon}</span>
-              <span className="text-sm text-gray-300">{item.name}</span>
+              <img className="resource-display-icon-img" src={assetPath(imagePath)} alt="" loading="lazy" />
+              <span className="text-sm font-semibold text-slate-200">{name}</span>
             </div>
-            <span className={`text-md font-bold ${item.color} ${item.hoverColor} transition-colors`}>
-              {item.value}
-            </span>
+            <span className={`text-base font-black ${color}`}>{value}</span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

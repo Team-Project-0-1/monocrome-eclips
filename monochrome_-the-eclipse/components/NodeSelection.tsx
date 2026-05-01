@@ -1,10 +1,11 @@
-
-
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { AlertTriangle, ArrowRight, RadioTower, Sparkles } from 'lucide-react';
 import { StageNode, NodeType } from '../types';
 import NodeIcon from './NodeIcon';
-import { motion } from 'framer-motion';
-import { Skull } from 'lucide-react';
+import { getNodePresentation } from '../utils/nodePresentation';
+import { useGameStore } from '../store/gameStore';
+import { playGameSfx, playUiSound } from '../utils/sound';
 
 interface NodeSelectionProps {
   nodes: StageNode[];
@@ -14,74 +15,105 @@ interface NodeSelectionProps {
 
 const NodeSelection: React.FC<NodeSelectionProps> = ({ nodes, onSelect, currentTurn }) => {
   const [selectedNode, setSelectedNode] = useState<StageNode | null>(null);
-  
+  const gameOptions = useGameStore(state => state.gameOptions);
+
   const handleSelect = (node: StageNode, index: number) => {
+    if (selectedNode) return;
+    playUiSound(gameOptions.soundEnabled, 'confirm');
+    playGameSfx(gameOptions.soundEnabled, [NodeType.COMBAT, NodeType.MINIBOSS, NodeType.BOSS].includes(node.type) ? 'combatStart' : 'eventChoice');
     setSelectedNode(node);
-    setTimeout(() => {
-        onSelect(node, index);
-        setSelectedNode(null); 
-    }, 600);
-  };
-    
-  const nodeTypeNames: { [key in NodeType]: string } = {
-    [NodeType.COMBAT]: '전투',
-    [NodeType.SHOP]: '상점',
-    [NodeType.REST]: '휴식',
-    [NodeType.EVENT]: '이벤트',
-    [NodeType.MINIBOSS]: '미니보스',
-    [NodeType.BOSS]: '보스',
-    [NodeType.UNKNOWN]: '???',
-  };
-  const nodeTypeDescriptions: { [key in NodeType]: string } = {
-    [NodeType.COMBAT]: '적과 전투를 벌입니다',
-    [NodeType.SHOP]: '자원으로 아이템을 구매합니다',
-    [NodeType.REST]: '능력을 강화합니다',
-    [NodeType.EVENT]: '선택에 따라 결과가 달라집니다',
-    [NodeType.MINIBOSS]: '강력한 적과의 전투입니다',
-    [NodeType.BOSS]: '스테이지의 최종 보스입니다',
-    [NodeType.UNKNOWN]: '무엇이 기다리고 있을까요?',
-  };
-  const nodeColors: { [key in NodeType]?: string } = {
-    [NodeType.COMBAT]: 'border-red-500/50 hover:border-red-500 bg-red-900/50 hover:bg-red-900/80 text-red-100',
-    [NodeType.SHOP]: 'border-purple-500/50 hover:border-purple-500 bg-purple-900/50 hover:bg-purple-900/80 text-purple-100',
-    [NodeType.REST]: 'border-green-500/50 hover:border-green-500 bg-green-900/50 hover:bg-green-900/80 text-green-100',
-    [NodeType.EVENT]: 'border-yellow-500/50 hover:border-yellow-500 bg-yellow-900/50 hover:bg-yellow-900/80 text-yellow-100',
-    [NodeType.MINIBOSS]: 'border-orange-400 hover:border-orange-500 bg-orange-900/80 hover:bg-orange-800/80 text-orange-100',
-    [NodeType.BOSS]: 'border-gray-500 hover:border-gray-300 bg-black hover:bg-gray-900 text-gray-100',
-    [NodeType.UNKNOWN]: 'border-gray-600 hover:border-gray-400 bg-gray-700 hover:bg-gray-600 text-gray-200',
+    window.setTimeout(() => {
+      onSelect(node, index);
+      setSelectedNode(null);
+    }, 420);
   };
 
   return (
-    <div className="space-y-4 p-4 bg-gray-800/50 rounded-lg shadow-xl backdrop-blur-sm border border-gray-700/50">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-white">
-          층 {currentTurn} - 어느 길로 가시겠습니까?
-        </h2>
-        <p className="text-sm text-gray-400">선택지를 클릭하여 진행하세요</p>
+    <section className="route-signal-board relative w-full overflow-hidden rounded-lg border border-white/10 bg-gray-950/80 p-4 shadow-2xl shadow-black/30 backdrop-blur-md sm:p-5">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_36%),linear-gradient(135deg,rgba(255,255,255,0.05)_0,transparent_28%)]" />
+      <div className="pointer-events-none absolute left-6 right-6 top-16 h-px bg-gradient-to-r from-transparent via-cyan-200/40 to-transparent" />
+
+      <div className="relative z-10 mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-md border border-cyan-300/30 bg-cyan-950/40 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            <RadioTower className="h-3.5 w-3.5" />
+            Floor {currentTurn} Signal
+          </div>
+          <h2 className="text-2xl font-black text-white sm:text-3xl">다음 신호를 고르세요</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-slate-300">
+            같은 전투라도 경로에 따라 체력, 보상, 빌드 방향이 달라집니다. 지금 필요한 것은 생존, 성장, 변수 중 무엇인지 판단하세요.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-xs text-slate-300">
+          <Sparkles className="h-4 w-4 text-amber-200" />
+          선택 즉시 다음 장면으로 진입합니다.
+        </div>
       </div>
-      <div className="flex flex-col md:flex-row justify-center items-stretch gap-4">
+
+      <div className="relative z-10 grid gap-3 md:grid-cols-3">
         {nodes.map((node, index) => {
+          const meta = getNodePresentation(node, index);
+          const isSelected = selectedNode?.id === node.id;
+          const isDanger = [NodeType.COMBAT, NodeType.MINIBOSS, NodeType.BOSS].includes(node.type);
+
           return (
             <motion.button
               key={node.id}
+              type="button"
               onClick={() => handleSelect(node, index)}
-              animate={selectedNode?.id === node.id ? { scale: 1.5, opacity: 0, zIndex: 50 } : {}}
-              transition={{ duration: 0.6, ease: 'easeInOut' }}
-              className={`p-6 rounded-lg shadow-md hover:shadow-xl transition-all border-2 flex-1 max-w-sm flex flex-col items-center text-center group
-                        ${nodeColors[node.type] || 'border-gray-600 hover:border-gray-400 bg-gray-700 text-gray-200'}`}
+              disabled={selectedNode !== null}
+              animate={isSelected ? { scale: 1.05, opacity: 0, y: -12 } : { scale: 1, opacity: 1, y: 0 }}
+              transition={{ duration: 0.42, ease: 'easeInOut' }}
+              whileHover={selectedNode ? undefined : { y: -3 }}
+              className={`route-node-card group relative min-h-[190px] overflow-hidden rounded-lg border p-4 text-left shadow-lg transition-all duration-200 disabled:cursor-wait ${meta.className}`}
             >
-              <div className="mb-3 transition-transform group-hover:scale-110">
-                  <NodeIcon type={node.type} size="lg" />
+              <div className={`absolute inset-x-4 top-0 h-px bg-gradient-to-r ${meta.lineClassName}`} />
+              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/10 blur-2xl transition-opacity group-hover:opacity-80" />
+
+              <div className="relative flex h-full flex-col">
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
+                      Path {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <div className="mt-1 text-sm font-bold text-white">{meta.routeName}</div>
+                  </div>
+                  <div className={`rounded-md border border-white/15 bg-black/30 p-2 ${meta.iconClassName}`}>
+                    <NodeIcon type={node.type} size="lg" />
+                  </div>
+                </div>
+
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="rounded bg-white/10 px-2 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white/80">
+                    {meta.signal}
+                  </span>
+                  {isDanger ? <AlertTriangle className="h-4 w-4 text-current opacity-80" /> : null}
+                </div>
+
+                <h3 className="text-xl font-black text-white">{meta.label}</h3>
+                <p className="route-node-description mt-2 flex-1 text-sm leading-relaxed text-white/75">{meta.description}</p>
+
+                <div className="route-node-meta mt-4 grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2">
+                    <div className="text-white/45">위험</div>
+                    <div className="font-bold text-white">{meta.risk}</div>
+                  </div>
+                  <div className="rounded-md border border-white/10 bg-black/25 px-2.5 py-2">
+                    <div className="text-white/45">기대 보상</div>
+                    <div className="font-bold text-white">{meta.reward}</div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-xs font-bold text-white/80">
+                  <span>{meta.routeHint} · {meta.stake}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
               </div>
-              <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
-                {nodeTypeNames[node.type]}
-              </h3>
-              <p className="text-xs opacity-80 leading-tight flex-grow">{nodeTypeDescriptions[node.type]}</p>
             </motion.button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useGameStore } from './store/gameStore';
 import { GameState } from "./types";
 import { AnimatePresence } from 'framer-motion';
@@ -10,6 +10,7 @@ import { CombatScreen } from './screens/CombatScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { RestScreen } from './screens/RestScreen';
 import { EventScreen } from './screens/EventScreen';
+import { CombatRewardScreen } from './screens/CombatRewardScreen';
 import { GameOverScreen } from './screens/GameOverScreen';
 import { VictoryScreen } from './screens/VictoryScreen';
 import { StageClearScreen } from './screens/StageClearScreen';
@@ -18,6 +19,11 @@ import { MemoryAltarScreen } from './screens/MemoryAltarScreen';
 import InventoryPanel from './components/InventoryPanel';
 import SkillReplacementModal from './components/modals/SkillReplacementModal';
 import KeywordTooltip from "./components/KeywordTooltip";
+import TutorialCoachmark from "./components/TutorialCoachmark";
+import AudioController from "./components/AudioController";
+import { validateContentManifest } from "./utils/contentValidation";
+
+let contentValidationLogged = false;
 
 export const App: React.FC = () => {
   const gameState = useGameStore(state => state.gameState);
@@ -28,6 +34,32 @@ export const App: React.FC = () => {
   const forgetSkill = useGameStore(state => state.forgetSkill);
   const tooltip = useGameStore(state => state.tooltip);
   const hideTooltip = useGameStore(state => state.hideTooltip);
+  const gameOptions = useGameStore(state => state.gameOptions);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    if (contentValidationLogged) return;
+    contentValidationLogged = true;
+
+    const issues = validateContentManifest();
+    issues.forEach((issue) => {
+      if (issue.severity === 'error') {
+        console.error(`[content:${issue.severity}] ${issue.scope} - ${issue.message}`);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.reduceMotion = gameOptions.reducedMotion ? 'true' : 'false';
+    document.documentElement.dataset.highContrast = gameOptions.highContrast ? 'true' : 'false';
+    document.documentElement.dataset.largeText = gameOptions.largeText ? 'true' : 'false';
+    document.documentElement.dataset.combatAssist = gameOptions.combatAssist ? 'true' : 'false';
+  }, [
+    gameOptions.combatAssist,
+    gameOptions.highContrast,
+    gameOptions.largeText,
+    gameOptions.reducedMotion,
+  ]);
 
   const renderGame = () => {
     switch (gameState) {
@@ -45,6 +77,8 @@ export const App: React.FC = () => {
         return <RestScreen />;
       case GameState.EVENT:
         return <EventScreen />;
+      case GameState.REWARD:
+        return <CombatRewardScreen />;
       case GameState.GAME_OVER:
         return <GameOverScreen />;
       case GameState.VICTORY:
@@ -60,6 +94,7 @@ export const App: React.FC = () => {
 
   return (
     <>
+      <AudioController />
       <AnimatePresence>
         {tooltip && <KeywordTooltip />}
       </AnimatePresence>
@@ -71,6 +106,7 @@ export const App: React.FC = () => {
       )}
       
       {renderGame()}
+      <TutorialCoachmark />
       
       {player && (
         <InventoryPanel

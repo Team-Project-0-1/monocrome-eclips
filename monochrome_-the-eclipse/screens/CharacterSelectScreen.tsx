@@ -3,6 +3,10 @@ import { useGameStore } from '../store/gameStore';
 import { CharacterClass, LucideIcon, GameState } from '../types';
 import { characterData, characterActiveSkills } from '../dataCharacters';
 import { Zap, Target, ShieldCheck, Ghost, Layers, BrainCircuit, BookOpen, Map, Swords, ArrowUpCircle, Cpu } from "lucide-react";
+import GameShell from '../components/ui/GameShell';
+import ScreenHeader from '../components/ui/ScreenHeader';
+import Panel from '../components/ui/Panel';
+import ActionButton from '../components/ui/ActionButton';
 
 const playerClassIcons: { [key in CharacterClass]: LucideIcon } = {
   [CharacterClass.WARRIOR]: Zap,
@@ -17,132 +21,149 @@ export const CharacterSelectScreen = () => {
     const metaProgress = useGameStore(state => state.metaProgress);
     const testMode = useGameStore(state => state.testMode);
     const setTestMode = useGameStore(state => state.setTestMode);
+    const showTestMode = import.meta.env.DEV;
+
+    const unlockHint: { [key: string]: string } = {
+        [CharacterClass.ROGUE]: "3회 이상 플레이",
+        [CharacterClass.TANK]: "스테이지 2 도달",
+        [CharacterClass.MAGE]: "총 400 에코 수집",
+    };
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-4 sm:p-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl sm:text-4xl font-bold">캐릭터 선택</h2>
-                    <p className="text-gray-400 mt-2">플레이할 캐릭터를 선택하고, 영구 업그레이드를 확인하세요.</p>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2">
-                        <div className="flex justify-between items-center mb-4">
-                            <label className="inline-flex items-center cursor-pointer">
+        <GameShell contentClassName="max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+            <ScreenHeader
+                eyebrow="Expedition roster"
+                title="캐릭터 선택"
+                subtitle="초반 선택에 필요한 역할, 체력, 고유 기술을 먼저 확인하고 탐험을 시작하세요."
+                actions={
+                    <>
+                        {showTestMode && (
+                            <label className="inline-flex min-h-11 items-center rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-medium text-gray-200">
                                 <input type="checkbox" checked={testMode} onChange={(e) => setTestMode(e.target.checked)} className="sr-only peer" />
-                                <div className="relative w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                <span className="ms-3 text-sm font-medium text-gray-300">테스트 모드</span>
+                                <span className="relative mr-3 h-6 w-11 rounded-full bg-gray-700 transition-colors after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:bg-cyan-600 peer-checked:after:translate-x-5" />
+                                테스트 모드
                             </label>
-                            <button onClick={() => setGameState(GameState.MENU)} className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors shadow-md text-sm">
-                                메인 메뉴로
-                            </button>
-                        </div>
+                        )}
+                        <ActionButton onClick={() => setGameState(GameState.MENU)} variant="ghost">메인 메뉴로</ActionButton>
+                    </>
+                }
+            />
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
-                            {Object.entries(characterData).map(([classType, data]) => {
-                                const TypedIcon = playerClassIcons[classType as CharacterClass] as LucideIcon;
-                                const isUnlocked = testMode || metaProgress.unlockedCharacters.includes(classType as CharacterClass);
-                                const unlockHint: { [key: string]: string } = { [CharacterClass.ROGUE]: "3회 이상 플레이", [CharacterClass.TANK]: "스테이지 2 도달", [CharacterClass.MAGE]: "총 400 에코 수집", };
-                                return (
-                                    <button key={classType} onClick={() => isUnlocked && selectCharacter(classType as CharacterClass)} disabled={!isUnlocked}
-                                        className={`p-5 rounded-lg shadow-lg transition-all relative group flex flex-col items-center text-center
-                                            ${isUnlocked ? "bg-gray-800 hover:bg-gray-700 hover:shadow-blue-500/30 cursor-pointer border-2 border-gray-700 hover:border-blue-500"
-                                                        : "bg-gray-700 cursor-not-allowed opacity-60 border-2 border-gray-600"}`}>
-                                    {testMode && !metaProgress.unlockedCharacters.includes(classType as CharacterClass) && (<div className="absolute top-2 right-2 text-xs bg-yellow-500 text-black px-1.5 py-0.5 rounded-full font-semibold">TEST</div>)}
-                                    <TypedIcon className={`w-12 h-12 mx-auto mb-3 ${isUnlocked ? 'text-blue-400 group-hover:text-blue-300' : 'text-gray-500'}`} />
-                                    <h3 className="font-bold text-lg mb-1">{data.name}</h3>
-                                    <p className="text-xs text-gray-400 mb-2">{data.title}</p>
-                                    {isUnlocked ? (
-                                        <div className="text-xs space-y-1 text-gray-300 mt-2 text-center w-full">
-                                            <p>HP: {data.hp + metaProgress.memoryUpgrades.maxHp * 5}</p>
-                                            <div className="border-t border-gray-600 my-2"></div>
-                                            <h4 className="font-semibold text-gray-200">고유 패시브</h4>
-                                            {data.innatePassives.map((passive, index) => (
-                                                <p key={index} className="text-gray-400 leading-tight">
-                                                    - {passive}
-                                                </p>
-                                            ))}
-                                            <div className="border-t border-gray-600 my-2"></div>
-                                            <h4 className="font-semibold text-gray-200 flex items-center gap-1 justify-center">
-                                                <Cpu size={12} className="text-cyan-400" />
-                                                액티브 스킬
-                                            </h4>
-                                            {(() => {
-                                                const activeSkill = characterActiveSkills[classType as CharacterClass];
-                                                return (
-                                                    <div className="text-gray-400 leading-tight space-y-1">
-                                                        <p className="font-semibold text-cyan-300">{activeSkill.name}</p>
-                                                        <p className="text-gray-400">{activeSkill.description}</p>
-                                                    </div>
-                                                );
-                                            })()}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {Object.entries(characterData).map(([classType, data]) => {
+                        const characterClass = classType as CharacterClass;
+                        const TypedIcon = playerClassIcons[characterClass] as LucideIcon;
+                        const activeSkill = characterActiveSkills[characterClass];
+                        const isUnlocked = (showTestMode && testMode) || metaProgress.unlockedCharacters.includes(characterClass);
+                        const weapon = 'weapon' in data ? data.weapon : undefined;
+                        const signature = 'signature' in data ? data.signature : undefined;
+
+                        return (
+                            <button
+                                key={classType}
+                                onClick={() => isUnlocked && selectCharacter(characterClass)}
+                                disabled={!isUnlocked}
+                                className={`group relative min-h-[280px] overflow-hidden rounded-lg border text-left shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300
+                                    ${isUnlocked ? "border-white/12 bg-gray-900 hover:-translate-y-0.5 hover:border-cyan-300/70 hover:shadow-cyan-950/30" : "border-gray-700 bg-gray-800 opacity-70 cursor-not-allowed"}`}
+                            >
+                                <img
+                                    src={data.portraitSrc}
+                                    alt={`${data.name} 캐릭터 아트`}
+                                    className={`absolute inset-0 h-full w-full object-cover object-[center_24%] transition-transform duration-500 ${isUnlocked ? 'group-hover:scale-105' : 'grayscale'}`}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/62 to-black/20" />
+                                <div className="relative flex h-full min-h-[280px] flex-col justify-between p-5">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-black/50 text-cyan-200">
+                                                <TypedIcon className="h-6 w-6" />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-white">{data.name}</h3>
+                                            <p className="mt-1 text-sm text-gray-300">{data.title}</p>
                                         </div>
-                                    ) : (<p className="text-xs text-red-400 mt-2">{unlockHint[classType] || "잠김"}</p>)}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                                        {showTestMode && testMode && !metaProgress.unlockedCharacters.includes(characterClass) && (
+                                            <span className="rounded-full bg-yellow-400 px-2 py-1 text-xs font-black text-black">TEST</span>
+                                        )}
+                                    </div>
 
-                    <div className="lg:col-span-1 flex flex-col gap-6">
-                        <div className="bg-gray-800/80 p-4 rounded-lg border border-gray-700">
-                            <h3 className="font-bold text-lg text-gray-300 mb-3 border-b border-gray-600 pb-2 flex items-center gap-2"><Layers className="w-5 h-5 text-gray-400"/>진행 상황</h3>
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between"><span className="text-gray-400">총 플레이:</span><span className="font-bold text-white">{metaProgress.totalRuns} 회</span></div>
-                                <div className="flex justify-between"><span className="text-gray-400">최고 스테이지:</span><span className="font-bold text-white">{metaProgress.highestStage}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-400">총 수집 에코:</span><span className="font-bold text-white">{metaProgress.totalEchoCollected}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-400">해금된 캐릭터:</span><span className="font-bold text-white">{metaProgress.unlockedCharacters.length} / {Object.keys(characterData).length}</span></div>
-                            </div>
-                        </div>
-                        <div className="bg-gray-800/80 p-4 rounded-lg border border-gray-700">
-                            <h3 className="font-bold text-lg text-gray-300 mb-3 border-b border-gray-600 pb-2 flex items-center gap-2"><BrainCircuit className="w-5 h-5 text-gray-400"/>영구 업그레이드</h3>
-                            <div className="space-y-3 text-sm">
-                                <p className="text-xs text-gray-400 mb-2">메인 메뉴에서 '기억의 제단'을 통해 업그레이드할 수 있습니다.</p>
-                                <div className="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
-                                    <span className="text-gray-300">최대 체력 증가</span>
-                                    <span className="font-bold text-green-400">+{metaProgress.memoryUpgrades.maxHp * 5} (Lv.{metaProgress.memoryUpgrades.maxHp})</span>
+                                    <div className="mt-6 space-y-3">
+                                        <div className="flex flex-wrap gap-2 text-xs font-bold">
+                                            <span className="rounded-md bg-white/10 px-2 py-1 text-gray-100">HP {data.hp + metaProgress.memoryUpgrades.maxHp * 5}</span>
+                                            {weapon && <span className="rounded-md bg-white/10 px-2 py-1 text-gray-100">무기 {weapon}</span>}
+                                            {signature && <span className="rounded-md bg-white/10 px-2 py-1 text-gray-100">{signature}</span>}
+                                            <span className="rounded-md bg-cyan-400/15 px-2 py-1 text-cyan-200">{activeSkill.name}</span>
+                                        </div>
+                                        {isUnlocked ? (
+                                            <div className="space-y-2 text-sm text-gray-200">
+                                                <p className="line-clamp-2 sm:line-clamp-none">{data.innatePassives[0]}</p>
+                                                <div className="hidden border-t border-white/10 pt-2 text-xs text-gray-300 sm:block">
+                                                    <div className="mb-1 flex items-center gap-1 font-bold text-cyan-200">
+                                                        <Cpu size={13} />
+                                                        액티브 스킬
+                                                    </div>
+                                                    {activeSkill.description}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm font-bold text-red-300">{unlockHint[classType] || "잠김"}</p>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
-                                    <span className="text-gray-300">기본 공격력 증가</span>
-                                    <span className="font-bold text-red-400">+{metaProgress.memoryUpgrades.baseAtk} (Lv.{metaProgress.memoryUpgrades.baseAtk})</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-gray-700/50 p-2 rounded-md">
-                                    <span className="text-gray-300">기본 방어력 증가</span>
-                                    <span className="font-bold text-blue-400">+{metaProgress.memoryUpgrades.baseDef} (Lv.{metaProgress.memoryUpgrades.baseDef})</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            </button>
+                        );
+                    })}
                 </div>
 
-                <div className="mt-8 bg-gray-800/80 p-6 rounded-lg border border-gray-700">
-                    <h3 className="font-bold text-xl text-gray-300 mb-4 border-b border-gray-600 pb-3 flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-gray-400"/>
-                        게임 규칙
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-300">
-                        <div className="space-y-2">
-                            <h4 className="font-semibold text-white flex items-center gap-2"><Map size={18} className="text-yellow-400" /> 탐험</h4>
-                            <p className="text-gray-400">던전의 각 층에서 전투, 상점, 이벤트 등 다양한 노드 중 하나를 선택하여 나아가세요. 최종 목표는 스테이지 보스를 처치하는 것입니다.</p>
+                <aside className="flex flex-col gap-4">
+                    <Panel className="p-4">
+                        <h3 className="mb-3 flex items-center gap-2 border-b border-white/10 pb-3 text-lg font-bold text-gray-100">
+                            <Layers className="h-5 w-5 text-gray-300"/>진행 상황
+                        </h3>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex justify-between"><span className="text-gray-400">총 플레이:</span><span className="font-bold text-white">{metaProgress.totalRuns} 회</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">최고 스테이지:</span><span className="font-bold text-white">{metaProgress.highestStage}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">총 수집 에코:</span><span className="font-bold text-white">{metaProgress.totalEchoCollected}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">해금된 캐릭터:</span><span className="font-bold text-white">{metaProgress.unlockedCharacters.length} / {Object.keys(characterData).length}</span></div>
                         </div>
-                        <div className="space-y-2">
-                            <h4 className="font-semibold text-white flex items-center gap-2"><Swords size={18} className="text-red-400" /> 전투</h4>
-                            <p className="text-gray-400">매 턴 5개의 동전을 뒤집어 생성되는 '족보(패턴)'를 조합하여 기술을 사용합니다. 적의 행동을 예측하고 최적의 수를 선택하여 승리하세요. 주요 족보는 다음과 같습니다:</p>
-                            <ul className="list-disc list-inside text-xs text-gray-400 space-y-1 pl-2">
-                                <li><span className="font-semibold text-gray-300">n연 (2~5연):</span> 같은 면의 동전이 n개 연속으로 배열.</li>
-                                <li><span className="font-semibold text-gray-300">유일:</span> 5개 중 한 면을 가진 동전이 단 하나만 존재.</li>
-                                <li><span className="font-semibold text-gray-300">각성:</span> 5개 동전의 면이 모두 번갈아 나타나는 특수 배열.</li>
-                            </ul>
-                        </div>
-                        <div className="space-y-2">
-                            <h4 className="font-semibold text-white flex items-center gap-2"><ArrowUpCircle size={18} className="text-green-400" /> 성장</h4>
-                            <p className="text-gray-400">자원을 모아 상점에서 기술을 구매하거나, '기억의 제단'에서 영구적인 능력치를 강화하여 다음 탐험을 더 수월하게 만들 수 있습니다.</p>
-                        </div>
-                    </div>
-                </div>
+                    </Panel>
 
+                    <Panel className="p-4" tone="cyan">
+                        <h3 className="mb-3 flex items-center gap-2 border-b border-white/10 pb-3 text-lg font-bold text-gray-100">
+                            <BrainCircuit className="h-5 w-5 text-cyan-200"/>영구 업그레이드
+                        </h3>
+                        <div className="space-y-2 text-sm">
+                            <p className="text-xs text-gray-400">메인 메뉴에서 '기억의 제단'을 통해 업그레이드할 수 있습니다.</p>
+                            <div className="flex justify-between rounded-md bg-white/[0.07] p-2"><span className="text-gray-300">최대 체력 증가</span><span className="font-bold text-green-300">+{metaProgress.memoryUpgrades.maxHp * 5} (Lv.{metaProgress.memoryUpgrades.maxHp})</span></div>
+                            <div className="flex justify-between rounded-md bg-white/[0.07] p-2"><span className="text-gray-300">기본 공격력 증가</span><span className="font-bold text-red-300">+{metaProgress.memoryUpgrades.baseAtk} (Lv.{metaProgress.memoryUpgrades.baseAtk})</span></div>
+                            <div className="flex justify-between rounded-md bg-white/[0.07] p-2"><span className="text-gray-300">기본 방어력 증가</span><span className="font-bold text-blue-300">+{metaProgress.memoryUpgrades.baseDef} (Lv.{metaProgress.memoryUpgrades.baseDef})</span></div>
+                        </div>
+                    </Panel>
+                </aside>
             </div>
-        </div>
+
+            <Panel className="mt-6 p-5 lg:p-6">
+                <h3 className="mb-4 flex items-center gap-2 border-b border-white/10 pb-3 text-xl font-bold text-gray-100">
+                    <BookOpen className="h-5 w-5 text-gray-300"/>
+                    게임 규칙
+                </h3>
+                <div className="grid grid-cols-1 gap-5 text-sm text-gray-300 md:grid-cols-3">
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 font-semibold text-white"><Map size={18} className="text-yellow-300" /> 탐험</h4>
+                        <p className="text-gray-400">던전의 각 층에서 전투, 상점, 이벤트 등 다양한 노드 중 하나를 선택하여 나아가세요.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 font-semibold text-white"><Swords size={18} className="text-red-300" /> 전투</h4>
+                        <p className="text-gray-400">매 턴 5개의 동전으로 만들어지는 족보를 조합해 기술을 사용하고 적의 행동을 예측합니다.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 font-semibold text-white"><ArrowUpCircle size={18} className="text-green-300" /> 성장</h4>
+                        <p className="text-gray-400">자원을 모아 기술을 구매하거나 영구 능력치를 강화해 다음 탐험을 더 수월하게 만듭니다.</p>
+                    </div>
+                </div>
+            </Panel>
+        </GameShell>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { Coin, CoinFace } from '../types';
 import { Swords, Shield, Lock } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
@@ -34,7 +34,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ coin, index, onClick, isUsed 
   const titleText = coin.locked
     ? "잠김"
     : !onClick
-    ? "전투 중에는 동전을 직접 뒤집을 수 없습니다. 액티브 스킬, 예비 동전 교체 등을 활용하여 결과를 바꾸세요."
+    ? "전투 중에는 동전을 직접 뒤집을 수 없습니다. 액티브 스킬, 행운 동전 교체 등을 활용하여 결과를 바꾸세요."
     : `동전 #${index + 1} - ${isHeads ? "앞면" : "뒷면"}`;
 
   const targetEffectClass = isSkillTarget && !isSelectedForSkill ? "animate-pulse-shadow" : "";

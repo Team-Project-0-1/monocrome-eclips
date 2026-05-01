@@ -1,47 +1,193 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { ChevronRight, Eye, Gauge, Keyboard, SlidersHorizontal, Volume2, Zap } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
-import { ChevronRight } from "lucide-react";
+import ActionButton from '../components/ui/ActionButton';
+import { assetCssUrl } from '../utils/assetPath';
+import { playUiSound } from '../utils/sound';
+import { GameState } from '../types';
+import { APP_RELEASE_LABEL, APP_RELEASE_SCOPE } from '../constants';
+
+const optionButtons = [
+  { key: 'reducedMotion' as const, label: '모션', icon: Gauge },
+  { key: 'highContrast' as const, label: '대비', icon: Eye },
+  { key: 'largeText' as const, label: '큰 글자', icon: Zap },
+  { key: 'soundEnabled' as const, label: '사운드', icon: Volume2 },
+];
+
+const audioSliders = [
+  { key: 'masterVolume' as const, label: '전체' },
+  { key: 'musicVolume' as const, label: '음악' },
+  { key: 'sfxVolume' as const, label: '효과음' },
+  { key: 'voiceVolume' as const, label: '대사' },
+];
 
 export const MenuScreen = () => {
-    const startGame = useGameStore(state => state.startGame);
+  const startGame = useGameStore(state => state.startGame);
+  const continueRun = useGameStore(state => state.continueRun);
+  const resetGame = useGameStore(state => state.resetGame);
+  const player = useGameStore(state => state.player);
+  const gameState = useGameStore(state => state.gameState);
+  const currentStage = useGameStore(state => state.currentStage);
+  const currentTurn = useGameStore(state => state.currentTurn);
+  const gameOptions = useGameStore(state => state.gameOptions);
+  const setGameOption = useGameStore(state => state.setGameOption);
+  const toggleGameOption = useGameStore(state => state.toggleGameOption);
 
-    return (
-        <div 
-            className="relative min-h-screen text-white p-4 sm:p-8 flex items-center justify-center overflow-hidden scanlines"
-            style={{
-                backgroundImage: `url('./mono.png')`,   // ✅ public/mono.png 사용
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-            }}
-        >
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/60"></div>
+  const hasRun = Boolean(
+    player &&
+    player.currentHp > 0 &&
+    gameState !== GameState.GAME_OVER &&
+    gameState !== GameState.VICTORY,
+  );
 
-            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full bg-blue-500/10 blur-3xl animate-pulse"></div>
-            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 rounded-full bg-red-500/10 blur-3xl animate-pulse [animation-delay:2s]"></div>
+  const startNewGame = useCallback(() => {
+    playUiSound(gameOptions.soundEnabled, 'confirm');
+    resetGame(false);
+    startGame();
+  }, [gameOptions.soundEnabled, resetGame, startGame]);
 
-            <div className="relative z-10 w-full max-w-3xl mx-auto">
-                <div className="flex flex-col justify-center text-center">
-                    <h1 className="font-orbitron text-6xl md:text-8xl font-black tracking-tighter text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                        MONOCHROME
-                    </h1>
-                    <p className="font-orbitron text-2xl md:text-3xl font-bold text-gray-400 drop-shadow-md mb-8">
-                        THE ECLIPSE
-                    </p>
-                    <p className="max-w-xl mx-auto text-gray-300 mb-10 leading-relaxed">
-                        세상이 빛을 잃고 흑백으로 물든 지 오래. 당신은 마지막 남은 감각을 가진 자로서, 이 기이한 일식의 비밀을 파헤치기 위해 폐허 속으로 걸어 들어갑니다. 동전의 양면처럼 갈리는 운명 속에서, 당신은 희망을 찾아낼 수 있을까요?
-                    </p>
-                    <div className="flex justify-center">
-                        <button onClick={startGame} className="group relative inline-flex items-center justify-center px-10 py-4 bg-white text-gray-900 font-bold rounded-lg shadow-lg hover:shadow-xl text-lg transition-transform hover:scale-105 active:scale-100 overflow-hidden">
-                            <span className="absolute left-0 top-0 h-full w-0 bg-gray-300 transition-all duration-300 ease-in-out group-hover:w-full"></span>
-                            <span className="relative z-10 flex items-center gap-2">
-                                탐험 시작 <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                            </span>
-                        </button>
-                    </div>
-                </div>
+  const resumeGame = useCallback(() => {
+    playUiSound(gameOptions.soundEnabled, 'confirm');
+    continueRun();
+  }, [continueRun, gameOptions.soundEnabled]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        if (hasRun) {
+          resumeGame();
+          return;
+        }
+
+        startNewGame();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [hasRun, resumeGame, startNewGame]);
+
+  return (
+    <div
+      className="menu-screen relative min-h-screen overflow-hidden px-4 py-5 text-white scanlines sm:p-8"
+      style={{
+        backgroundImage: `linear-gradient(180deg,rgba(0,0,0,0.1),rgba(0,0,0,0.5)),${assetCssUrl('assets/backgrounds/lobby-eclipse.png')},${assetCssUrl('mono.png')}`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0 bg-black/62" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_48%_12%,rgba(255,255,255,0.16),transparent_22%),linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.86))]" />
+
+      <div className="menu-content relative z-10">
+        <section className="menu-command-panel flex max-w-4xl flex-col justify-center">
+          <div className="menu-eyebrow">
+            <Gauge className="h-4 w-4" />
+            {APP_RELEASE_LABEL}
+          </div>
+          <h1 className="font-orbitron text-[clamp(2.65rem,8.8vw,7.5rem)] font-black leading-none text-white drop-shadow-[0_2px_5px_rgba(0,0,0,0.55)]">
+            MONOCHROME
+          </h1>
+          <p className="font-orbitron mt-2 text-xl font-bold text-gray-300 drop-shadow-md md:text-3xl">
+            THE ECLIPSE
+          </p>
+          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-gray-200 sm:text-base">
+            동전의 앞면과 뒷면으로 전투를 읽는 공개 프로토타입입니다.
+            경로를 고르고 자원을 확보해 중심부로 진입하세요.
+          </p>
+
+          <div className="menu-action-row">
+            {hasRun ? (
+              <ActionButton onClick={resumeGame} variant="primary" className="menu-primary-action px-7 py-4 text-lg shadow-2xl shadow-black/40 hover:scale-[1.02]">
+                계속하기
+                <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </ActionButton>
+            ) : null}
+            <ActionButton
+              onClick={startNewGame}
+              variant={hasRun ? 'ghost' : 'primary'}
+              className="menu-primary-action px-7 py-4 text-lg shadow-2xl shadow-black/40 hover:scale-[1.02]"
+            >
+              새 탐험
+              <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </ActionButton>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              <Keyboard className="h-4 w-4" />
+              Enter
             </div>
-        </div>
-    );
+          </div>
+        </section>
+
+        <section className="menu-status-dock">
+          <div className="menu-run-strip">
+            {[
+              ['RUN', hasRun ? '저장됨' : '대기'],
+              ['ROUTE', hasRun ? `${currentStage}층 / ${currentTurn}턴` : '15층'],
+              ['MODE', '동전 전투'],
+              ['SCOPE', APP_RELEASE_SCOPE],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-md border border-white/8 bg-white/5 px-3 py-2">
+                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">{label}</div>
+                <div className="mt-1 text-sm font-black text-white">{value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="menu-accessibility-dock rounded-lg border border-cyan-300/20 bg-cyan-950/16 p-3 backdrop-blur-md">
+            <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-100">
+              <Eye className="h-4 w-4" />
+              Options
+            </div>
+            <div className="menu-option-grid grid gap-2">
+              {optionButtons.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    playUiSound(gameOptions.soundEnabled, key === 'soundEnabled' && gameOptions.soundEnabled ? 'deny' : 'select');
+                    toggleGameOption(key);
+                  }}
+                  aria-pressed={gameOptions[key]}
+                  className={`inline-flex min-h-10 items-center justify-center gap-1 rounded-md border px-2 text-xs font-bold transition-colors ${
+                    gameOptions[key]
+                      ? 'border-cyan-200 bg-cyan-100 text-gray-950'
+                      : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-3 border-t border-white/10 pt-3">
+              <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-100">
+                <SlidersHorizontal className="h-4 w-4" />
+                Audio Mix
+              </div>
+              <div className="grid gap-2">
+                {audioSliders.map(({ key, label }) => (
+                  <label key={key} className="grid grid-cols-[3.75rem_minmax(0,1fr)_2.5rem] items-center gap-2 text-xs font-bold text-slate-300">
+                    <span>{label}</span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={gameOptions[key]}
+                      disabled={!gameOptions.soundEnabled}
+                      onChange={(event) => setGameOption(key, Number(event.target.value))}
+                      className="h-2 w-full accent-cyan-200 disabled:opacity-40"
+                    />
+                    <span className="text-right text-slate-400">{Math.round(gameOptions[key] * 100)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 };
