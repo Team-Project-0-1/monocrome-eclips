@@ -5,7 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "optimize:assets": "node scripts/optimize-public-assets.mjs",
+    "typecheck": "tsc --noEmit",
+    "validate:passives": "node scripts/run-passive-validation.mjs",
+    "check:release-assets": "node scripts/check-release-assets.mjs",
+    "check:dist": "node scripts/check-dist-budget.mjs",
+    "check:prototype-readiness": "node scripts/check-prototype-readiness.mjs",
+    "security:audit": "npm audit --audit-level=moderate",
+    "check": "npm run typecheck && npm run validate:passives && npm run check:release-assets && npm run build && npm run check:dist",
+    "release:check": "npm run optimize:assets && npm run security:audit && npm run check",
+    "prototype:check": "npm run release:check && npm run check:prototype-readiness",
+    "build": "vite build && node scripts/prune-optimized-pngs.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

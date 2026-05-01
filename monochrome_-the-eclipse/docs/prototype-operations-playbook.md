@@ -1,0 +1,164 @@
+# Prototype Operations Playbook
+
+Last updated: 2026-05-01
+
+This playbook defines how to publish and operate `Monochrome: The Eclipse` as a prototype/portfolio release.
+
+## Operating Goal
+
+Keep the public build stable, honest, and easy to review. The release should show that the project can be built, shipped, monitored, and maintained even though the content scope is still prototype-level.
+
+## Release Labels
+
+Use:
+- `Prototype v0.1`
+- `무료 공개 프로토타입`
+- `1-2층 공개 / 3층 기획 중`
+
+Avoid:
+- `full release`
+- `complete game`
+- paid-store language that implies all 3 stages and ending content are finished
+
+## Pre-Release Checklist
+
+Run from this directory:
+
+```powershell
+npm run prototype:check
+```
+
+Before publishing, confirm:
+- The build label is visible on the menu.
+- The metadata and manifest describe the project as a prototype.
+- Stage 3 is locked, not silently broken.
+- `docs/prototype-product-brief.md` is current.
+- `docs/prototype-operations-playbook.md` is current.
+- `../docs/release-direction-criteria.md` is current.
+- `../docs/user-required-release-actions.md` has no unhandled owner decision for the chosen release scope.
+
+## Deployment Paths
+
+### GitHub Pages fallback
+
+Use this when speed matters more than production traffic control.
+
+Expected build environment:
+
+```text
+Root directory: monochrome_-the-eclipse
+Build command: npm run prototype:check
+Build output: dist
+VITE_BASE_PATH=/monocrome-eclips/
+```
+
+### Cloudflare Pages preferred
+
+Use this for the public portfolio URL or broader public testing.
+
+Expected build environment:
+
+```text
+Framework preset: Vite
+Root directory: monochrome_-the-eclipse
+Install command: npm ci
+Build command: npm run prototype:check
+Build output directory: dist
+VITE_BASE_PATH=/
+```
+
+## Smoke Test After Deploy
+
+Use desktop and mobile portrait.
+
+Minimum flow:
+- Load URL and confirm no console errors.
+- Menu shows `Prototype v0.1`.
+- Start new run.
+- Select a character.
+- Enter exploration.
+- Start combat.
+- Select a pattern and execute a turn.
+- Claim a reward after combat.
+- Visit at least one event, shop, or rest state.
+- Confirm Stage 3 is not presented as completed content.
+
+Record:
+- URL tested.
+- Date and browser.
+- Viewport size.
+- Any console errors.
+- Screenshot of menu, combat, reward, and stage clear/locked state if reached.
+
+## Monitoring
+
+Until analytics is approved, monitor through hosting and manual feedback:
+- successful page loads
+- 404s
+- top asset URLs
+- bandwidth and cache hit rate
+- user feedback about first-run confusion
+- reported combat readability issues
+
+After analytics approval, track only anonymous product events:
+- run start/end
+- character selected
+- stage reached
+- combat win/loss
+- reward choice
+- shop purchase
+- event choice
+- fatal error
+
+## Incident Triage
+
+Severity 0:
+- Public build does not load.
+- Main menu crashes.
+- New run cannot start.
+- Deployed assets 404 broadly.
+
+Action: rollback or disable the public link immediately.
+
+Severity 1:
+- Combat blocks progression.
+- Save recovery breaks normal play.
+- Mobile viewport hides the primary action.
+
+Action: hotfix before promoting the URL further.
+
+Severity 2:
+- Balance issue.
+- Copy issue.
+- Minor visual overlap.
+- Non-blocking audio or animation issue.
+
+Action: batch into the next prototype patch.
+
+## Rollback
+
+GitHub Pages:
+- Re-run the last known good workflow commit.
+- If needed, temporarily disable the public link in the portfolio page.
+
+Cloudflare Pages:
+- Use Pages deployment history to promote the last known good deployment.
+- Keep the canonical URL unchanged.
+- Add a short known-issue note if users may have seen the broken build.
+
+## Patch Cadence
+
+Recommended while public:
+- Same-day fix for Severity 0.
+- 24-48 hour fix for Severity 1.
+- Weekly batch for Severity 2.
+- Update release notes after every public patch.
+
+## Owner Decisions
+
+Codex should not decide these alone:
+- custom domain
+- analytics provider and privacy copy
+- commercial asset approval
+- whether to charge money
+- whether Stage 3 can remain locked in the public build
