@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
+import { assetPath } from '../utils/assetPath';
 
 const KeywordTooltip: React.FC = () => {
   const tooltip = useGameStore(state => state.tooltip);
@@ -10,7 +11,7 @@ const KeywordTooltip: React.FC = () => {
   }
 
   const { content, position } = tooltip;
-  
+
   const getDynamicStyles = (colorClass: string) => {
     // This is a simplified map for styling. A more robust solution would be to use style objects directly in effectConfig.
     const colorMap: { [key: string]: { backgroundColor: string; borderColor: string } } = {
@@ -45,7 +46,11 @@ const KeywordTooltip: React.FC = () => {
       transition={{ duration: 0.15, ease: 'easeOut' }}
     >
       <div className="flex items-center gap-2 mb-2 pb-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-        <span className="text-2xl">{content.icon}</span>
+        {content.imagePath ? (
+          <img className="status-effect-tooltip-icon" src={assetPath(content.imagePath)} alt="" />
+        ) : (
+          <span className="text-2xl">{content.icon}</span>
+        )}
         <h4 className="font-bold text-lg text-white">{content.name}</h4>
       </div>
       <p className="text-gray-300 leading-relaxed">{content.description}</p>

@@ -1,20 +1,97 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Monochrome: The Eclipse App
 
-# Run and deploy your AI Studio app
+React/Vite game client for the Monochrome roguelike combat prototype.
 
-This contains everything you need to run your app locally.
+Current public label: **Prototype v0.1**.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1EqmhP5t5nn-lSfCbRFfPRDMeByEILTG7
+This build is suitable for a prototype/portfolio release, not a paid 1.0 commercial launch. Stage 1 and Stage 2 are the playable public scope; Stage 3 is still a planned/locked content area.
 
-## Run Locally
+## Commands
 
-**Prerequisites:**  Node.js
+```powershell
+npm install
+npm run dev
+npm run check
+npm run release:check
+npm run prototype:check
+npm run build
+```
 
+`npm run check` is the preferred handoff command. It runs:
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- `npm run typecheck`
+- `npm run validate:passives`
+- `npm run check:release-assets`
+- `npm run build`
+- `npm run check:dist`
+
+Use `npm run release:check` before publishing. It also runs asset optimization and `npm audit --audit-level=moderate`.
+
+Use `npm run prototype:check` before a portfolio/prototype deployment. It runs the release gate and then verifies prototype-facing metadata, scope labeling, Stage 3 lock status, and operations documentation.
+
+## Product and Operations Docs
+
+- `docs/prototype-product-brief.md` - portfolio positioning, scope, demo script, and product gates.
+- `docs/prototype-operations-playbook.md` - deployment, smoke testing, monitoring, incident triage, rollback, and patch cadence.
+- `../docs/release-direction-criteria.md` - criteria separating prototype, paid Early Access, and paid 1.0.
+- `../docs/user-required-release-actions.md` - owner decisions that Codex should not make alone.
+
+## Local Development
+
+The Vite app uses `VITE_BASE_PATH` to choose the deployment base path. Local and Cloudflare Pages builds default to `/`.
+
+Use this local URL when testing:
+
+```text
+http://127.0.0.1:5173/
+```
+
+## Environment
+
+The client build does not inject `GEMINI_API_KEY` or other service secrets.
+
+Use `VITE_BASE_PATH` only for deploy base-path selection:
+
+```powershell
+$env:VITE_BASE_PATH="/"
+npm run build
+```
+
+GitHub Pages fallback builds should use:
+
+```powershell
+$env:VITE_BASE_PATH="/monocrome-eclips/"
+npm run build
+```
+
+Do not commit `.env.local`, local dev-server logs, browser screenshots, or Playwright MCP artifacts.
+
+If a future feature needs Gemini or another paid API, route requests through a server/API endpoint. Do not expose the key in frontend code.
+
+## Cloudflare Pages
+
+Recommended settings:
+
+```text
+Framework preset: Vite
+Root directory: monochrome_-the-eclipse
+Install command: npm ci
+Build command: npm run prototype:check
+Build output directory: dist
+Environment variable: VITE_BASE_PATH=/
+```
+
+## Browser Automation
+
+Browser Use through Codex requires Node `>= 22.22.0`. The previous failing setup was:
+
+```text
+C:\Program Files\nodejs\node.exe -> v22.14.0
+```
+
+Update Node LTS, restart Codex, then verify:
+
+```powershell
+node -v
+where.exe node
+```

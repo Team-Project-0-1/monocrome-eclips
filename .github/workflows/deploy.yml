@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: './monochrome_-the-eclipse/package-lock.json'
 
@@ -36,10 +36,12 @@ jobs:
           cd monochrome_-the-eclipse
           npm ci
 
-      - name: Build
+      - name: Prototype release check and build
+        env:
+          VITE_BASE_PATH: /monocrome-eclips/
         run: |
           cd monochrome_-the-eclipse
-          npm run build
+          npm run prototype:check
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

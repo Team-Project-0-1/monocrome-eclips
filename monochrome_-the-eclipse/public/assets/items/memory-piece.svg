@@ -1,0 +1,29 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="memory-body" x1="55" y1="52" x2="202" y2="213" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e0f2fe"/>
+      <stop offset="0.34" stop-color="#60a5fa"/>
+      <stop offset="0.7" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="memory-core" cx="50%" cy="45%" r="48%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.36" stop-color="#93c5fd"/>
+      <stop offset="0.76" stop-color="#312e81"/>
+      <stop offset="1" stop-color="#020617"/>
+    </radialGradient>
+    <filter id="memory-glow" x="-30" y="-30" width="316" height="316" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.42 0 0 0 0 0.64 0 0 0 0 1 0 0 0 0.82 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <path d="M58 69L126 32L198 70L205 171L129 224L51 174L58 69Z" fill="#06101d" opacity="0.86"/>
+  <path d="M64 73L127 39L191 73L197 166L128 214L59 169L64 73Z" fill="url(#memory-body)" filter="url(#memory-glow)"/>
+  <path d="M89 94H167V162H89V94Z" fill="url(#memory-core)" stroke="#dbeafe" stroke-opacity="0.72" stroke-width="4"/>
+  <path d="M77 74L128 102L180 74M59 169L89 162M197 166L167 162M128 214V162" stroke="#bfdbfe" stroke-opacity="0.7" stroke-width="4" stroke-linecap="round"/>
+  <path d="M104 116H152M104 132H152M104 148H137" stroke="#f8fafc" stroke-opacity="0.72" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="79" cy="84" r="5" fill="#e0f2fe"/>
+  <circle cx="177" cy="84" r="5" fill="#e0f2fe"/>
+  <circle cx="128" cy="201" r="5" fill="#bfdbfe"/>
+</svg>

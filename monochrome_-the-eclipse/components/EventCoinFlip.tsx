@@ -44,7 +44,7 @@ const EventCoinFlip: React.FC<EventCoinFlipProps> = ({ targetHeads, onComplete }
           <div
             key={coin.id}
             className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 flex items-center justify-center font-bold text-xl transition-all duration-500 transform
-                        ${flipped ? (coin.face === CoinFace.HEADS ? 'rotate-y-0 bg-yellow-400 border-yellow-600 text-black' : 'rotate-y-0 bg-gray-600 border-gray-700 text-white') 
+                        ${flipped ? (coin.face === CoinFace.HEADS ? 'rotate-y-0 bg-yellow-400 border-yellow-600 text-black' : 'rotate-y-0 bg-gray-600 border-gray-700 text-white')
                                  : 'bg-gray-700 border-gray-500 text-gray-400 animate-pulse'}
                         ${flipped && coin.face === CoinFace.HEADS ? 'shadow-lg shadow-yellow-500/50' : ''}
                         ${flipped && coin.face === CoinFace.TAILS ? 'shadow-md' : ''}
@@ -79,25 +79,4 @@ const EventCoinFlip: React.FC<EventCoinFlipProps> = ({ targetHeads, onComplete }
     </div>
   );
 };
-// Add CSS for y-rotation if not already handled by Tailwind utility
-try {
-  const styleSheet = document.styleSheets[0];
-  let ruleExists = false;
-  // A simple check to see if a similar rule already exists.
-  for (let i = 0; i < styleSheet.cssRules.length; i++) {
-    if (styleSheet.cssRules[i].cssText.includes('rotate-y-0')) {
-      ruleExists = true;
-      break;
-    }
-  }
-
-  if (!ruleExists) {
-    styleSheet.insertRule('.rotate-y-0 { transform: rotateY(0deg); }', styleSheet.cssRules.length);
-    styleSheet.insertRule('.rotate-y-180 { transform: rotateY(180deg); }', styleSheet.cssRules.length);
-  }
-} catch (e) {
-    console.warn("Could not insert EventCoinFlip CSS rules, likely because they already exist.");
-}
-
-
 export default EventCoinFlip;

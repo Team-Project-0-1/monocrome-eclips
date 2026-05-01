@@ -1,30 +1,130 @@
 import React from 'react';
+import { ArrowRight, Bed, HeartPulse, Landmark, Moon, SkipForward } from 'lucide-react';
 import { useGameStore } from '../store/gameStore';
-import { Coffee } from 'lucide-react';
+import ActionButton from '../components/ui/ActionButton';
+import { assetCssUrl, assetPath } from '../utils/assetPath';
+import { playGameSfx, playUiSound } from '../utils/sound';
 
 export const RestScreen = () => {
-    const handleRestChoice = useGameStore(state => state.handleRestChoice);
-    const proceedToNextTurn = useGameStore(state => state.proceedToNextTurn);
+  const player = useGameStore(state => state.player);
+  const resources = useGameStore(state => state.resources);
+  const handleRestChoice = useGameStore(state => state.handleRestChoice);
+  const proceedToNextTurn = useGameStore(state => state.proceedToNextTurn);
+  const gameOptions = useGameStore(state => state.gameOptions);
 
-    return (
-        <div className="min-h-screen bg-gray-900 text-white p-4 flex items-center justify-center">
-            <div className="w-full max-w-2xl text-center">
-                <h2 className="text-3xl font-bold mb-2 text-green-400 flex items-center justify-center gap-2">
-                    <Coffee /> 휴식처
-                </h2>
-                <p className="text-gray-400 mb-8">잠시 숨을 고르며 재정비합니다.</p>
-                <div className="space-y-4">
-                    <button onClick={() => handleRestChoice("heal")} className="w-full p-4 bg-green-700 hover:bg-green-600 rounded-lg text-lg font-semibold transition-colors">
-                        체력 40% 회복
-                    </button>
-                    <button onClick={() => handleRestChoice("memory_altar")} className="w-full p-4 bg-blue-700 hover:bg-blue-600 rounded-lg text-lg font-semibold transition-colors">
-                        기억의 제단 (능력 각인)
-                    </button>
-                    <button onClick={() => proceedToNextTurn()} className="w-full p-4 bg-gray-700 hover:bg-gray-600 rounded-lg text-lg font-semibold transition-colors mt-8">
-                        그냥 지나가기
-                    </button>
-                </div>
-            </div>
+  if (!player) {
+    return <div className="flex min-h-screen items-center justify-center bg-gray-950 text-white">휴식 지점 로딩 중...</div>;
+  }
+
+  const healAmount = Math.floor(player.maxHp * 0.4);
+  const healedHp = Math.min(player.maxHp, player.currentHp + healAmount);
+  const missingHp = Math.max(0, player.maxHp - player.currentHp);
+  const canHeal = missingHp > 0;
+  const restSceneStyle = {
+    '--rest-bg-image': assetCssUrl('assets/backgrounds/rest-camp.png'),
+    '--rest-mobile-bg-image': assetCssUrl('assets/backgrounds/mobile-event-rest.png'),
+  } as React.CSSProperties;
+
+  const chooseHeal = () => {
+    if (!canHeal) {
+      playUiSound(gameOptions.soundEnabled, 'deny');
+      return;
+    }
+
+    playUiSound(gameOptions.soundEnabled, 'confirm');
+    playGameSfx(gameOptions.soundEnabled, 'restHeal');
+    handleRestChoice('heal');
+  };
+
+  const chooseAltar = () => {
+    playUiSound(gameOptions.soundEnabled, 'confirm');
+    handleRestChoice('memory_altar');
+  };
+
+  const skipRest = () => {
+    playUiSound(gameOptions.soundEnabled, 'select');
+    proceedToNextTurn();
+  };
+
+  return (
+    <main className="rest-screen relative min-h-screen overflow-hidden bg-gray-950 text-white scanlines">
+      <div
+        className="rest-scene-bg"
+        style={restSceneStyle}
+      />
+      <div className="rest-ambient-lines" />
+
+      <section className="rest-content relative z-10">
+        <div className="rest-story">
+          <div className="rest-kicker">
+            <Moon className="h-4 w-4" />
+            Safe Resonance
+          </div>
+          <h1 className="font-orbitron text-4xl font-black text-white sm:text-6xl">휴식처</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-200 sm:text-base">
+            균열의 소음이 잠시 멎었습니다. 장비를 내려놓고 숨을 고르거나, 남은 기억 조각을 제단에 새겨 다음 싸움의 기준을 바꿀 수 있습니다.
+          </p>
+
+          <div className="rest-dialogue">
+            <div className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100">Camp Log</div>
+            <p>"동전은 멈췄을 때 더 크게 울린다. 지금은 선택을 미룰 수 있는 몇 안 되는 순간이다."</p>
+          </div>
         </div>
-    );
+
+        <div className="rest-actor" aria-label={`${player.name} 휴식 장면`}>
+          {player.spriteSheetSrc ? (
+            <div className="rest-actor-sprite" style={{ backgroundImage: `url('${assetPath(player.spriteSheetSrc)}')` }} />
+          ) : player.portraitSrc ? (
+            <img src={assetPath(player.portraitSrc)} alt="" loading="lazy" decoding="async" />
+          ) : null}
+          <div className="rest-actor-name">
+            <strong>{player.name}</strong>
+            <span>{player.signature ?? player.weapon ?? '공명 감각'}</span>
+          </div>
+        </div>
+
+        <aside className="rest-choice-panel">
+          <div className="rest-status-card">
+            <span>HP</span>
+            <strong>{player.currentHp}/{player.maxHp}</strong>
+            <div className="rest-hp-bar">
+              <i style={{ width: `${(player.currentHp / player.maxHp) * 100}%` }} />
+            </div>
+          </div>
+
+          <button type="button" className="rest-choice primary" onClick={chooseHeal} disabled={!canHeal}>
+            <span className="rest-choice-icon"><HeartPulse className="h-5 w-5" /></span>
+            <span>
+              <strong>체력 회복</strong>
+              <small>{canHeal ? `${player.currentHp} → ${healedHp} HP` : '이미 최대 체력입니다'}</small>
+            </span>
+            <ArrowRight className="h-5 w-5" />
+          </button>
+
+          <button type="button" className="rest-choice" onClick={chooseAltar}>
+            <span className="rest-choice-icon"><Landmark className="h-5 w-5" /></span>
+            <span>
+              <strong>기억의 제단</strong>
+              <small>기억 조각 {resources.memoryPieces}개 보유</small>
+            </span>
+            <ArrowRight className="h-5 w-5" />
+          </button>
+
+          <button type="button" className="rest-choice muted" onClick={skipRest}>
+            <span className="rest-choice-icon"><SkipForward className="h-5 w-5" /></span>
+            <span>
+              <strong>정비 없이 이동</strong>
+              <small>다음 경로로 바로 진행</small>
+            </span>
+            <ArrowRight className="h-5 w-5" />
+          </button>
+
+          <ActionButton variant="ghost" className="rest-mobile-skip" onClick={skipRest}>
+            <Bed className="h-4 w-4" />
+            휴식 건너뛰기
+          </ActionButton>
+        </aside>
+      </section>
+    </main>
+  );
 };

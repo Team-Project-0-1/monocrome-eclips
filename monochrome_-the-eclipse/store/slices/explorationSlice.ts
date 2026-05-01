@@ -8,6 +8,7 @@ import { eventData } from '../../dataEvents';
 import { STAGE_TURNS } from '../../constants';
 import { monsterData } from '../../dataMonsters';
 import { determineEnemyIntent, calculateCombatPrediction, applyInnatePassives } from '../../utils/combatLogic';
+import { isDocumentedFinalStage, isStagePlayable } from '../../utils/stageProgression';
 
 
 export interface ExplorationSlice {
@@ -28,17 +29,19 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
   path: [],
   startStage: (stageNumber) => {
     set(produce((draft: GameStore) => {
+        if (!isStagePlayable(stageNumber)) {
+            draft.gameState = GameState.STAGE_CLEAR;
+            return;
+        }
+
         draft.currentStage = stageNumber;
         draft.currentTurn = 1;
         draft.stageNodes = generateStageNodes(stageNumber);
         draft.path = [];
         draft.gameState = GameState.EXPLORATION;
-        
-        // Reset resources/patterns for the new stage.
-        draft.resources = { echoRemnants: 0, senseFragments: 0, memoryPieces: 0 };
-        draft.unlockedPatterns = [];
+        draft.metaProgress.highestStage = Math.max(draft.metaProgress.highestStage, stageNumber);
 
-        // Reset player combat state for the new stage
+        // Preserve run resources and build upgrades across stages; only transient combat state resets.
         if (draft.player) {
             draft.player.statusEffects = {};
             draft.player.temporaryEffects = {};
@@ -78,47 +81,52 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                     baseDef: monsterTemplate.baseDef,
                     temporaryDefense: 0,
                     statusEffects: {},
+                    assetKey: monsterTemplate.assetKey ?? monsterKey,
+                    portraitSrc: monsterTemplate.portraitSrc,
+                    spriteSheetSrc: monsterTemplate.spriteSheetSrc,
+                    spriteFrameSize: monsterTemplate.spriteFrameSize,
+                    spriteAnimations: monsterTemplate.spriteAnimations,
                     coins: enemyCoins,
                     detectedPatterns: detectPatterns(enemyCoins),
                     temporaryEffects: {},
                     tier: monsterTemplate.tier,
-                    sprite: monsterTemplate.sprite,
                 };
-                
+
                 draft.enemy = enemy;
-                
+
                 draft.combatLog = [];
                 draft.combatTurn = 1;
+                draft.pendingCombatReward = null;
                 draft.selectedPatterns = [];
                 draft.usedCoinIndices = [];
                 draft.activeSkillState = { phase: 'idle', selection: [] };
-                
+
                 const log = (message: string, type: CombatLogMessage['type']) => {
                   draft.combatLog.push({ id: Date.now() + Math.random(), turn: draft.combatTurn, message, type });
                 };
 
                 log(`--- 전투 시작 ---`, 'system');
                 log(`${enemy.name} 등장!`, 'system');
-                
+
                 // REFACTOR: Generate a fresh set of coins for EVERY combat encounter.
                 draft.playerCoins = generateCoins();
-                
+
                 // Apply innate passives at the start of every combat.
                 applyInnatePassives(draft, log);
-                
+
                 // Specifically apply Rogue's passive to the newly generated coins.
                 if (player.class === CharacterClass.ROGUE) {
                     if (draft.playerCoins.length > 0) {
                         draft.playerCoins[0].face = CoinFace.HEADS;
                     }
                 }
-                
+
                 draft.gameState = GameState.COMBAT;
 
                 // With the definitive coin state set, calculate patterns and predictions.
                 draft.detectedPatterns = detectPatterns(draft.playerCoins);
                 draft.enemyIntent = determineEnemyIntent(enemy);
-                draft.combatPrediction = calculateCombatPrediction(player, enemy, draft.selectedPatterns, draft.enemyIntent, draft.playerCoins);
+                draft.combatPrediction = calculateCombatPrediction(player, enemy, draft.selectedPatterns, draft.enemyIntent, draft.playerCoins, draft.unlockedPatterns);
                 break;
             }
             case NodeType.SHOP:
@@ -128,8 +136,19 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                 draft.gameState = GameState.REST;
                 break;
             case NodeType.EVENT: {
-                const eventPool = Object.values(eventData).filter((e) => !e.isFollowUp);
-                const event = eventPool[Math.floor(Math.random() * eventPool.length)];
+                const stageInfo = stageData[draft.currentStage as keyof typeof stageData];
+                const stageEventPool = (stageInfo?.eventPool ?? [])
+                  .map(eventId => eventData[eventId as keyof typeof eventData])
+                  .filter((event): event is EventDefinition => Boolean(event && !event.isFollowUp));
+                const fallbackEventPool = Object.values(eventData).filter((e) => !e.isFollowUp);
+                const eventPool = stageEventPool.length > 0 ? stageEventPool : fallbackEventPool;
+                const unseenEventPool = eventPool.filter((event) => !draft.encounteredEventIds.includes(event.id));
+                const selectableEventPool = unseenEventPool.length > 0 ? unseenEventPool : eventPool;
+                const event = selectableEventPool[Math.floor(Math.random() * selectableEventPool.length)];
+                if (!event) break;
+                if (!draft.encounteredEventIds.includes(event.id)) {
+                    draft.encounteredEventIds.push(event.id);
+                }
 
                 // --- Inlined _startEvent logic ---
                 draft.currentEvent = event;
@@ -148,7 +167,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
         const nextTurn = draft.currentTurn + 1;
 
         if (nextTurn > STAGE_TURNS) {
-            if (draft.currentStage >= Object.keys(stageData).length) {
+            if (isDocumentedFinalStage(draft.currentStage)) {
                 draft.gameState = GameState.VICTORY;
             } else {
                 draft.gameState = GameState.STAGE_CLEAR;
@@ -159,7 +178,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
 
             // Perform transient state reset directly within this atomic update
             draft.player.temporaryDefense = 0;
-            
+
             draft.currentEvent = null;
             draft.eventPhase = 'choice';
             draft.eventResultData = null;
@@ -179,7 +198,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
             // Turn progression logic (from proceedToNextTurn)
             const nextTurn = draft.currentTurn + 1;
             if (nextTurn > STAGE_TURNS) {
-                if (draft.currentStage >= Object.keys(stageData).length) {
+                if (isDocumentedFinalStage(draft.currentStage)) {
                     draft.gameState = GameState.VICTORY;
                 } else {
                     draft.gameState = GameState.STAGE_CLEAR;

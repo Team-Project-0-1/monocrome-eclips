@@ -1,21 +1,30 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
+import RunResultScreen from '../components/RunResultScreen';
+import { GameState } from '../types';
+import { isStagePlayable } from '../utils/stageProgression';
+import { stageData } from '../dataStages';
 
 export const StageClearScreen = () => {
-    const { startStage, currentStage } = useGameStore(state => ({
-        startStage: state.startStage,
-        currentStage: state.currentStage
-    }));
+  const startStage = useGameStore(state => state.startStage);
+  const currentStage = useGameStore(state => state.currentStage);
+  const setGameState = useGameStore(state => state.setGameState);
+  const nextStage = currentStage + 1;
+  const nextStagePlayable = isStagePlayable(nextStage);
+  const nextStageInfo = stageData[nextStage as keyof typeof stageData];
 
-    return (
-        <div className="min-h-screen bg-gray-900 text-white p-4 flex items-center justify-center text-center">
-            <div>
-                <h2 className="text-4xl font-bold text-green-400 mb-4">스테이지 클리어!</h2>
-                <p className="text-gray-300 mb-8">다음 스테이지로 진행할 준비가 되었습니다.</p>
-                <button onClick={() => startStage(currentStage + 1)} className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    다음 스테이지로
-                </button>
-            </div>
-        </div>
-    );
+  return (
+    <RunResultScreen
+      tone="stage-clear"
+      title="층 돌파"
+      subtitle={nextStagePlayable
+        ? `다음 구역은 ${nextStageInfo?.name ?? `Stage ${nextStage}`}입니다. 지금 얻은 자원과 체력으로 다음 층의 리스크를 감당해야 합니다.`
+        : `${nextStageInfo?.name ?? `Stage ${nextStage}`}은 문서상 존재하지만 현재 빌드에는 세부 몬스터, 이벤트, 보스 데이터가 부족해 잠겨 있습니다.`}
+      primaryLabel={nextStagePlayable ? `${nextStageInfo?.name ?? '다음 층'}으로` : '다음 층 준비 중'}
+      primaryDisabled={!nextStagePlayable}
+      onPrimary={() => startStage(nextStage)}
+      secondaryLabel="로비로 돌아가기"
+      onSecondary={() => setGameState(GameState.MENU)}
+    />
+  );
 };

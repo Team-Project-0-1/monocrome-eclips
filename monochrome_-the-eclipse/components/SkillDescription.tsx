@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../store/gameStore';
-import { effectConfig } from '../dataEffects';
+import { effectConfig, effectIconPaths } from '../dataEffects';
 import { StatusEffectType } from '../types';
 
 const keywordStyles: { [key: string]: string } = {
@@ -25,18 +25,25 @@ const numberStyle = 'text-yellow-400 font-bold';
 const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text, className = '' }) => {
     const showTooltip = useGameStore(state => state.showTooltip);
 
-    const handleClickKeyword = (event: React.MouseEvent<HTMLButtonElement>, effectKey: StatusEffectType) => {
+    const handleClickKeyword = (event: React.MouseEvent<HTMLElement>, effectKey: StatusEffectType) => {
         event.stopPropagation();
         const config = effectConfig[effectKey];
         if (config) {
             const rect = event.currentTarget.getBoundingClientRect();
-            showTooltip(config, rect);
+            showTooltip({ ...config, imagePath: effectIconPaths[effectKey] }, rect);
+        }
+    };
+
+    const handleKeywordKeyDown = (event: React.KeyboardEvent<HTMLElement>, effectKey: StatusEffectType) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleClickKeyword(event as unknown as React.MouseEvent<HTMLElement>, effectKey);
         }
     };
 
     const keywords = Object.keys(keywordStyles).sort((a, b) => b.length - a.length);
     const regex = new RegExp(`(${keywords.join('|')}|\\d+)`, 'g');
-    
+
     const effectNameMap = new Map<string, StatusEffectType>(
         Object.entries(effectConfig)
               .filter(([, value]) => value)
@@ -52,7 +59,10 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
                     <span
                         key={index}
                         onClick={(e) => handleClickKeyword(e, effectKey)}
-                        className={`${keywordStyles[part]} cursor-help underline decoration-dotted decoration-gray-500 hover:decoration-white transition-colors`}
+                        onKeyDown={(e) => handleKeywordKeyDown(e, effectKey)}
+                        role="button"
+                        tabIndex={0}
+                        className={`${keywordStyles[part]} cursor-help underline decoration-dotted decoration-gray-500 hover:decoration-white transition-colors focus:outline-none`}
                     >
                         {part}
                     </span>
@@ -64,7 +74,7 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
             return <React.Fragment key={index}>{part}</React.Fragment>;
         });
     };
-    
+
     const sentences = text.match(/[^.!?]+[.!?]?/g) || [text];
 
     return (

@@ -1,10 +1,7 @@
-
-
-
 import React, { useMemo } from 'react';
+import { Map } from 'lucide-react';
 import { StageNode, NodeType } from '../types';
 import NodeIcon from './NodeIcon';
-import { Map } from 'lucide-react';
 import { STAGE_TURNS } from '../constants';
 
 interface MiniMapProps {
@@ -14,130 +11,152 @@ interface MiniMapProps {
 }
 
 const nodeTypeNames: { [key in NodeType]: string } = {
-    [NodeType.COMBAT]: '전투',
-    [NodeType.SHOP]: '상점',
-    [NodeType.REST]: '휴식',
-    [NodeType.EVENT]: '이벤트',
-    [NodeType.MINIBOSS]: '미니보스',
-    [NodeType.BOSS]: '보스',
-    [NodeType.UNKNOWN]: '???',
+  [NodeType.COMBAT]: '전투',
+  [NodeType.SHOP]: '상점',
+  [NodeType.REST]: '휴식',
+  [NodeType.EVENT]: '사건',
+  [NodeType.MINIBOSS]: '중간 보스',
+  [NodeType.BOSS]: '보스',
+  [NodeType.UNKNOWN]: '미확인',
 };
 
 const isVisited = (path: MiniMapProps['path'], nodeId: string) => path.some(p => p.nodeId === nodeId);
 
+const MINI_MAP_VIEW = {
+  turnWidth: 12,
+  turnLabelHeight: 8,
+  nodeRowHeight: 9,
+};
+
 const MiniMap: React.FC<MiniMapProps> = ({ nodes, currentTurn, path }) => {
-    
-    const pathCoords = useMemo(() => {
-        if (path.length < 1) return [];
-        return path.map(p => {
-            const turnIndex = p.turn - 1;
-            const nodeIndex = p.nodeIndex;
-            
-            // Constants matching layout
-            const turnColWidth = 40;
-            const turnColGap = 8; // from gap-2
-            const turnNumberHeight = 20; // Approximation of text height + padding
-            const nodeSize = 28; // from w-7/h-7
-            const nodeGap = 4; // from gap-1
-            
-            const x = turnIndex * (turnColWidth + turnColGap) + turnColWidth / 2;
-            const y = turnNumberHeight + nodeIndex * (nodeSize + nodeGap) + nodeSize / 2;
+  const turnCount = Math.max(1, nodes.length);
+  const maxNodeRows = Math.max(1, ...nodes.map(turnNodes => turnNodes.length));
+  const mapWidth = turnCount * MINI_MAP_VIEW.turnWidth;
+  const mapHeight = MINI_MAP_VIEW.turnLabelHeight + maxNodeRows * MINI_MAP_VIEW.nodeRowHeight;
 
-            return { x, y };
-        });
-    }, [path]);
+  const getPoint = (turn: number, nodeIndex: number) => {
+    const turnIndex = Math.min(Math.max(turn - 1, 0), turnCount - 1);
+    const rowIndex = Math.min(Math.max(nodeIndex, 0), maxNodeRows - 1);
 
-    return (
-      <div className="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50 backdrop-blur-sm shadow-lg relative">
-        {/* Header with enhanced styling */}
-        <h3 className="text-white text-base font-bold mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1 rounded bg-blue-500/20">
-              <Map className="w-5 h-5 text-blue-400" />
-            </div>
-            <span className="text-gray-200">던전 진행도</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">현재</span>
-            <span className="text-yellow-400 text-sm font-bold bg-yellow-400/10 px-2 py-1 rounded">
-              {currentTurn} / {STAGE_TURNS}층
-            </span>
-          </div>
-        </h3>
-        <div className="overflow-x-auto">
-          <div className="relative">
-            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none z-0" height="128" width={nodes.length * 48}>
-              <g>
-                {pathCoords.slice(1).map((coord, index) => {
-                    const prevCoord = pathCoords[index];
-                    return (
-                      <line 
-                        key={index} 
-                        x1={prevCoord.x} y1={prevCoord.y} 
-                        x2={coord.x} y2={coord.y} 
-                        stroke="rgba(255,255,255,0.2)" 
-                        strokeWidth="2" 
-                        strokeDasharray="4 2"
-                      />
-                    );
-                })}
-              </g>
-            </svg>
+    return {
+      x: turnIndex * MINI_MAP_VIEW.turnWidth + MINI_MAP_VIEW.turnWidth / 2,
+      y: MINI_MAP_VIEW.turnLabelHeight + rowIndex * MINI_MAP_VIEW.nodeRowHeight + MINI_MAP_VIEW.nodeRowHeight / 2,
+    };
+  };
 
-            <div className="relative z-10 flex gap-2 pb-2 min-w-max">
-              {nodes.map((turnNodes, turnIndex) => {
-                const turnNumber = turnIndex + 1;
-                const isCurrentTurn = turnNumber === currentTurn;
-                const isPastTurn = turnNumber < currentTurn;
+  const pathCoords = useMemo(() => {
+    if (path.length < 1) return [];
 
+    return path.map(p => getPoint(p.turn, p.nodeIndex));
+  }, [path, turnCount, maxNodeRows]);
+
+  const boardStyle = {
+    aspectRatio: `${mapWidth} / ${mapHeight}`,
+    '--mini-map-turns': turnCount,
+    '--mini-map-rows': maxNodeRows,
+  } as React.CSSProperties;
+
+  return (
+    <div className="mini-map-panel rounded-lg border border-gray-700/50 bg-gray-800/80 p-3 backdrop-blur-sm">
+      <h3 className="mb-3 flex items-center justify-between text-sm font-bold text-white">
+        <span className="flex items-center gap-2">
+          <Map className="h-4 w-4" />
+          런 진행도
+        </span>
+        <span className="text-xs text-yellow-400">
+          {currentTurn} / {STAGE_TURNS}
+        </span>
+      </h3>
+      <div className="mini-map-scroll">
+        <div className="mini-map-board" style={boardStyle} aria-label="run route minimap">
+          <svg
+            className="mini-map-path pointer-events-none absolute left-0 top-0 z-0 h-full w-full"
+            viewBox={`0 0 ${mapWidth} ${mapHeight}`}
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <g>
+              {pathCoords.slice(1).map((coord, index) => {
+                const prevCoord = pathCoords[index];
                 return (
-                  <div key={turnIndex} className={`flex flex-col items-center gap-2 min-w-[48px] p-2 rounded-lg transition-all ${isCurrentTurn ? 'bg-yellow-500/15 border border-yellow-500/30' : 'bg-gray-700/30'}`}>
-                    <div
-                      className={`text-xs font-bold px-2 py-1 rounded-full border transition-all ${
-                        isCurrentTurn
-                          ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/50 shadow-sm'
-                          : isPastTurn
-                          ? 'text-green-400 bg-green-400/10 border-green-400/30'
-                          : 'text-gray-500 bg-gray-600/20 border-gray-600/30'
-                      }`}
-                    >
-                      {turnNumber}
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {turnNodes.map((node) => {
-                          const visited = isVisited(path, node.id);
-                          const isFuture = !visited && !isCurrentTurn;
-                          const tooltipText = isFuture ? nodeTypeNames[node.type] : '';
-                        return (
-                          <div
-                            key={node.id}
-                            title={tooltipText}
-                            className={`w-8 h-8 rounded-lg border-2 flex items-center justify-center transition-all duration-300 shadow-sm
-                                        ${
-                                          visited
-                                            ? 'bg-green-700/80 border-green-500 shadow-green-500/30'
-                                            : isCurrentTurn
-                                            ? 'bg-yellow-600/60 border-yellow-500 animate-pulse shadow-yellow-500/30'
-                                            : 'bg-gray-700/60 border-gray-600 hover:border-gray-500'
-                                        }`}
-                          >
-                            <NodeIcon type={node.type} size="sm" />
-                            {/* Subtle glow effect for visited nodes */}
-                            {visited && (
-                              <div className="absolute inset-0 rounded-lg bg-green-400/10 animate-pulse"></div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
+                  <line
+                    key={`${coord.x}-${coord.y}`}
+                    x1={prevCoord.x}
+                    y1={prevCoord.y}
+                    x2={coord.x}
+                    y2={coord.y}
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth="0.6"
+                    strokeDasharray="1.6 0.9"
+                    strokeLinecap="round"
+                  />
                 );
               })}
-            </div>
-          </div>
+            </g>
+          </svg>
+
+          {nodes.map((turnNodes, turnIndex) => {
+            const turnNumber = turnIndex + 1;
+            const isCurrentTurn = turnNumber === currentTurn;
+            const isPastTurn = turnNumber < currentTurn;
+            const labelPoint = getPoint(turnNumber, 0);
+            const left = `${(labelPoint.x / mapWidth) * 100}%`;
+
+            return (
+              <React.Fragment key={turnNumber}>
+                {isCurrentTurn && (
+                  <div
+                    className="mini-map-turn-zone"
+                    style={{
+                      left: `${(turnIndex * MINI_MAP_VIEW.turnWidth / mapWidth) * 100}%`,
+                      width: `${(MINI_MAP_VIEW.turnWidth / mapWidth) * 100}%`,
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+                <div
+                  className={`mini-map-turn-label ${
+                    isCurrentTurn ? 'is-current' : isPastTurn ? 'is-past' : 'is-future'
+                  }`}
+                  style={{
+                    left,
+                    top: `${((MINI_MAP_VIEW.turnLabelHeight / 2) / mapHeight) * 100}%`,
+                  }}
+                >
+                  {turnNumber}
+                </div>
+                {turnNodes.map((node, nodeIndex) => {
+                  const visited = isVisited(path, node.id);
+                  const tooltipText = nodeTypeNames[node.type];
+                  const point = getPoint(turnNumber, nodeIndex);
+
+                  return (
+                    <div
+                      key={node.id}
+                      title={tooltipText}
+                      className={`mini-map-node flex items-center justify-center rounded-md border transition-all ${
+                        visited
+                          ? 'border-green-500 bg-green-700'
+                          : isCurrentTurn
+                            ? 'animate-pulse border-gray-500 bg-gray-700'
+                            : 'border-gray-600 bg-gray-700'
+                      }`}
+                      style={{
+                        left: `${(point.x / mapWidth) * 100}%`,
+                        top: `${(point.y / mapHeight) * 100}%`,
+                      }}
+                    >
+                      <NodeIcon type={node.type} size="sm" />
+                    </div>
+                  );
+                })}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
-    );
+    </div>
+  );
 };
 
 export default MiniMap;

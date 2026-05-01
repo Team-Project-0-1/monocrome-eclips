@@ -1,13 +1,16 @@
 import React from 'react';
 import { PlayerCharacter, EnemyCharacter, StatusEffectType } from '../types';
-import { effectConfig } from '../dataEffects';
+import { effectConfig, effectIconPaths } from '../dataEffects';
+import { assetPath } from '../utils/assetPath';
 
 interface EnhancedStatusEffectDisplayProps {
   effects: PlayerCharacter["statusEffects"] | EnemyCharacter["statusEffects"];
 }
 
 const EnhancedStatusEffectDisplay: React.FC<EnhancedStatusEffectDisplayProps> = ({ effects }) => {
-  const activeEffects = Object.entries(effects).filter(([, value]) => value && value > 0);
+  const activeEffects = Object.entries(effects).filter(
+    (entry): entry is [StatusEffectType, number] => typeof entry[1] === 'number' && entry[1] > 0
+  );
 
   if (activeEffects.length === 0) {
     return <div className="text-xs text-gray-400 italic py-2 text-center">활성 효과 없음</div>;
@@ -20,6 +23,7 @@ const EnhancedStatusEffectDisplay: React.FC<EnhancedStatusEffectDisplayProps> = 
         {activeEffects.map(([type, value]) => {
           const config = effectConfig[type as StatusEffectType];
           if (!config) return null;
+          const iconPath = effectIconPaths[type as StatusEffectType];
           return (
             <div
               key={type}
@@ -27,7 +31,11 @@ const EnhancedStatusEffectDisplay: React.FC<EnhancedStatusEffectDisplayProps> = 
               title={config.description}
             >
               <div className="flex items-center gap-1.5">
-                <span className="text-base">{config.icon}</span>
+                {iconPath ? (
+                  <img className="status-effect-icon-img" src={assetPath(iconPath)} alt="" loading="lazy" />
+                ) : (
+                  <span className="text-base">{config.icon}</span>
+                )}
                 <div className="leading-tight">
                   <div className="font-semibold">{config.name}</div>
                   <div className="flex items-center gap-0.5">

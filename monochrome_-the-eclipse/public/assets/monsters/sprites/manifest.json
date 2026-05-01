@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "layout": {
+    "columns": 4,
+    "rows": 4,
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "anchor": "bottom-center"
+  },
+  "animations": {
+    "idle": { "row": 0, "frames": [0, 1, 2, 3], "fps": 6, "loop": true },
+    "attack": { "row": 1, "frames": [0, 1, 2, 3], "fps": 10, "loop": false },
+    "skill": { "row": 2, "frames": [0, 1, 2, 3], "fps": 8, "loop": false },
+    "death": { "row": 3, "frames": [0, 1, 2, 3], "fps": 6, "loop": false }
+  },
+  "monsters": {
+    "marauder1": "./001_looter1-spritesheet.png",
+    "marauder2": "./002_looter2-spritesheet.png",
+    "infectedDog": "./003_wild_dog-spritesheet.png",
+    "marauderLeader": "./004_looter_leader-spritesheet.png",
+    "lumenReaper": "./005_lumen_reaper-spritesheet.png",
+    "shadowWraith": "./006_shadow_wraith-spritesheet.png",
+    "doppelganger": "./007_doppelganger-spritesheet.png",
+    "unpleasantCube": "../stage2-generated/unpleasant_cube_spritesheet.png",
+    "subject162": "../stage2-generated/subject_162_spritesheet.png",
+    "chimera": "./010_chimera-spritesheet.png"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "layout": {
+    "columns": 4,
+    "rows": 4,
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "anchor": "bottom-center"
+  },
+  "animations": {
+    "idle": { "row": 0, "frames": [0, 1, 2, 3], "fps": 6, "loop": true },
+    "attack": { "row": 1, "frames": [0, 1, 2, 3], "fps": 10, "loop": false },
+    "skill": { "row": 2, "frames": [0, 1, 2, 3], "fps": 8, "loop": false },
+    "death": { "row": 3, "frames": [0, 1, 2, 3], "fps": 6, "loop": false }
+  },
+  "characters": {
+    "warrior": "./warrior-spritesheet-1024.png",
+    "rogue": "./rogue-spritesheet-1024.png",
+    "tank": "./tank-spritesheet-1024.png",
+    "mage": "./mage-spritesheet-1024.png"
+  }
+}
