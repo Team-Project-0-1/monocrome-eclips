@@ -11,6 +11,7 @@ export enum GameState {
   SHOP = "SHOP",
   REST = "REST",
   EVENT = "EVENT",
+  REWARD = "REWARD",
   GAME_OVER = "GAME_OVER",
   VICTORY = "VICTORY",
   STAGE_CLEAR = "STAGE_CLEAR",
@@ -30,6 +31,7 @@ export enum NodeType {
 export interface StageNode {
   type: NodeType;
   id: string;
+  isGuaranteed?: boolean;
 }
 
 export enum CoinFace {
@@ -83,6 +85,13 @@ export type StatusEffects = {
   [key in StatusEffectType]?: number;
 };
 
+export interface SpriteAnimations {
+  idle: number;
+  attack: number;
+  skill: number;
+  death: number;
+}
+
 interface Character {
   name: string;
   currentHp: number;
@@ -97,6 +106,13 @@ interface Character {
 export interface PlayerCharacter extends Character {
   class: CharacterClass;
   title: string;
+  weapon?: string;
+  signature?: string;
+  portraitSrc?: string;
+  assetKey?: string;
+  spriteSheetSrc?: string;
+  spriteFrameSize?: number;
+  spriteAnimations?: SpriteAnimations;
   acquiredSkills: string[];
   memoryUpgrades: { [key in MemoryUpgradeType]: number };
   activeSkillCooldown: number;
@@ -104,6 +120,11 @@ export interface PlayerCharacter extends Character {
 
 export interface EnemyCharacter extends Character {
   key: string;
+  assetKey?: string;
+  portraitSrc?: string;
+  spriteSheetSrc?: string;
+  spriteFrameSize?: number;
+  spriteAnimations?: SpriteAnimations;
   coins: Coin[];
   detectedPatterns: DetectedPattern[];
   tier: 'normal' | 'miniboss' | 'boss';
@@ -114,6 +135,9 @@ export interface EnemyIntent {
   damage: number;
   defense: number;
   sourcePatternKeys: string[];
+  sourcePatternType?: PatternType;
+  sourcePatternFace?: CoinFace;
+  sourcePatternCount?: number;
   sourceCoinIndices?: number[];
 }
 
@@ -177,6 +201,7 @@ export interface MultiHit {
 
 export interface AbilityEffect {
   fixedDamage?: number;
+  selfDamage?: number;
   multiHit?: MultiHit;
   defense?: number;
   bonusDefense?: number;
@@ -216,10 +241,23 @@ export interface MonsterPatternDefinition {
   effect: (enemy: EnemyCharacter, player: PlayerCharacter) => AbilityEffect;
 }
 
+export interface MonsterPhaseDefinition {
+  id: string;
+  label: string;
+  hpBelow?: number;
+  turnFrom?: number;
+  patterns: string[];
+}
+
 
 export interface EventChoice {
     text: string;
     requiredSense?: CharacterClass;
+    requiredResources?: {
+        echoRemnants?: number;
+        senseFragments?: number;
+        memoryPieces?: number;
+    };
     baseSuccessRate?: number;
     senseBonus?: { [key in CharacterClass]?: number };
     success?: { [key: string]: any };
@@ -244,6 +282,12 @@ export interface MonsterData {
         baseDef: number;
         patterns: string[];
         tier: 'normal' | 'miniboss' | 'boss';
+        phases?: MonsterPhaseDefinition[];
+        assetKey?: string;
+        portraitSrc?: string;
+        spriteSheetSrc?: string;
+        spriteFrameSize?: number;
+        spriteAnimations?: SpriteAnimations;
         passives?: string[];
     };
 }
@@ -269,6 +313,7 @@ export interface SkillReplacementState {
 
 export interface TooltipContent {
   icon: string;
+  imagePath?: string;
   name: string;
   description: string;
   color: string;

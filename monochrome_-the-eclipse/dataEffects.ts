@@ -1,5 +1,17 @@
 import { StatusEffectType } from './types';
 
+export const effectIconPaths: Partial<Record<StatusEffectType, string>> = {
+  [StatusEffectType.AMPLIFY]: 'assets/icons/status/amplify.png',
+  [StatusEffectType.RESONANCE]: 'assets/icons/status/resonance.png',
+  [StatusEffectType.MARK]: 'assets/icons/status/mark.png',
+  [StatusEffectType.BLEED]: 'assets/icons/status/bleed.png',
+  [StatusEffectType.COUNTER]: 'assets/icons/status/counter.png',
+  [StatusEffectType.SHATTER]: 'assets/icons/status/shatter.png',
+  [StatusEffectType.CURSE]: 'assets/icons/status/curse.png',
+  [StatusEffectType.SEAL]: 'assets/icons/status/seal.png',
+  [StatusEffectType.PURSUIT]: 'assets/icons/status/pursuit.png',
+};
+
 export const effectConfig: {
   [key in StatusEffectType]?: {
     icon: string;

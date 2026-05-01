@@ -9,6 +9,7 @@ import {
   Coin,
   AbilityEffect,
   DetectedPattern,
+  StatusApplication,
 } from "./types";
 
 // Helper for random values in effects
@@ -101,16 +102,12 @@ export const playerAbilities: { [key: string]: any } = {
         [PatternType.PAIR]: { 
             [CoinFace.HEADS]: { name: "반격 태세", description: "피해를 5 줍니다. 반격을 2 얻습니다.", effect: (): AbilityEffect => ({ fixedDamage: 5, status: { type: StatusEffectType.COUNTER, value: 2, target: 'player' } }) }, 
             [CoinFace.TAILS]: { name: "아래막기", description: "방어를 6 얻습니다. 반격을 3 얻습니다.\n[연계] 뒷면 3연 스킬과 함께 사용 시, 반격을 4 추가로 얻습니다.", effect: (p, e, c, s = []): AbilityEffect => {
-                const effect: AbilityEffect = { defense: 6, status: { type: StatusEffectType.COUNTER, value: 3, target: 'player' } };
+                const statuses: StatusApplication[] = [{ type: StatusEffectType.COUNTER, value: 3, target: 'player' }];
                 const hasCombo = s.some(pattern => pattern.type === PatternType.TRIPLE && pattern.face === CoinFace.TAILS);
                 if (hasCombo) {
-                    if (Array.isArray(effect.status)) {
-                        effect.status.push({ type: StatusEffectType.COUNTER, value: 4, target: 'player' });
-                    } else {
-                       effect.status = [effect.status as any, { type: StatusEffectType.COUNTER, value: 4, target: 'player' }];
-                    }
+                    statuses.push({ type: StatusEffectType.COUNTER, value: 4, target: 'player' });
                 }
-                return effect;
+                return { defense: 6, status: statuses };
             }}, 
         },
         [PatternType.UNIQUE]: { 
@@ -406,12 +403,12 @@ export const playerSkillUnlocks: { [key in CharacterClass]?: { [id: string]: Ski
   [CharacterClass.TANK]: {
     // Shatter Build
     'TANK_SHATTER_PH': { id: 'TANK_SHATTER_PH', name: '분쇄격', description: '피해를 6 줍니다. 분쇄를 1 부여합니다.\n[연계] 뒷면 스킬과 함께 사용 시, 분쇄를 2 추가로 부여합니다.', cost: { echoRemnants: 50 }, replaces: { type: PatternType.PAIR, face: CoinFace.HEADS }, effect: (p, e, c, s = []): AbilityEffect => {
-        const effect: AbilityEffect = { fixedDamage: 6, status: { type: StatusEffectType.SHATTER, value: 1, target: 'enemy' } };
+        const statuses: StatusApplication[] = [{ type: StatusEffectType.SHATTER, value: 1, target: 'enemy' }];
         const hasCombo = s.some(pattern => pattern.face === CoinFace.TAILS);
         if (hasCombo) {
-            (effect.status as any[]).push({ type: StatusEffectType.SHATTER, value: 2, target: 'enemy' });
+            statuses.push({ type: StatusEffectType.SHATTER, value: 2, target: 'enemy' });
         }
-        return effect;
+        return { fixedDamage: 6, status: statuses };
     }},
     'TANK_SHATTER_PT': { id: 'TANK_SHATTER_PT', name: '쌍수 방어', description: '방어를 7 얻습니다.\n[연계] 뒷면 2연 스킬과 중복 사용 시, 분쇄를 3 부여합니다.', cost: { echoRemnants: 50 }, replaces: { type: PatternType.PAIR, face: CoinFace.TAILS }, effect: (p, e, c, s = []): AbilityEffect => {
         const effect: AbilityEffect = { defense: 7 };

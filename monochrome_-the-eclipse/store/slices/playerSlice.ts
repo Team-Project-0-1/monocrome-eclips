@@ -3,7 +3,7 @@ import { produce } from 'immer';
 import { GameStore } from '../gameStore';
 import { PlayerCharacter, CharacterClass, ShopItem, PatternUpgradeDefinition, SkillUpgradeDefinition, MemoryUpgradeType, GameState, CoinFace, Coin } from '../../types';
 import { characterData } from '../../dataCharacters';
-import { MAX_SKILLS, MEMORY_UPGRADE_DATA } from '../../constants';
+import { MAX_RESERVE_COINS, MAX_SKILLS, MEMORY_UPGRADE_DATA } from '../../constants';
 import { generateStageNodes, flipCoin, generateCoins } from '../../utils/gameLogic';
 
 export interface PlayerSlice {
@@ -55,7 +55,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         // --- COMPLETE STATE RESET & NEW RUN INITIALIZATION (ATOMIC) ---
         draft.resources = { echoRemnants: 100, senseFragments: 0, memoryPieces: 0 };
         draft.unlockedPatterns = [];
-        draft.reserveCoins = [];
+        draft.reserveCoins = [{ face: null, locked: false, id: Date.now() + Math.random() }];
         draft.reserveCoinShopCost = 100;
         
         draft.currentStage = 1;
@@ -73,6 +73,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         draft.enemyIntent = null;
         draft.combatLog = [];
         draft.combatTurn = 1;
+        draft.pendingCombatReward = null;
         draft.swapState = { phase: 'idle', reserveCoinIndex: null, revealedFace: null };
         draft.activeSkillState = { phase: 'idle', selection: [] };
 
@@ -81,6 +82,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         draft.eventPhase = 'choice';
         draft.eventResultData = null;
         draft.eventDisplayItems = [];
+        draft.encounteredEventIds = [];
 
         // Also reset UI state for a clean start
         draft.isInventoryOpen = false;
@@ -99,7 +101,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         if (!player) return;
 
         if (item.id === 'reserve_coin') {
-            if (resources.echoRemnants >= state.reserveCoinShopCost && state.reserveCoins.length < 3) {
+            if (resources.echoRemnants >= state.reserveCoinShopCost && state.reserveCoins.length < MAX_RESERVE_COINS) {
                 resources.echoRemnants -= state.reserveCoinShopCost;
                 state.reserveCoinShopCost += 50;
                 state.reserveCoins.push({ face: null, locked: false, id: Date.now() + Math.random() });
@@ -121,6 +123,10 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
                 }
                 if (shopItem.effect.senseFragments) {
                     resources.senseFragments += shopItem.effect.senseFragments;
+                }
+                if (shopItem.effect.statusEffect) {
+                    const { type, value } = shopItem.effect.statusEffect;
+                    player.statusEffects[type] = Math.max(0, (player.statusEffects[type] || 0) + value);
                 }
             }
         }

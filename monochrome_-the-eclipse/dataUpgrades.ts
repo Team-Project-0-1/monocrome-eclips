@@ -65,7 +65,7 @@ export const patternUpgrades: { [key in CharacterClass]?: { [id: string]: Patter
     'MAGE_P_TAILS_CURSE': { id: "MAGE_P_TAILS_CURSE", name: "우울과 자책", description: "나오는 뒷면 만큼 자신에게 저주를 부여합니다.", cost: { senseFragments: 4 } },
     'MAGE_P_KILL_HEAL': { id: "MAGE_P_KILL_HEAL", name: "죽음을 대하는 자세", description: "적 처치 시 자신의 남은 저주 수치만큼 체력을 회복합니다.", cost: { senseFragments: 4 } },
     'MAGE_P_DEF_TO_SEAL': { id: "MAGE_P_DEF_TO_SEAL", name: "영혼을 담은 망토", description: "스킬 사용 후, 자신의 남은 방어력 1당 상대방에게 봉인을 1 부여합니다.", cost: { senseFragments: 4 } },
-    'MAGE_P_SEAL_EXECUTE': { id: "MAGE_P_SEAL_EXECUTE", name: "나태의 낫", description: "의지 절단 처형 기준이 최대 체력의 5% 대신, 15% 만큼 증가합니다.", cost: { senseFragments: 5 } },
+    'MAGE_P_SEAL_EXECUTE': { id: "MAGE_P_SEAL_EXECUTE", name: "나태의 낫", description: "의지 절단 처형 기준이 최대 체력의 5% 대신, 10%로 증가합니다.", cost: { senseFragments: 5 } },
     'MAGE_P_SEAL_DMG_UP': { id: "MAGE_P_SEAL_DMG_UP", name: "약자멸시", description: "상대방의 봉인 수치 만큼 스킬 피해가 1 증가합니다.", cost: { senseFragments: 4 } },
     'MAGE_P_SEAL_DEFENSE': { id: "MAGE_P_SEAL_DEFENSE", name: "강제 방어 명령", description: "상대방의 봉인이 10 이상인 경우 즉시 상대방의 동전을 전부 뒷면으로 바꿉니다. (전투 당 1회)", cost: { senseFragments: 5 } },
     'MAGE_P_WEAK_BLOOD': { id: "MAGE_P_WEAK_BLOOD", name: "쇠약한 피", description: "매턴마다 받은 피해의 절반 만큼 봉인을 부여합니다.", cost: { senseFragments: 4 } },

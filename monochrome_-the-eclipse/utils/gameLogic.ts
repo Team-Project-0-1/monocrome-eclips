@@ -1,5 +1,5 @@
 import { Coin, CoinFace, DetectedPattern, PatternType, StageNode, NodeType, PlayerCharacter, CharacterClass } from '../types';
-import { COIN_COUNT, STAGE_TURNS, MINIBOSS_TURN, BOSS_TURN } from '../constants';
+import { COIN_COUNT, STAGE_TURNS, MINIBOSS_TURN_OPTIONS, BOSS_TURN } from '../constants';
 
 export const flipCoin = (headsChance: number = 0.5): CoinFace => Math.random() < headsChance ? CoinFace.HEADS : CoinFace.TAILS;
 
@@ -82,6 +82,7 @@ export const detectPatterns = (coins: Coin[]): DetectedPattern[] => {
 
 export const generateStageNodes = (stageNumber: number): StageNode[][] => {
   let nodes: StageNode[][] = [];
+  const minibossTurn = MINIBOSS_TURN_OPTIONS[Math.floor(Math.random() * MINIBOSS_TURN_OPTIONS.length)];
   for (let turn = 1; turn <= STAGE_TURNS; turn++) {
     const turnNodes: StageNode[] = [];
 
@@ -89,7 +90,7 @@ export const generateStageNodes = (stageNumber: number): StageNode[][] => {
         const guaranteedPosition = Math.floor(Math.random() * 3);
         for (let i = 0; i < 3; i++) {
             const type = i === guaranteedPosition ? guaranteedType : getRandomNodeType(turn);
-            turnNodes.push({ type, id: `${turn}-${i}` });
+            turnNodes.push({ type, id: `${turn}-${i}`, isGuaranteed: i === guaranteedPosition });
         }
     };
     
@@ -99,14 +100,14 @@ export const generateStageNodes = (stageNumber: number): StageNode[][] => {
       generateWithGuaranteedNode(NodeType.REST);
     } else if (turn === 7) {
       generateWithGuaranteedNode(NodeType.SHOP);
-    } else if (turn === MINIBOSS_TURN) {
+    } else if (turn === minibossTurn) {
       generateWithGuaranteedNode(NodeType.MINIBOSS);
     } else if (turn === 9) {
       generateWithGuaranteedNode(NodeType.REST);
     } else if (turn === 14) {
-      for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.REST, id: `${turn}-${i}` });
+      for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.REST, id: `${turn}-${i}`, isGuaranteed: true });
     } else if (turn === BOSS_TURN) {
-      for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.BOSS, id: `${turn}-${i}` });
+      for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.BOSS, id: `${turn}-${i}`, isGuaranteed: true });
     } else {
       for (let i = 0; i < 3; i++) {
           const type = getRandomNodeType(turn);
@@ -140,6 +141,7 @@ const applyAntiConsecutiveRules = (nodes: StageNode[][]): StageNode[][] => {
     const previousTurnNodes = nodes[turn - 1];
     for (let pos = 0; pos < currentTurnNodes.length; pos++) {
       const currentNode = currentTurnNodes[pos];
+      if (currentNode.isGuaranteed) continue;
       if (specialNodes.includes(currentNode.type)) {
         const hasSpecialInPreviousConnectedPath = 
           (pos > 0 && specialNodes.includes(previousTurnNodes[pos-1]?.type)) ||
