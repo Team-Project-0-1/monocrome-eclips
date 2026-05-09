@@ -100,7 +100,12 @@ export const MenuScreen = () => {
 
           <div className="menu-action-row">
             {hasRun ? (
-              <ActionButton onClick={resumeGame} variant="primary" className="menu-primary-action px-7 py-4 text-lg shadow-2xl shadow-black/40 hover:scale-[1.02]">
+              <ActionButton
+                onClick={resumeGame}
+                variant="primary"
+                className="menu-primary-action px-7 py-4 text-lg shadow-2xl shadow-black/40 hover:scale-[1.02]"
+                data-testid="continue-run-button"
+              >
                 계속하기
                 <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </ActionButton>
@@ -109,6 +114,7 @@ export const MenuScreen = () => {
               onClick={startNewGame}
               variant={hasRun ? 'ghost' : 'primary'}
               className="menu-primary-action px-7 py-4 text-lg shadow-2xl shadow-black/40 hover:scale-[1.02]"
+              data-testid="start-run-button"
             >
               새 탐험
               <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

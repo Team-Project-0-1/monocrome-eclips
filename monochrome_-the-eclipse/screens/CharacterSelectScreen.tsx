@@ -64,6 +64,7 @@ export const CharacterSelectScreen = () => {
                                 key={classType}
                                 onClick={() => isUnlocked && selectCharacter(characterClass)}
                                 disabled={!isUnlocked}
+                                data-testid={`character-card-${characterClass.toLowerCase()}`}
                                 className={`group relative min-h-[280px] overflow-hidden rounded-lg border text-left shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300
                                     ${isUnlocked ? "border-white/12 bg-gray-900 hover:-translate-y-0.5 hover:border-cyan-300/70 hover:shadow-cyan-950/30" : "border-gray-700 bg-gray-800 opacity-70 cursor-not-allowed"}`}
                             >

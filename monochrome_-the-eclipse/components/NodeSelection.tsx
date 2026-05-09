@@ -62,6 +62,7 @@ const NodeSelection: React.FC<NodeSelectionProps> = ({ nodes, onSelect, currentT
               type="button"
               onClick={() => handleSelect(node, index)}
               disabled={selectedNode !== null}
+              data-testid={`route-node-${index + 1}`}
               animate={isSelected ? { scale: 1.05, opacity: 0, y: -12 } : { scale: 1, opacity: 1, y: 0 }}
               transition={{ duration: 0.42, ease: 'easeInOut' }}
               whileHover={selectedNode ? undefined : { y: -3 }}

@@ -187,6 +187,7 @@ export const ShopScreen = () => {
               }}
               variant="ghost"
               className="shop-status-button"
+              data-testid="shop-status-button"
             >
               <UserRoundSearch className="h-4 w-4" />
               현재 상태

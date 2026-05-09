@@ -66,7 +66,7 @@ export const ExplorationScreen = () => {
               Expedition Kit
             </div>
             <div className="flex flex-col gap-2">
-              <ActionButton onClick={() => setInventoryOpen(true)} variant="primary" className="w-full">
+              <ActionButton onClick={() => setInventoryOpen(true)} variant="primary" className="w-full" data-testid="open-inventory-button">
                 <Package className="h-5 w-5" />
                 가방 열기
               </ActionButton>
