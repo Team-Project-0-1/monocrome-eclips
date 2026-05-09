@@ -23,6 +23,8 @@ import {
   statusLabels,
 } from '../../utils/combatPresentation';
 import { assetPath } from '../../utils/assetPath';
+import EffectSummary from '../EffectSummary';
+import { summarizeAbility, summarizeDescription } from '../../utils/effectSummary';
 
 export type CombatIntelView = 'player' | 'enemy' | 'calc' | 'passives';
 
@@ -246,7 +248,7 @@ const PlayerPatternIntel: React.FC<{
               <span>{patternLabels[type]} {faceLabel(face)}</span>
               <strong>{ability.name}</strong>
             </div>
-            <p>{ability.description}</p>
+            <EffectSummary summary={summarizeAbility(ability)} compact chipLimit={4} showDetail="details" />
           </div>
           <div className="combat-intel-tags">
             {selected.length > 0 ? <b>선택 {selected.length}</b> : null}
@@ -299,7 +301,7 @@ const EnemyPatternIntel: React.FC<{
                   <span>{patternLabels[skill.type]} {faceLabel(skill.face)}</span>
                   <strong>{skill.name}</strong>
                 </div>
-                <p>{skill.description}</p>
+                <EffectSummary summary={summarizeAbility(skill)} compact chipLimit={4} showDetail="details" />
               </div>
               <div className="combat-intel-tags">
                 {isIntent ? <b>예고</b> : null}
@@ -367,7 +369,7 @@ const CalculationIntel: React.FC<{
                   <span>{patternLabels[pattern.type]} {faceLabel(pattern.face)} · {formatCoinIndices(pattern.indices)}</span>
                   <strong>{ability.name}</strong>
                 </div>
-                <p>{ability.description}</p>
+                <EffectSummary summary={summarizeAbility(ability)} compact chipLimit={3} showDetail="details" />
               </div>
             </article>
           )) : <p className="combat-intel-empty">아직 선택한 족보가 없습니다.</p>}
@@ -406,13 +408,13 @@ const PassiveIntel: React.FC<{
         {innatePassives.map((description, index) => (
           <article key={`innate-${index}`} className="combat-intel-passive">
             <strong>고유 패시브</strong>
-            <p>{description}</p>
+            <EffectSummary summary={summarizeDescription(description)} compact chipLimit={4} showDetail="details" />
           </article>
         ))}
         {playerPassiveRows.length > 0 ? playerPassiveRows.map(passive => (
           <article key={passive.id} className="combat-intel-passive">
             <strong>{passive.name}</strong>
-            <p>{passive.description}</p>
+            <EffectSummary summary={summarizeDescription(passive.description)} compact chipLimit={4} showDetail="details" />
           </article>
         )) : <p className="combat-intel-empty">습득한 추가 패시브가 없습니다.</p>}
       </section>
@@ -427,7 +429,7 @@ const PassiveIntel: React.FC<{
           return (
             <article key={id} className="combat-intel-passive danger">
               <strong>{passive.name}</strong>
-              <p>{passive.description}</p>
+              <EffectSummary summary={summarizeDescription(passive.description)} compact chipLimit={4} showDetail="details" />
             </article>
           );
         }) : <p className="combat-intel-empty">적 패시브가 없습니다.</p>}

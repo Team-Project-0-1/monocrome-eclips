@@ -43,6 +43,8 @@ Before publishing, confirm:
 
 Use this when speed matters more than production traffic control.
 
+Important limitation: GitHub Pages does not apply `public/_headers`. The file is still kept for platforms that support it and for release checks, but GitHub Pages alone will not enforce the CSP, frame, referrer, permissions, or cache headers in that file. For a broader public URL, put the site behind Cloudflare/another CDN that injects equivalent headers, or deploy through Cloudflare Pages/Netlify.
+
 Expected build environment:
 
 ```text
@@ -55,6 +57,8 @@ VITE_BASE_PATH=/monocrome-eclips/
 ### Cloudflare Pages preferred
 
 Use this for the public portfolio URL or broader public testing.
+
+This path is preferred for public traffic because it can apply the checked `_headers` policy, custom domain redirects, and cache controls.
 
 Expected build environment:
 

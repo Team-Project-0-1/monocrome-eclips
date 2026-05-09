@@ -19,6 +19,8 @@ import {
   patternLabels,
 } from '../../utils/combatPresentation';
 import { getPlayerAbility } from '../../dataSkills';
+import EffectSummary from '../EffectSummary';
+import { summarizeAbility, type EffectSummary as EffectSummaryData } from '../../utils/effectSummary';
 
 export const CombatTicker: React.FC<{ messages: CombatLogMessage[] }> = ({ messages }) => {
   const recent = messages.slice(-3);
@@ -69,9 +71,10 @@ const summarizeSelectedPatterns = (player: PlayerCharacter, patterns: DetectedPa
         label: `${patternLabels[pattern.type]} ${faceLabel(pattern.face)}`,
         name: ability.name,
         face: pattern.face,
+        summary: summarizeAbility(ability),
       };
     })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    .filter((item): item is NonNullable<typeof item> & { summary: EffectSummaryData } => Boolean(item));
 };
 
 export const CombatDecisionSummary: React.FC<CombatDecisionSummaryProps> = ({
@@ -97,8 +100,9 @@ export const CombatDecisionSummary: React.FC<CombatDecisionSummaryProps> = ({
           <div className="combat-decision-tags">
             {selected.slice(0, 3).map(item => (
               <b key={item.key} className={faceClass(item.face)}>
-                {item.label}
+                <EffectSummary summary={item.summary} compact hideHeadline chipLimit={2} />
                 <em>{item.name}</em>
+                <small>{item.label}</small>
               </b>
             ))}
             {selected.length > 3 ? <b>+{selected.length - 3}</b> : null}

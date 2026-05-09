@@ -8,6 +8,7 @@
 - 첫 프로덕션 호스트를 정한다.
   - 가장 빠른 공개: GitHub Pages.
   - 실제 트래픽과 장기 운영 권장: Cloudflare Pages + 커스텀 도메인.
+  - 보안/캐시 헤더 적용 필요 시 GitHub Pages 단독은 부족하다. `public/_headers`를 적용할 수 있는 Cloudflare Pages/Netlify 또는 CDN 프록시를 선택한다.
 - 3스테이지가 잠겨 있거나 미구현인 상태를 첫 공개 빌드에서 허용할지 결정한다.
 - 생성 이미지/오디오의 출처와 사용권을 검토하고, 현재 에셋을 프로토타입 공개 범위에서 허용할지 결정한다.
 - 호스팅 결정 후 GitHub Pages 워크플로를 실행하거나 Cloudflare/domain 접근 권한을 제공한다.

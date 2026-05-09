@@ -7,7 +7,7 @@ const getBaseUrl = (): string => {
 
 export const assetPath = (path: string): string => {
   if (/^(?:https?:|data:|blob:)/.test(path)) {
-    return path;
+    throw new Error(`External asset paths are not allowed: ${path}`);
   }
 
   const baseUrl = getBaseUrl();

@@ -3,7 +3,8 @@ import { CoinFace, EnemyCharacter, EnemyIntent, PatternType } from '../types';
 import { monsterData, monsterPatterns } from '../dataMonsters';
 import { Swords, Shield, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SkillDescription from './SkillDescription';
+import EffectSummary from './EffectSummary';
+import { summarizeAbility } from '../utils/effectSummary';
 
 interface EnemyActionPanelProps {
   enemy: EnemyCharacter | null;
@@ -124,9 +125,12 @@ const EnemyActionPanel = ({ enemy, intent }: EnemyActionPanelProps): React.JSX.E
                     {patternTypeName} {faceName}
                     </span>
                 </div>
-                <SkillDescription
-                    text={skillDef.description}
-                    className={`text-xs ${isDetected ? 'text-gray-300' : 'text-gray-500'}`}
+                <EffectSummary
+                  summary={summarizeAbility(skillDef)}
+                  compact
+                  chipLimit={4}
+                  showDetail="details"
+                  className={`enemy-action-effect-summary ${isDetected ? '' : 'is-muted'}`}
                 />
               </div>
             );
