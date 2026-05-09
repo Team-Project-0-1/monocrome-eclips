@@ -9,6 +9,8 @@ import { useGameStore } from '../store/gameStore';
 import { CoinFace, PatternType, PatternUpgradeDefinition, SkillUpgradeDefinition, StatusEffectType } from '../types';
 import { assetPath } from '../utils/assetPath';
 import { resourceIconPaths } from '../utils/resourceAssets';
+import EffectSummary from './EffectSummary';
+import { summarizeDescription } from '../utils/effectSummary';
 
 interface RunStatusModalProps {
   isOpen: boolean;
@@ -217,7 +219,14 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                           ) : null}
                         </div>
                         <strong className="mt-1.5 block text-sm text-white">{slot.name}</strong>
-                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-400">{slot.description}</p>
+                        <EffectSummary
+                          summary={summarizeDescription(slot.description)}
+                          compact
+                          hideHeadline
+                          chipLimit={4}
+                          showDetail="details"
+                          className="run-status-effect-summary"
+                        />
                       </div>
                     ))}
                   </div>
@@ -232,7 +241,13 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                     {skills.length > 0 ? skills.map(skill => (
                       <div key={skill.id} className="rounded-md border border-cyan-200/16 bg-cyan-950/16 p-3">
                         <strong className="block text-sm text-cyan-50">{skill.name}</strong>
-                        <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-slate-300">{skill.description}</p>
+                        <EffectSummary
+                          summary={summarizeDescription(skill.description)}
+                          compact
+                          chipLimit={4}
+                          showDetail="details"
+                          className="run-status-effect-summary"
+                        />
                       </div>
                     )) : (
                       <p className="rounded-md border border-white/10 bg-black/20 p-3 text-sm text-slate-400">아직 추가 습득 기술이 없습니다. 기본 기술 중심 빌드입니다.</p>
@@ -249,7 +264,13 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                     {passives.length > 0 ? passives.map(passive => (
                       <div key={passive.id} className="rounded-md border border-purple-200/16 bg-purple-950/16 p-3">
                         <strong className="block text-sm text-purple-50">{passive.name}</strong>
-                        <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-slate-300">{passive.description}</p>
+                        <EffectSummary
+                          summary={summarizeDescription(passive.description)}
+                          compact
+                          chipLimit={4}
+                          showDetail="details"
+                          className="run-status-effect-summary"
+                        />
                       </div>
                     )) : (
                       <p className="rounded-md border border-white/10 bg-black/20 p-3 text-sm text-slate-400">아직 패시브 강화가 없습니다.</p>

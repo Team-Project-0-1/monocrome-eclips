@@ -18,6 +18,8 @@ import {
   PatternGroup,
 } from '../../utils/combatPresentation';
 import { assetPath } from '../../utils/assetPath';
+import EffectSummary from '../EffectSummary';
+import { summarizeAbility } from '../../utils/effectSummary';
 
 const activeSkillIconPaths: Record<CharacterClass, string> = {
   [CharacterClass.WARRIOR]: 'assets/icons/combat/active-warrior-reroll.png',
@@ -94,6 +96,7 @@ export const PatternRail: React.FC<PatternRailProps> = ({
         ));
         const disabled = selectedCount === 0 && !isAvailable;
         const ability = getPlayerAbility(player.class, player.acquiredSkills, group.type, group.face);
+        const summary = summarizeAbility(ability);
         const selectedClass = selectedCount > 0 ? 'is-selected' : '';
         const cappedClass = selectedCount >= 2 || (selectedCount > 0 && !isAvailable) ? 'is-capped' : '';
 
@@ -115,8 +118,9 @@ export const PatternRail: React.FC<PatternRailProps> = ({
               aria-hidden="true"
             />
             <span className="combat-pattern-text">
-              <span className="combat-pattern-kind">{patternLabels[group.type]} {faceLabel(group.face)}</span>
+              <EffectSummary summary={summary} compact hideHeadline chipLimit={3} className="combat-pattern-summary" />
               <strong>{ability.name}</strong>
+              <span className="combat-pattern-kind">{patternLabels[group.type]} {faceLabel(group.face)}</span>
               <span>{selectedCount > 0 ? `선택 ${selectedCount}` : `후보 ${group.patterns.length}`}</span>
             </span>
           </button>
@@ -155,7 +159,10 @@ export const ActiveSkillPill: React.FC<ActiveSkillPillProps> = ({ player, disabl
         loading="lazy"
         aria-hidden="true"
       />
-      <span>{skill.name}</span>
+      <span className="combat-active-skill-copy">
+        <strong>{skill.name}</strong>
+        <EffectSummary text={skill.description} compact hideHeadline chipLimit={2} />
+      </span>
       <b>{onCooldown ? player.activeSkillCooldown : 'OK'}</b>
     </button>
   );

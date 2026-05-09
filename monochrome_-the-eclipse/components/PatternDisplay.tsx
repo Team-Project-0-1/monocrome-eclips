@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { DetectedPattern, PatternType, CoinFace, CharacterClass } from '../types';
 import { getPlayerAbility } from '../dataSkills';
 import { CheckCircle, PlusCircle, XCircle } from 'lucide-react';
-import SkillDescription from './SkillDescription';
+import EffectSummary from './EffectSummary';
+import { summarizeAbility } from '../utils/effectSummary';
 
 interface PatternDisplayProps {
   patterns: DetectedPattern[];
@@ -108,7 +109,13 @@ const PatternDisplay: React.FC<PatternDisplayProps> = ({ patterns, onPatternGrou
                           {patternTypeName} {faceName}
                         </span>
                       </div>
-                      <SkillDescription text={abilityDef.description} className="text-xs text-blue-200 opacity-90 pr-16" />
+                      <EffectSummary
+                        summary={summarizeAbility(abilityDef)}
+                        compact
+                        hideHeadline
+                        chipLimit={4}
+                        className="pattern-display-summary"
+                      />
                     </div>
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
                         isMaxedOut ? 'bg-red-500' : numSelected > 0 ? 'bg-blue-500' : 'bg-gray-600'

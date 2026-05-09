@@ -25,6 +25,82 @@ const initialMainState = {
   gameState: GameState.MENU,
 };
 
+const hasPlayableCombatState = (state: Partial<GameStore>) => (
+  Boolean(
+    state.player &&
+    state.enemy &&
+    state.enemy.currentHp > 0 &&
+    state.enemyIntent &&
+    state.playerCoins &&
+    state.playerCoins.length > 0,
+  )
+);
+
+const clearHydratedPostCombatState = (state: Partial<GameStore>) => {
+  if (!state.player) return;
+
+  state.player = {
+    ...state.player,
+    temporaryDefense: 0,
+    statusEffects: {},
+    temporaryEffects: state.player.temporaryEffects?.hpTrainingGains
+      ? { hpTrainingGains: state.player.temporaryEffects.hpTrainingGains }
+      : {},
+  };
+};
+
+const getResumeTarget = (state: Partial<GameStore>): GameState => {
+  if (!state.player) return GameState.CHARACTER_SELECT;
+  if (state.player.currentHp <= 0) return GameState.GAME_OVER;
+  if (state.currentEvent) return GameState.EVENT;
+  if (hasPlayableCombatState(state)) return GameState.COMBAT;
+  if (state.stageNodes && state.stageNodes.length > 0) return GameState.EXPLORATION;
+  return GameState.CHARACTER_SELECT;
+};
+
+const normalizeHydratedState = (state: GameStore): GameStore => {
+  const normalized: GameStore = {
+    ...state,
+    testMode: false,
+    encounteredEventIds: state.encounteredEventIds ?? [],
+    gameOptions: { ...initialGameOptions, ...(state.gameOptions ?? {}) },
+    tutorialFlags: { ...initialTutorialFlags, ...(state.tutorialFlags ?? {}) },
+    swapState: state.swapState ?? { phase: 'idle', reserveCoinIndex: null, revealedFace: null },
+    activeSkillState: state.activeSkillState ?? { phase: 'idle', selection: [] },
+    eventPhase: state.eventPhase === 'coinFlip' ? 'choice' : state.eventPhase,
+    eventResultData: state.eventPhase === 'coinFlip' ? null : state.eventResultData,
+  };
+
+  if (normalized.pendingCombatReward) {
+    clearHydratedPostCombatState(normalized);
+    normalized.gameState = GameState.REWARD;
+    normalized.combatEffects = [];
+    normalized.playerHit = 0;
+    normalized.enemyHit = 0;
+    normalized.tooltip = null;
+    return normalized;
+  }
+
+  if (!normalized.player && normalized.gameState !== GameState.MENU) {
+    normalized.gameState = GameState.CHARACTER_SELECT;
+    return normalized;
+  }
+
+  if (normalized.player?.currentHp !== undefined && normalized.player.currentHp <= 0) {
+    normalized.gameState = GameState.GAME_OVER;
+    return normalized;
+  }
+
+  if (
+    (normalized.gameState === GameState.REWARD && !normalized.pendingCombatReward) ||
+    (normalized.gameState === GameState.COMBAT && !hasPlayableCombatState(normalized)) ||
+    (normalized.gameState === GameState.EVENT && !normalized.currentEvent)
+  ) {
+    normalized.gameState = getResumeTarget(normalized);
+  }
+
+  return normalized;
+};
 
 // --- ZUSTAND STORE ---
 export const useGameStore = create<GameStore>()(
@@ -154,10 +230,9 @@ export const useGameStore = create<GameStore>()(
           gameOptions: { ...initialGameOptions, ...(persistedState?.gameOptions ?? {}) },
           tutorialFlags: { ...initialTutorialFlags, ...(persistedState?.tutorialFlags ?? {}) },
         }),
-        merge: (persistedState, currentState) => ({
+        merge: (persistedState, currentState) => normalizeHydratedState({
           ...currentState,
           ...(persistedState as Partial<GameStore>),
-          testMode: false,
         }),
         partialize: (state) => ({
           metaProgress: state.metaProgress,

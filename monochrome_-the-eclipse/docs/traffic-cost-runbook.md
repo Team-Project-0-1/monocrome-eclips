@@ -11,7 +11,7 @@ This project can run as a mostly static game, so the first cost lever is to keep
 - `npm run check:dist` enforces a small production bundle budget so asset bloat is caught early.
 - `npm run release:check` refreshes optimized assets, runs dependency audit, validates release metadata, builds, and checks the dist budget.
 - Browser metadata now includes description, Open Graph image, favicon, app manifest, and theme color.
-- `public/_headers` contains security headers and long-lived cache hints for static assets for platforms that support it.
+- `public/_headers` contains security headers and long-lived cache hints for static assets for platforms that support it. GitHub Pages does not apply this file; Cloudflare Pages/Netlify/CDN header injection is required for those controls to be active.
 - UI image usage is biased toward static file URLs so CDN/browser cache can reuse art across combat, shop, event, rest, and reward screens.
 
 ## Connect later
@@ -19,6 +19,7 @@ This project can run as a mostly static game, so the first cost lever is to keep
 These need external account or domain access, so they are intentionally deferred:
 
 - Put the production custom domain behind Cloudflare.
+- If the first public build stays on GitHub Pages, add a CDN/proxy header rule set that mirrors `public/_headers`; otherwise treat GitHub Pages as a fallback without active CSP/cache header enforcement.
 - Add Cloudflare cache rules for `/assets/*`, `*.webp`, `*.js`, and `*.css`.
 - Redirect any default hosting domain to the canonical custom domain.
 - Add GA4 only after the real measurement ID is available.

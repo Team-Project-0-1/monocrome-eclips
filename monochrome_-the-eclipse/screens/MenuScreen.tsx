@@ -39,6 +39,7 @@ export const MenuScreen = () => {
     gameState !== GameState.GAME_OVER &&
     gameState !== GameState.VICTORY,
   );
+  const routeStatus = hasRun ? `${currentStage}층 / ${currentTurn}턴` : APP_RELEASE_SCOPE;
 
   const startNewGame = useCallback(() => {
     playUiSound(gameOptions.soundEnabled, 'confirm');
@@ -94,7 +95,7 @@ export const MenuScreen = () => {
           </p>
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-gray-200 sm:text-base">
             동전의 앞면과 뒷면으로 전투를 읽는 공개 프로토타입입니다.
-            경로를 고르고 자원을 확보해 중심부로 진입하세요.
+            현재 범위는 {APP_RELEASE_SCOPE}이며, 경로를 고르고 자원을 확보해 중심부로 진입하세요.
           </p>
 
           <div className="menu-action-row">
@@ -123,7 +124,7 @@ export const MenuScreen = () => {
           <div className="menu-run-strip">
             {[
               ['RUN', hasRun ? '저장됨' : '대기'],
-              ['ROUTE', hasRun ? `${currentStage}층 / ${currentTurn}턴` : '15층'],
+              ['ROUTE', routeStatus],
               ['MODE', '동전 전투'],
               ['SCOPE', APP_RELEASE_SCOPE],
             ].map(([label, value]) => (
@@ -161,12 +162,12 @@ export const MenuScreen = () => {
               ))}
             </div>
 
-            <div className="mt-3 border-t border-white/10 pt-3">
-              <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-100">
+            <details className="menu-audio-disclosure mt-3 border-t border-white/10 pt-3">
+              <summary className="mb-2 flex cursor-pointer items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-100">
                 <SlidersHorizontal className="h-4 w-4" />
                 Audio Mix
-              </div>
-              <div className="grid gap-2">
+              </summary>
+              <div className="menu-audio-content grid gap-2">
                 {audioSliders.map(({ key, label }) => (
                   <label key={key} className="grid grid-cols-[3.75rem_minmax(0,1fr)_2.5rem] items-center gap-2 text-xs font-bold text-slate-300">
                     <span>{label}</span>
@@ -184,7 +185,7 @@ export const MenuScreen = () => {
                   </label>
                 ))}
               </div>
-            </div>
+            </details>
           </div>
         </section>
       </div>

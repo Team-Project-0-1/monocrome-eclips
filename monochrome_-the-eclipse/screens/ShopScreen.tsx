@@ -5,11 +5,12 @@ import { shopData } from '../dataShop';
 import { patternUpgrades } from '../dataUpgrades';
 import { playerSkillUnlocks } from '../dataSkills';
 import { PatternUpgradeDefinition, ShopItem, SkillUpgradeDefinition } from '../types';
-import SkillDescription from '../components/SkillDescription';
+import EffectSummary from '../components/EffectSummary';
 import ActionButton from '../components/ui/ActionButton';
 import Panel from '../components/ui/Panel';
 import RunStatusModal from '../components/RunStatusModal';
 import { assetCssUrl, assetPath } from '../utils/assetPath';
+import { summarizeShopEntry } from '../utils/effectSummary';
 import {
   formatShopCost,
   getBasicItemPresentation,
@@ -152,6 +153,7 @@ export const ShopScreen = () => {
 
   const activeEntries = entries.filter((entry) => entry.tab === activeShopTab);
   const selectedEntry = activeEntries.find((entry) => entry.id === selectedEntryId) ?? activeEntries[0] ?? null;
+  const selectedSummary = selectedEntry ? summarizeShopEntry(selectedEntry) : null;
 
   const leaveShop = () => {
     playUiSound(gameOptions.soundEnabled, 'confirm');
@@ -262,6 +264,7 @@ export const ShopScreen = () => {
                 const StatusIcon = statusIcons[entry.presentation.status];
                 const disabled = entry.presentation.status !== 'available';
                 const isSelected = selectedEntry?.id === entry.id;
+                const summary = summarizeShopEntry(entry);
 
                 return (
                   <article
@@ -286,7 +289,7 @@ export const ShopScreen = () => {
                             {entry.presentation.statusLabel}
                           </span>
                         </div>
-                        <SkillDescription text={entry.description} className="text-sm leading-relaxed text-slate-300" />
+                        <EffectSummary summary={summary} compact hideHeadline chipLimit={3} className="shop-entry-summary" />
                         <p className="mt-1 text-xs text-slate-500">{entry.presentation.helperText}</p>
                       </div>
                       <button
@@ -324,6 +327,9 @@ export const ShopScreen = () => {
                   <h2 className="text-2xl font-black text-white">{selectedEntry.name}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-300">{selectedEntry.detail}</p>
                 </div>
+                {selectedSummary ? (
+                  <EffectSummary summary={selectedSummary} chipLimit={6} showDetail="details" className="shop-preview-summary" />
+                ) : null}
                 <div className="grid gap-2 text-sm">
                   <div className="flex justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2">
                     <span className="text-slate-400">비용</span>

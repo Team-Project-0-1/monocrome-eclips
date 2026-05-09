@@ -36,6 +36,11 @@ jobs:
           cd monochrome_-the-eclipse
           npm ci
 
+      - name: Install asset tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Prototype release check and build
         env:
           VITE_BASE_PATH: /monocrome-eclips/

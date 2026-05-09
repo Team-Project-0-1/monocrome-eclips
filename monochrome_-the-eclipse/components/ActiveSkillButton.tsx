@@ -2,6 +2,7 @@ import React from 'react';
 import { PlayerCharacter, CharacterClass, LucideIcon } from '../types';
 import { characterActiveSkills } from '../dataCharacters';
 import { Dices, Shuffle, GitCommit, Lock } from 'lucide-react';
+import EffectSummary from './EffectSummary';
 
 interface ActiveSkillButtonProps {
     player: PlayerCharacter;
@@ -38,7 +39,7 @@ const ActiveSkillButton: React.FC<ActiveSkillButtonProps> = ({ player, onClick, 
                     <Icon className={`w-6 h-6 ${disabled ? 'text-gray-600' : 'text-cyan-400'}`} />
                     <div>
                         <p className="font-bold text-left">{skill.name}</p>
-                        <p className="text-xs text-gray-400 text-left">{skill.description}</p>
+                        <EffectSummary text={skill.description} compact hideHeadline chipLimit={3} />
                     </div>
                 </div>
                 <div className={`px-3 py-1 rounded-md text-sm font-bold font-orbitron ${onCooldown ? 'bg-red-500/80 text-white' : 'bg-gray-600'}`}>

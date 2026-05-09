@@ -1,6 +1,9 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { playerSkillUnlocks } from '../../dataSkills';
+import EffectSummary from '../EffectSummary';
+import { summarizeDescription } from '../../utils/effectSummary';
+import SkillDescription from '../SkillDescription';
 
 const SkillReplacementModal: React.FC = () => {
     const player = useGameStore(state => state.player);
@@ -20,10 +23,22 @@ const SkillReplacementModal: React.FC = () => {
                         const skillDef = playerSkillUnlocks[player.class]?.[skillId];
                         if (!skillDef) return null;
                         return (
-                            <button key={skillId} onClick={() => executeSkillReplacement(skillId)} className="w-full text-left p-2 bg-gray-700 hover:bg-red-800 rounded-md transition-colors">
-                                <p className="font-semibold">{skillDef.name}</p>
-                                <p className="text-xs text-gray-400">{skillDef.description}</p>
-                            </button>
+                            <div key={skillId} className="rounded-md bg-gray-700 transition-colors hover:bg-red-800">
+                                <button onClick={() => executeSkillReplacement(skillId)} className="w-full text-left p-2">
+                                    <p className="font-semibold">{skillDef.name}</p>
+                                    <EffectSummary
+                                      summary={summarizeDescription(skillDef.description)}
+                                      compact
+                                      hideHeadline
+                                      chipLimit={4}
+                                      className="skill-replacement-summary"
+                                    />
+                                </button>
+                                <details className="px-2 pb-2 text-xs text-gray-300">
+                                    <summary className="cursor-pointer font-bold text-gray-400">상세</summary>
+                                    <SkillDescription text={skillDef.description} className="mt-1 text-gray-300" />
+                                </details>
+                            </div>
                         )
                     })}
                 </div>
