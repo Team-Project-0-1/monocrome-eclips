@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Coin, CoinFace } from '../types';
 import { Swords, Shield, Lock } from 'lucide-react';
 import { motion, useAnimation } from 'framer-motion';
@@ -20,7 +20,7 @@ const CoinDisplay: React.FC<CoinDisplayProps> = ({ coin, index, onClick, isUsed 
 
   useEffect(() => {
     const targetRotation = isHeads ? 0 : 180;
-    
+
     if (isInitialRender.current) {
       // Snap to position without animation on first render
       controls.set({ rotateY: targetRotation });

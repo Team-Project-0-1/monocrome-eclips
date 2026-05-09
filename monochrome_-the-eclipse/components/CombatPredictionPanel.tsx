@@ -40,9 +40,9 @@ const CombatPredictionPanel: React.FC<CombatPredictionPanelProps> = ({ predictio
             {renderSection('나의 공격', player.attack.total, 'text-green-400', Swords)}
             {renderSection('나의 방어', player.defense.total, 'text-blue-400', Shield)}
         </div>
-        
+
         <div className="border-b border-gray-600/50"></div>
-      
+
         <h3 className="text-center font-bold text-lg text-gray-300">예상 결과</h3>
         <div className="flex justify-around items-center text-lg font-bold p-2 bg-black/20 rounded-md">
             <div className="flex flex-col items-center text-green-400">

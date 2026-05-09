@@ -23,7 +23,7 @@ export const detectPatterns = (coins: Coin[]): DetectedPattern[] => {
     4: PatternType.QUAD,
     5: PatternType.PENTA,
   };
-  
+
   let i = 0;
   while (i < faces.length) {
     let j = i;
@@ -59,7 +59,7 @@ export const detectPatterns = (coins: Coin[]): DetectedPattern[] => {
     const tailIndex = faces.findIndex((f) => f === CoinFace.TAILS);
     addPattern({ type: PatternType.UNIQUE, face: CoinFace.TAILS, count: 1, indices: [tailIndex] });
   }
-  
+
   const isAlternating = () => {
     if (faces.length !== 5) return false;
     for (let i = 0; i < faces.length - 1; i++) {
@@ -93,7 +93,7 @@ export const generateStageNodes = (stageNumber: number): StageNode[][] => {
             turnNodes.push({ type, id: `${turn}-${i}`, isGuaranteed: i === guaranteedPosition });
         }
     };
-    
+
     if (turn === 1) {
       for (let i = 0; i < 3; i++) turnNodes.push({ type: NodeType.COMBAT, id: `${turn}-${i}` });
     } else if (turn === 4) {
@@ -131,7 +131,7 @@ const getRandomNodeType = (turn: number): NodeType => {
     random -= weight;
     if (random <= 0) return type as NodeType;
   }
-  return NodeType.COMBAT; 
+  return NodeType.COMBAT;
 };
 
 const applyAntiConsecutiveRules = (nodes: StageNode[][]): StageNode[][] => {
@@ -143,13 +143,13 @@ const applyAntiConsecutiveRules = (nodes: StageNode[][]): StageNode[][] => {
       const currentNode = currentTurnNodes[pos];
       if (currentNode.isGuaranteed) continue;
       if (specialNodes.includes(currentNode.type)) {
-        const hasSpecialInPreviousConnectedPath = 
+        const hasSpecialInPreviousConnectedPath =
           (pos > 0 && specialNodes.includes(previousTurnNodes[pos-1]?.type)) ||
           specialNodes.includes(previousTurnNodes[pos]?.type) ||
           (pos < previousTurnNodes.length -1 && specialNodes.includes(previousTurnNodes[pos+1]?.type));
 
         if (hasSpecialInPreviousConnectedPath && currentNode.type !== NodeType.REST && !(turn + 1 === 9 || turn + 1 === 14) ) {
-          currentNode.type = NodeType.COMBAT; 
+          currentNode.type = NodeType.COMBAT;
         }
       }
     }

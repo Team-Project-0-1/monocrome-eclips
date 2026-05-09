@@ -109,6 +109,7 @@ export const PatternRail: React.FC<PatternRailProps> = ({
             aria-pressed={selectedCount > 0}
             onClick={() => onToggle(group.type, group.face)}
             title={ability.description}
+            data-testid={`combat-pattern-${group.type.toLowerCase()}-${group.face?.toLowerCase() ?? 'mixed'}`}
           >
             <img
               className="combat-pattern-icon-img"

@@ -188,14 +188,14 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
   togglePattern: (type, face) => {
     set(produce((draft: GameStore) => {
       const { selectedPatterns, detectedPatterns, player, enemy, playerCoins, enemyIntent } = draft;
-      
+
       const selectedInstances = selectedPatterns.filter(p => p.type === type && p.face === face);
       const numSelected = selectedInstances.length;
-      
+
       const currentlyUsedIndices = Array.from(new Set(selectedPatterns.flatMap(p => p.indices)));
       const availableInstance = detectedPatterns.find(p =>
-        p.type === type && 
-        p.face === face && 
+        p.type === type &&
+        p.face === face &&
         !selectedPatterns.some(sp => sp.id === p.id) &&
         !p.indices.some(i => currentlyUsedIndices.includes(i))
       );
@@ -205,7 +205,7 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
       } else {
         draft.selectedPatterns = selectedPatterns.filter(p => !(p.type === type && p.face === face));
       }
-      
+
       draft.usedCoinIndices = Array.from(new Set(draft.selectedPatterns.flatMap(p => p.indices)));
       if (player && enemy && enemyIntent) {
           draft.combatPrediction = calculateCombatPrediction(player, enemy, draft.selectedPatterns, enemyIntent, playerCoins, draft.unlockedPatterns);
@@ -216,9 +216,9 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
     set(produce((draft: GameStore) => {
         const reserveCoin = draft.reserveCoins[reserveCoinIndex];
         if (!reserveCoin) return;
-        
+
         const revealedFace = flipCoin(); // The coin is flipped here.
-        
+
         draft.swapState = {
             phase: 'revealed',
             reserveCoinIndex,
@@ -238,13 +238,13 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
         }
 
         // Create a new coin object for the swap
-        const newCoinForPlayer: Coin = { 
-            face: revealedFace, 
-            locked: false, 
+        const newCoinForPlayer: Coin = {
+            face: revealedFace,
+            locked: false,
             id: draft.playerCoins[activeCoinIndex].id // re-use id to avoid React key issues
         };
         draft.playerCoins[activeCoinIndex] = newCoinForPlayer;
-        
+
         draft.reserveCoins.splice(reserveCoinIndex, 1);
 
         draft.swapState = { phase: 'idle', reserveCoinIndex: null, revealedFace: null };
@@ -260,9 +260,9 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
         if (!player || player.activeSkillCooldown > 0) return;
 
         const skill = characterActiveSkills[player.class];
-        
+
         draft.combatLog.push({ id: Date.now() + Math.random(), turn: draft.combatTurn, message: `[${skill.name}] 사용!`, type: 'player' });
-        
+
         if (player.class === CharacterClass.WARRIOR) {
             _flipAllCoinsAndUpdate(draft);
             player.activeSkillCooldown = skill.cooldown;
@@ -293,10 +293,10 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
                   if (draft.playerCoins[index] && !draft.playerCoins[index].locked) {
                       draft.playerCoins[index].face = draft.playerCoins[index].face === CF.HEADS ? CF.TAILS : CF.HEADS;
                   }
-                  
+
                   draft.detectedPatterns = detectPatterns(draft.playerCoins);
 
-                  const validSelectedPatterns = draft.selectedPatterns.filter(sp => 
+                  const validSelectedPatterns = draft.selectedPatterns.filter(sp =>
                       draft.detectedPatterns.some(dp => dp.id === sp.id)
                   );
 
@@ -327,14 +327,14 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
 
                       player.activeSkillCooldown = skill.cooldown;
                       draft.activeSkillState = { phase: 'idle', selection: [] };
-                      
+
                       draft.detectedPatterns = detectPatterns(draft.playerCoins);
-                      const validSelectedPatterns = draft.selectedPatterns.filter(sp => 
+                      const validSelectedPatterns = draft.selectedPatterns.filter(sp =>
                           draft.detectedPatterns.some(dp => dp.id === sp.id)
                       );
                       draft.selectedPatterns = validSelectedPatterns;
                       draft.usedCoinIndices = Array.from(new Set(draft.selectedPatterns.flatMap(p => p.indices)));
-                      
+
                       // FIX: Removed re-declaration of 'player' to avoid shadowing and "used before declaration" error.
                       const { enemy, enemyIntent, playerCoins } = draft;
                       if (player && enemy && enemyIntent) {
@@ -518,21 +518,21 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
 
       } else if (playerIsDead) {
         log(`플레이어가 쓰러졌습니다...`, 'system');
-        
+
         draft.metaProgress.totalRuns += 1;
         if (draft.currentStage > draft.metaProgress.highestStage) {
             draft.metaProgress.highestStage = draft.currentStage;
         }
-        
+
         dispatchEffects();
         draft.gameState = GameState.COMBAT;
         delayedGameState = GameState.GAME_OVER;
       } else {
         // --- Combat Continues: Setup next turn ---
         setupNextTurn(draft);
-        
+
         const headsChance = getPlayerHeadsChance(draft);
-        
+
         draft.playerCoins.forEach((coin, index) => {
             if (coin.locked) {
                 draft.playerCoins[index].locked = false; // Unlock for next turn
@@ -540,11 +540,11 @@ export const createCombatSlice: StateCreator<GameStore, [], [], CombatSlice> = (
                 draft.playerCoins[index].face = flipCoin(headsChance);
             }
         });
-        
+
         applyPlayerCoinOverrides(draft);
         draft.selectedPatterns = [];
         draft.usedCoinIndices = [];
-        
+
         draft.detectedPatterns = detectPatterns(draft.playerCoins);
         draft.combatPrediction = calculateCombatPrediction(draft.player!, draft.enemy!, draft.selectedPatterns, draft.enemyIntent!, draft.playerCoins, draft.unlockedPatterns);
         dispatchEffects();

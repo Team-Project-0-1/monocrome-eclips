@@ -77,13 +77,13 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
   const containerClass = isPlayer
     ? "bg-gray-800/90 border-blue-700/50 text-blue-100"
     : "bg-gray-800/90 border-red-700/50 text-red-100";
-  
+
   const iconBgClass = isPlayer ? "bg-blue-900" : "bg-red-900";
 
   const predictedDamage = isPlayer ? prediction?.damageToPlayer : prediction?.damageToEnemy;
 
   return (
-    <motion.div 
+    <motion.div
       animate={shakeControls}
       className={`p-4 rounded-lg border shadow-xl ${containerClass} relative backdrop-blur-sm`}
     >
@@ -135,15 +135,15 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
         </div>
 
         <div className="mb-4">
-          <HealthBar 
-            current={character.currentHp} 
+          <HealthBar
+            current={character.currentHp}
             max={character.maxHp}
             temporaryDefense={temporaryDefense}
             predictedDamage={predictedDamage}
-            isPlayer={isPlayer} 
+            isPlayer={isPlayer}
           />
         </div>
-        
+
         <div className="min-h-[4rem]">
           <EnhancedStatusEffectDisplay effects={character.statusEffects} />
         </div>

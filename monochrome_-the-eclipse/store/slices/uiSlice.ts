@@ -99,7 +99,7 @@ export const createUiSlice: StateCreator<GameStore, [], [], UiSlice> = (set, get
     } else {
       position.left = rect.left;
     }
-    
+
     set({ tooltip: { content, position } });
   },
   hideTooltip: () => set({ tooltip: null }),

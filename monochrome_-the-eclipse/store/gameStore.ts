@@ -162,7 +162,7 @@ export const useGameStore = create<GameStore>()(
 
             set({ gameState: GameState.CHARACTER_SELECT });
         },
-        
+
         resetGame: (fullReset = false) => {
             set(produce((draft: GameStore) => {
                 const currentMetaProgress = draft.metaProgress;
@@ -173,7 +173,7 @@ export const useGameStore = create<GameStore>()(
                 draft.unlockedPatterns = [];
                 draft.reserveCoins = [];
                 draft.reserveCoinShopCost = 100;
-                
+
                 // explorationSlice reset
                 draft.currentStage = 1;
                 draft.currentTurn = 1;

@@ -91,36 +91,36 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
                     temporaryEffects: {},
                     tier: monsterTemplate.tier,
                 };
-                
+
                 draft.enemy = enemy;
-                
+
                 draft.combatLog = [];
                 draft.combatTurn = 1;
                 draft.pendingCombatReward = null;
                 draft.selectedPatterns = [];
                 draft.usedCoinIndices = [];
                 draft.activeSkillState = { phase: 'idle', selection: [] };
-                
+
                 const log = (message: string, type: CombatLogMessage['type']) => {
                   draft.combatLog.push({ id: Date.now() + Math.random(), turn: draft.combatTurn, message, type });
                 };
 
                 log(`--- 전투 시작 ---`, 'system');
                 log(`${enemy.name} 등장!`, 'system');
-                
+
                 // REFACTOR: Generate a fresh set of coins for EVERY combat encounter.
                 draft.playerCoins = generateCoins();
-                
+
                 // Apply innate passives at the start of every combat.
                 applyInnatePassives(draft, log);
-                
+
                 // Specifically apply Rogue's passive to the newly generated coins.
                 if (player.class === CharacterClass.ROGUE) {
                     if (draft.playerCoins.length > 0) {
                         draft.playerCoins[0].face = CoinFace.HEADS;
                     }
                 }
-                
+
                 draft.gameState = GameState.COMBAT;
 
                 // With the definitive coin state set, calculate patterns and predictions.
@@ -178,7 +178,7 @@ export const createExplorationSlice: StateCreator<GameStore, [], [], Exploration
 
             // Perform transient state reset directly within this atomic update
             draft.player.temporaryDefense = 0;
-            
+
             draft.currentEvent = null;
             draft.eventPhase = 'choice';
             draft.eventResultData = null;

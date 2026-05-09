@@ -99,15 +99,15 @@ export const App: React.FC = () => {
         {tooltip && <KeywordTooltip />}
       </AnimatePresence>
       {tooltip && (
-        <div 
+        <div
           className="fixed inset-0 z-[49]"
           onClick={hideTooltip}
         />
       )}
-      
+
       {renderGame()}
       <TutorialCoachmark />
-      
+
       {player && (
         <InventoryPanel
           isOpen={isInventoryOpen}

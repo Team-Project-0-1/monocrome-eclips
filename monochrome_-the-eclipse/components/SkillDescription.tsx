@@ -43,7 +43,7 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
 
     const keywords = Object.keys(keywordStyles).sort((a, b) => b.length - a.length);
     const regex = new RegExp(`(${keywords.join('|')}|\\d+)`, 'g');
-    
+
     const effectNameMap = new Map<string, StatusEffectType>(
         Object.entries(effectConfig)
               .filter(([, value]) => value)
@@ -57,8 +57,8 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
             if (effectKey) {
                 return (
                     <span
-                        key={index} 
-                        onClick={(e) => handleClickKeyword(e, effectKey)} 
+                        key={index}
+                        onClick={(e) => handleClickKeyword(e, effectKey)}
                         onKeyDown={(e) => handleKeywordKeyDown(e, effectKey)}
                         role="button"
                         tabIndex={0}
@@ -74,7 +74,7 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
             return <React.Fragment key={index}>{part}</React.Fragment>;
         });
     };
-    
+
     const sentences = text.match(/[^.!?]+[.!?]?/g) || [text];
 
     return (

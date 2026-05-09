@@ -236,10 +236,10 @@ const applyHeal = (target: Character, amount: number, log: LogFn): EffectPayload
 
 const applyDamage = (caster: Character, target: Character, damage: number, log: LogFn, state: GameStoreDraft, options: { isFixed?: boolean, ignoreDefense?: boolean, isCounterAttack?: boolean, isBleed?: boolean, isCurse?: boolean, isPursuit?: boolean } = {}): { damageDealt: number, effects: EffectPayload[] } => {
     if (damage <= 0) return { damageDealt: 0, effects: [] };
-    
+
     let totalDamage = damage;
     let allEffects: EffectPayload[] = [];
-    
+
     // 1. Caster's attack modifiers
     if (!options.isFixed) {
       const temporaryDamageBonus = getTemporaryNumber(caster, 'bonusAtk') + getTemporaryNumber(caster, 'bonusDamage');
@@ -287,7 +287,7 @@ const applyDamage = (caster: Character, target: Character, damage: number, log: 
           totalDamage += ampBonus;
           log(`${caster.name}의 증폭 효과로 피해량이 ${ampBonus} 증가!`, 'status');
       }
-      
+
       const sealStacks = caster.statusEffects.SEAL || 0;
       if (sealStacks > 0) {
           const reduction = Math.floor(totalDamage * (sealStacks * 0.15));
@@ -295,7 +295,7 @@ const applyDamage = (caster: Character, target: Character, damage: number, log: 
           log(`${caster.name}의 봉인 효과로 피해량이 ${reduction} 감소!`, 'status');
       }
     }
-    
+
     if (options.isPursuit && 'class' in caster && caster.temporaryEffects?.doublePursuitDamageAndModifiedLoss) {
         totalDamage *= 2;
     }
@@ -328,11 +328,11 @@ const applyDamage = (caster: Character, target: Character, damage: number, log: 
             allEffects.push(...applyAndLogStatus(target, StatusEffectType.RESONANCE, -resonanceDrain, log, state, target, { skipSelfHate: true }));
         }
     }
-    
+
     const prevHp = target.currentHp;
     target.currentHp = Math.max(0, target.currentHp - finalDamage);
     const actualDamage = prevHp - target.currentHp;
-    
+
     if (caster.temporaryEffects) {
         caster.temporaryEffects.damageDealtThisTurn = (caster.temporaryEffects.damageDealtThisTurn || 0) + actualDamage;
     }
@@ -350,7 +350,7 @@ const applyDamage = (caster: Character, target: Character, damage: number, log: 
         if ('class' in caster && target === state.enemy && brokeDefense && hasUnlockedPassive(state, 'TANK_P_ABSORB_DEFENSE')) {
             pushDefenseGain(caster, 3, log, allEffects, `[방어 흡수] 상대 방어를 뚫고 방어 3을 얻습니다.`);
         }
-        
+
         // 3. On Damage Taken effects
         const triggersReactiveDamage = !options.isBleed && !options.isCurse && !options.isPursuit;
         if (triggersReactiveDamage) {
@@ -539,7 +539,7 @@ const applyAbilityEffect = (caster: Character, target: Character, effect: Abilit
         const { effects } = applyDamage(caster, caster, effect.selfDamage, log, state, { isFixed: true, ignoreDefense: true });
         allEffects.push(...effects);
     }
-    
+
     // Status Effects
     if (effect.status) {
         const statuses = Array.isArray(effect.status) ? effect.status : [effect.status];
@@ -559,11 +559,11 @@ const applyAbilityEffect = (caster: Character, target: Character, effect: Abilit
     // Temporary Effects
     if (effect.temporaryEffect) handleTemporaryEffect(caster, casterType, effect.temporaryEffect, allEffects, state, log, caster);
     if (effect.enemyTemporaryEffect) handleTemporaryEffect(target, 'class' in target ? 'player' : 'enemy', effect.enemyTemporaryEffect, allEffects, state, log, caster);
-    
+
     if (effect.gainMaxAmplify === true) {
        allEffects.push(...applyAndLogStatus(caster, StatusEffectType.AMPLIFY, 10, log, state, caster));
     }
-    
+
     // Damage
     let damagePayload = 0;
     if (typeof effect.fixedDamage === 'number') damagePayload += effect.fixedDamage;
@@ -694,7 +694,7 @@ export const applyPassives = (
 ): EffectPayload[] => {
     const { player, unlockedPatterns, playerCoins, enemy } = state;
     if (!player || !enemy) return [];
-    
+
     let allEffects: EffectPayload[] = [];
 
     if (trigger === 'PLAYER_TURN_START') {
@@ -802,7 +802,7 @@ export const applyPassives = (
             }
         });
     }
-    
+
     if (trigger === 'END_OF_TURN' && payload.character === player) {
         unlockedPatterns.forEach(id => {
              if (id === 'WARRIOR_PASSIVE_NO_ATTACK_GAIN_AMP' && (player.temporaryEffects?.damageDealtThisTurn || 0) <= 0) {
@@ -865,7 +865,7 @@ export const resolveEnemyActions = (state: GameStoreDraft, log: LogFn): EffectPa
     const { player, enemy, enemyIntent } = state;
     if (!player || !enemy || !enemyIntent) return [];
     let allEffects: EffectPayload[] = [];
-    
+
     enemy.temporaryDefense += enemy.baseDef + getTemporaryNumber(enemy, 'bonusDef');
 
     for (const key of enemyIntent.sourcePatternKeys) {
@@ -901,7 +901,7 @@ export const processStartOfTurn = (character: Character, opponent: Character, lo
             allEffects.push(...applyAndLogStatus(character, StatusEffectType.CURSE, -1, log, state, character));
         }
     }
-    
+
     if ('class' in character && character.temporaryEffects?.debuffAccumulator) {
         const acc = character.temporaryEffects.debuffAccumulator;
         acc.turns++;
@@ -1002,7 +1002,7 @@ const processCharacterEndOfTurn = (character: Character, opponent: Character, lo
             log(`[사냥의 흐름] 다음 턴 뒷면 하나를 앞면으로 바꿉니다.`, 'status');
         }
     }
-    
+
     if (character.temporaryEffects?.pursuitReload && 'class' in character) {
         if ((character.statusEffects.PURSUIT || 0) === 0) {
             const tailsCount = state.playerCoins.filter(c => c.face === CoinFace.TAILS).length;
@@ -1065,7 +1065,7 @@ export const processEndOfTurn = (state: GameStoreDraft, log: LogFn): EffectPaylo
     const { player, enemy } = state;
     if (!player || !enemy) return [];
     let allEffects: EffectPayload[] = [];
-    
+
     const playerDefenseBefore = player.temporaryDefense;
     allEffects.push(...processCharacterEndOfTurn(player, enemy, log, state));
     allEffects.push(...applyPassives(state, 'END_OF_TURN', log, { character: player, defense: playerDefenseBefore }));
@@ -1081,7 +1081,7 @@ export const setupNextTurn = (state: GameStoreDraft) => {
     const keptDefense = getTemporaryNumber(player, 'keepDefenseNextTurn');
     player.temporaryDefense = keptDefense;
     enemy.temporaryDefense = 0;
-    
+
     if (player.temporaryEffects) {
         player.temporaryEffects.damageDealtThisTurn = 0;
         player.temporaryEffects.damageTakenThisTurn = 0;
@@ -1148,15 +1148,15 @@ export const determineEnemyIntent = (enemy: EnemyCharacter): EnemyIntent => {
 
   const { patternKey, skillDef, patternInstance } = bestMatch;
   const effect = skillDef.effect(enemy, { statusEffects: {} } as PlayerCharacter);
-  
+
   let damage = effect.fixedDamage || 0;
   if(effect.multiHit) damage += effect.multiHit.count * effect.multiHit.damage;
 
   const amplifyBonus = Math.floor((enemy.statusEffects.AMPLIFY || 0) / 2);
   if (amplifyBonus > 0) damage += amplifyBonus;
-  
+
   const defense = (effect.defense || 0) + enemy.baseDef;
-  
+
   return {
     description: phase ? `${phase.label} - ${skillDef.name}` : skillDef.name,
     damage: Math.round(damage),
@@ -1177,10 +1177,10 @@ export const calculateCombatPrediction = (
   playerCoins: Coin[],
   unlockedPatterns: string[] = []
 ): CombatPrediction => {
-  
+
   const tempPlayer = JSON.parse(JSON.stringify(player));
   const tempEnemy = JSON.parse(JSON.stringify(enemy));
-  
+
   let playerAttack = 0;
   let playerDefense = tempPlayer.baseDef + getTemporaryNumber(tempPlayer, 'bonusDef');
   if (unlockedPatterns.includes('TANK_P_IMPLANT')) playerDefense += 6;
@@ -1188,7 +1188,7 @@ export const calculateCombatPrediction = (
   if (playerAmplifyBonus > 0 && unlockedPatterns.includes('WARRIOR_PASSIVE_AMP_GIVES_DEF')) {
     playerDefense += playerAmplifyBonus;
   }
-  
+
   selectedPlayerPatterns.forEach(p => {
     const ability = getPlayerAbility(player.class, player.acquiredSkills, p.type, p.face);
     if(ability && ability.effect) {
@@ -1211,7 +1211,7 @@ export const calculateCombatPrediction = (
   if (playerAmplifyBonus > 0 && playerAttack > 0) {
     playerAttack += playerAmplifyBonus;
   }
-  
+
   let predictedEnemyDefense = tempEnemy.baseDef + enemyIntent.defense;
   const shatterStacks = tempEnemy.statusEffects.SHATTER || 0;
   if(shatterStacks > 0) {

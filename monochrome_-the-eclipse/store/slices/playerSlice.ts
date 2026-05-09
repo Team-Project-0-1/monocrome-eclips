@@ -51,18 +51,18 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
           activeSkillCooldown: 0,
         };
         draft.player = player;
-        
+
         // --- COMPLETE STATE RESET & NEW RUN INITIALIZATION (ATOMIC) ---
         draft.resources = { echoRemnants: 100, senseFragments: 0, memoryPieces: 0 };
         draft.unlockedPatterns = [];
         draft.reserveCoins = [{ face: null, locked: false, id: Date.now() + Math.random() }];
         draft.reserveCoinShopCost = 100;
-        
+
         draft.currentStage = 1;
         draft.currentTurn = 1;
         draft.stageNodes = generateStageNodes(1);
         draft.path = [];
-        
+
         // Reset ALL combat-related states for a completely clean slate.
         draft.enemy = null;
         draft.playerCoins = []; // Coins are now generated upon entering combat.
@@ -91,7 +91,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         draft.playerHit = 0;
         draft.enemyHit = 0;
         draft.tooltip = null;
-        
+
         draft.gameState = GameState.EXPLORATION;
     }));
   },
@@ -153,7 +153,7 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         const newSkill = skillReplacementState.newSkill;
         const newSkillList = player.acquiredSkills.filter(id => id !== skillToForgetId);
         newSkillList.push(newSkill.id);
-        
+
         player.acquiredSkills = newSkillList;
         state.resources.echoRemnants -= newSkill.cost.echoRemnants;
         state.skillReplacementState = null;
@@ -178,14 +178,14 @@ export const createPlayerSlice: StateCreator<GameStore, [], [], PlayerSlice> = (
         if (resources.memoryPieces >= cost) {
             resources.memoryPieces -= cost;
             metaProgress.memoryUpgrades[upgradeType] += 1;
-            
+
             if (upgradeType === 'maxHp') {
               player.maxHp += upgradeData.effect;
               player.currentHp += upgradeData.effect;
             }
             if (upgradeType === 'baseAtk') player.baseAtk += upgradeData.effect;
             if (upgradeType === 'baseDef') player.baseDef += upgradeData.effect;
-            
+
             player.memoryUpgrades = metaProgress.memoryUpgrades;
         }
     }));

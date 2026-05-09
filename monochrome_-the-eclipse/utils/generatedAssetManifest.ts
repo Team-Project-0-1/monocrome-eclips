@@ -91,5 +91,14 @@ export const optimizedAssetPaths: Record<string, string> = {
   "assets/monsters/stage2-generated/unpleasant_cube_portrait.png": "assets/monsters/stage2-generated/unpleasant_cube_portrait.webp",
   "assets/monsters/stage2-generated/unpleasant_cube_spritesheet.png": "assets/monsters/stage2-generated/unpleasant_cube_spritesheet.webp",
   "icon-512.png": "icon-512.webp",
-  "mono.png": "mono.webp"
+  "mono.png": "mono.webp",
+  "sprites/characters/mage.png": "sprites/characters/mage.webp",
+  "sprites/characters/rogue.png": "sprites/characters/rogue.webp",
+  "sprites/characters/tank.png": "sprites/characters/tank.webp",
+  "sprites/characters/warrior.png": "sprites/characters/warrior.webp",
+  "sprites/monsters/001_looter1.png": "sprites/monsters/001_looter1.webp",
+  "sprites/monsters/002_looter2.png": "sprites/monsters/002_looter2.webp",
+  "sprites/monsters/003_wild_dog.png": "sprites/monsters/003_wild_dog.webp",
+  "sprites/monsters/004_looter_leader.png": "sprites/monsters/004_looter_leader.webp",
+  "sprites/monsters/005_lumen_reaper.png": "sprites/monsters/005_lumen_reaper.webp"
 };

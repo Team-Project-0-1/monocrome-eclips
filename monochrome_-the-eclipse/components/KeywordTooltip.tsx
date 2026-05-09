@@ -11,7 +11,7 @@ const KeywordTooltip: React.FC = () => {
   }
 
   const { content, position } = tooltip;
-  
+
   const getDynamicStyles = (colorClass: string) => {
     // This is a simplified map for styling. A more robust solution would be to use style objects directly in effectConfig.
     const colorMap: { [key: string]: { backgroundColor: string; borderColor: string } } = {

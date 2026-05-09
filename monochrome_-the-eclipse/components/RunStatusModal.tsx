@@ -102,6 +102,7 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
         >
           <motion.div
             className="run-status-modal-card flex w-full flex-col overflow-hidden rounded-lg border border-cyan-200/24 shadow-2xl shadow-black/60"
+            data-testid="run-status-modal"
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}

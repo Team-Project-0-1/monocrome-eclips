@@ -247,7 +247,7 @@ export const CombatScreen: React.FC = () => {
             />
             <div className="combat-command-row">
               <CombatTicker messages={combatLog} />
-              <button type="button" className="combat-execute-button" disabled={!canExecute} onClick={handleExecuteTurn}>
+              <button type="button" className="combat-execute-button" disabled={!canExecute} onClick={handleExecuteTurn} data-testid="combat-execute-button">
                 <span>실행</span>
                 <ArrowRight size={20} />
               </button>
