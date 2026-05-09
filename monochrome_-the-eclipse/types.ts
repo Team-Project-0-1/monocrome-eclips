@@ -134,6 +134,10 @@ export interface EnemyIntent {
   description: string;
   damage: number;
   defense: number;
+  category?: 'attack' | 'buff' | 'debuff' | 'move' | 'idle';
+  dangerLevel?: 'normal' | 'high';
+  rangeLabel?: string;
+  hitCount?: number;
   sourcePatternKeys: string[];
   sourcePatternType?: PatternType;
   sourcePatternFace?: CoinFace;

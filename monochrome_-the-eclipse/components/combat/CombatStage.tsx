@@ -94,7 +94,7 @@ export const CombatStage: React.FC<CombatStageProps> = ({
         <CombatStatusTray character={player} side="player" />
       </div>
 
-      <div className={`combat-sprite-slot enemy ${enemyAttack ? 'is-attacking' : ''} ${enemyHit ? 'is-hit' : ''} ${enemySkill ? 'is-casting' : ''}`}>
+      <div className={`combat-sprite-slot enemy ${enemyAttack ? 'is-attacking' : ''} ${enemyHit ? 'is-hit' : ''} ${enemySkill ? 'is-casting' : ''} ${intent?.dangerLevel === 'high' ? 'is-danger-intent' : ''}`}>
         <div className="combat-enemy-overhead-stack">
           <EnemyCoinStrip enemy={enemy} intent={intent} />
           <CombatOverheadVitals character={enemy} side="enemy" />

@@ -10074,6 +10074,272 @@ html[data-large-text="true"] {
   background: #0b1322 !important;
 }
 
+.combat-sprite-slot.enemy.is-danger-intent::before {
+  animation: enemy-danger-aura 1600ms ease-in-out infinite;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(248, 113, 113, 0.26), transparent 58%),
+    radial-gradient(circle at 50% 72%, rgba(127, 29, 29, 0.38), transparent 68%);
+  border-radius: 999px;
+  bottom: 4%;
+  box-shadow: 0 0 34px rgba(248, 113, 113, 0.22);
+  content: '';
+  filter: blur(1px);
+  left: 8%;
+  pointer-events: none;
+  position: absolute;
+  right: 8%;
+  top: 9%;
+  z-index: 0;
+}
+
+.combat-sprite-slot.enemy.is-danger-intent .combat-sprite-avatar,
+.combat-sprite-slot.enemy.is-danger-intent .combat-portrait-fallback,
+.combat-sprite-slot.enemy.is-danger-intent .combat-fallback-enemy,
+.combat-sprite-slot.enemy.is-danger-intent .combat-sprite-ground,
+.combat-sprite-slot.enemy.is-danger-intent .combat-foot-status-tray {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes enemy-danger-aura {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+.enemy-intent-display {
+  color: #e2e8f0;
+  display: grid;
+  gap: 0.34rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.enemy-intent-primary {
+  align-items: center;
+  display: flex;
+  gap: 0.48rem;
+  min-width: 0;
+}
+
+.enemy-intent-icon {
+  align-items: center;
+  background: #111827;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 8px;
+  color: #cbd5e1;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+.enemy-intent-copy {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.enemy-intent-label {
+  align-items: center;
+  color: #94a3b8;
+  display: inline-flex;
+  flex-wrap: wrap;
+  font-size: 0.58rem;
+  font-weight: 950;
+  gap: 0.28rem;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.enemy-intent-danger {
+  align-items: center;
+  background: rgba(127, 29, 29, 0.88);
+  border: 1px solid rgba(248, 113, 113, 0.48);
+  border-radius: 999px;
+  color: #fecaca;
+  display: inline-flex;
+  gap: 0.16rem;
+  line-height: 1;
+  padding: 0.16rem 0.32rem;
+}
+
+.enemy-intent-title {
+  color: #f8fafc;
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 950;
+  line-height: 1.15;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enemy-intent-detail {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.enemy-intent-chip {
+  align-items: center;
+  background: #020617;
+  border: 1px solid rgba(226, 232, 240, 0.14);
+  border-radius: 999px;
+  color: #cbd5e1;
+  display: inline-flex;
+  flex: 0 1 auto;
+  font-size: 0.62rem;
+  font-weight: 900;
+  line-height: 1;
+  min-height: 1.26rem;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.22rem 0.42rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enemy-intent-chip.is-pattern {
+  color: #fde68a;
+  border-color: rgba(250, 204, 21, 0.34);
+}
+
+.enemy-intent-chip.is-range {
+  color: #a5f3fc;
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.enemy-intent-chip.is-count {
+  color: #e9d5ff;
+  border-color: rgba(192, 132, 252, 0.32);
+}
+
+.enemy-intent-display.intent-attack .enemy-intent-icon,
+.enemy-intent-display .enemy-intent-chip.is-attack {
+  background: rgba(127, 29, 29, 0.72);
+  border-color: rgba(248, 113, 113, 0.48);
+  color: #fecaca;
+}
+
+.enemy-intent-display.intent-buff .enemy-intent-icon,
+.enemy-intent-display .enemy-intent-chip.is-buff {
+  background: rgba(20, 83, 45, 0.72);
+  border-color: rgba(74, 222, 128, 0.44);
+  color: #bbf7d0;
+}
+
+.enemy-intent-display.intent-debuff .enemy-intent-icon,
+.enemy-intent-display .enemy-intent-chip.is-debuff {
+  background: rgba(76, 29, 149, 0.68);
+  border-color: rgba(192, 132, 252, 0.42);
+  color: #ddd6fe;
+}
+
+.enemy-intent-display.intent-move .enemy-intent-icon,
+.enemy-intent-display .enemy-intent-chip.is-move {
+  background: rgba(12, 74, 110, 0.72);
+  border-color: rgba(34, 211, 238, 0.42);
+  color: #a5f3fc;
+}
+
+.enemy-intent-display.intent-idle .enemy-intent-icon,
+.enemy-intent-display .enemy-intent-chip.is-idle {
+  background: rgba(51, 65, 85, 0.68);
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #cbd5e1;
+}
+
+.enemy-intent-display.is-danger .enemy-intent-title {
+  color: #fff7ed;
+}
+
+.combat-sprite-slot.enemy .combat-enemy-overhead-stack .combat-enemy-strip {
+  align-items: center;
+  display: grid;
+  gap: 0.42rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.combat-sprite-slot.enemy .combat-enemy-overhead-stack .combat-enemy-strip.is-danger-intent {
+  border-color: rgba(248, 113, 113, 0.56);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.36), 0 0 22px rgba(248, 113, 113, 0.16);
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip {
+  gap: 0.22rem;
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-primary {
+  gap: 0.34rem;
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-icon {
+  border-radius: 6px;
+  height: 1.55rem;
+  width: 1.55rem;
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-label {
+  font-size: 0.52rem;
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-title {
+  font-size: 0.68rem;
+}
+
+.combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-chip {
+  font-size: 0.56rem;
+  min-height: 1.08rem;
+  padding: 0.18rem 0.32rem;
+}
+
+.enemy-action-intent-card {
+  text-align: left;
+}
+
+.enemy-action-intent-card .enemy-intent-display--panel {
+  gap: 0.52rem;
+}
+
+.enemy-action-intent-card .enemy-intent-display--panel .enemy-intent-title {
+  font-size: 1rem;
+}
+
+@media (max-width: 767px) {
+  .combat-sprite-slot.enemy .combat-enemy-overhead-stack .combat-enemy-strip {
+    gap: 0.32rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-title {
+    font-size: 0.62rem;
+  }
+
+  .combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-chip {
+    max-width: 6.8rem;
+  }
+
+  .combat-enemy-overhead-stack .combat-mini-coins {
+    width: auto;
+  }
+
+  .combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-chip.is-pattern,
+  .combat-enemy-overhead-stack .enemy-intent-display--strip .enemy-intent-chip.is-count {
+    display: none;
+  }
+}
+
 .event-screen .event-choice-button:not(:disabled):hover,
 .combat-screen .combat-intel-buttons button:hover,
 .combat-screen .combat-intel-buttons button.is-active,

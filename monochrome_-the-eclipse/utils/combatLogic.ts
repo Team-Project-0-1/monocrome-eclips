@@ -1120,6 +1120,60 @@ export const setupNextTurn = (state: GameStoreDraft) => {
 
 
 // --- PREDICTION LOGIC ---
+const getEffectStatuses = (effect: AbilityEffect) => {
+  if (!effect.status) return [];
+  return Array.isArray(effect.status) ? effect.status : [effect.status];
+};
+
+const getEnemyIntentCategory = (
+  effect: AbilityEffect,
+  damage: number,
+  defense: number,
+): NonNullable<EnemyIntent['category']> => {
+  const statuses = getEffectStatuses(effect);
+  const hasSelfGain = statuses.some(status => status.target === 'self' || !status.target) ||
+    Boolean(effect.temporaryEffect || effect.gainMaxAmplify);
+  const hasHarmfulTargetEffect = statuses.some(status => status.target !== 'self' && status.value > 0) ||
+    Boolean(effect.enemyTemporaryEffect);
+
+  if (damage > 0) return 'attack';
+  if (hasHarmfulTargetEffect) return 'debuff';
+  if (defense > 0 || hasSelfGain) return 'buff';
+  return 'idle';
+};
+
+const getEnemyIntentRangeLabel = (
+  category: NonNullable<EnemyIntent['category']>,
+  hitCount: number,
+) => {
+  if (category === 'attack') return hitCount > 1 ? `플레이어 ${hitCount}회` : '플레이어 1명';
+  if (category === 'debuff') return '플레이어 상태';
+  if (category === 'buff') return '자신';
+  if (category === 'move') return '위치 변경';
+  return '없음';
+};
+
+const getEnemyIntentDangerLevel = (
+  enemy: EnemyCharacter,
+  effect: AbilityEffect,
+  patternType: PatternType,
+  damage: number,
+  hitCount: number,
+): NonNullable<EnemyIntent['dangerLevel']> => {
+  const statuses = getEffectStatuses(effect);
+  const addsHarmfulStatus = statuses.some(status => status.target !== 'self' && status.value > 0);
+  const isHighPattern = [
+    PatternType.PENTA,
+    PatternType.UNIQUE,
+    PatternType.AWAKENING,
+  ].includes(patternType);
+
+  if (damage >= 10 || hitCount >= 4 || isHighPattern) return 'high';
+  if (enemy.tier === 'boss' && damage > 0) return 'high';
+  if (addsHarmfulStatus && damage > 0) return 'high';
+  return 'normal';
+};
+
 export const determineEnemyIntent = (enemy: EnemyCharacter): EnemyIntent => {
   const phase = getMonsterPhase(enemy);
   const baseSkillKeys = monsterData[enemy.key]?.patterns ?? [];
@@ -1151,16 +1205,22 @@ export const determineEnemyIntent = (enemy: EnemyCharacter): EnemyIntent => {
 
   let damage = effect.fixedDamage || 0;
   if(effect.multiHit) damage += effect.multiHit.count * effect.multiHit.damage;
+  const hitCount = (effect.fixedDamage && effect.fixedDamage > 0 ? 1 : 0) + (effect.multiHit?.count ?? 0);
 
   const amplifyBonus = Math.floor((enemy.statusEffects.AMPLIFY || 0) / 2);
   if (amplifyBonus > 0) damage += amplifyBonus;
 
   const defense = (effect.defense || 0) + enemy.baseDef;
+  const category = getEnemyIntentCategory(effect, damage, defense);
 
   return {
     description: phase ? `${phase.label} - ${skillDef.name}` : skillDef.name,
     damage: Math.round(damage),
     defense: Math.round(defense),
+    category,
+    dangerLevel: getEnemyIntentDangerLevel(enemy, effect, patternInstance.type, damage, hitCount),
+    rangeLabel: getEnemyIntentRangeLabel(category, hitCount),
+    hitCount,
     sourcePatternKeys: [patternKey],
     sourcePatternType: patternInstance.type,
     sourcePatternFace: patternInstance.face,

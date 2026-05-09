@@ -33,6 +33,8 @@ Use `npm run prototype:check` before a portfolio/prototype deployment. It runs t
 
 - `docs/prototype-product-brief.md` - portfolio positioning, scope, demo script, and product gates.
 - `docs/prototype-operations-playbook.md` - deployment, smoke testing, monitoring, incident triage, rollback, and patch cadence.
+- `docs/stage-3-prd.md` - locked Stage 3 gate, boss, and reward planning scope.
+- `docs/stage-3-content-brief.md` - Stage 3 content contract and public-copy guardrails.
 - `../docs/release-direction-criteria.md` - criteria separating prototype, paid Early Access, and paid 1.0.
 - `../docs/user-required-release-actions.md` - owner decisions that Codex should not make alone.
 

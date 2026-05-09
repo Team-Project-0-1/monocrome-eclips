@@ -13,6 +13,7 @@
 
 | 문서 | URL | 반영 범위 |
 | --- | --- | --- |
+| 기획서 | https://docs.google.com/document/d/1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8/edit | 관문 루프, 3관문 보상, 적 의도 표시 원칙 |
 | 동전 GDD | https://docs.google.com/document/d/1tYS9UZwVxQ4pIY9_VKr-_-BOuFDfokJCb5i5Kpol9gs/edit | 3스테이지 구조, 런 성장 방향 |
 | 탐험 시스템 설계서 | https://docs.google.com/document/d/1B0nOpgPBXfZ4u5lndkgzagJXLBSA7yeXMNCugJKd3w4/edit | 스테이지당 15턴, 총 3스테이지, 노드 타입, 스테이지 테마 |
 | 몬스터 AI 시스템 | https://docs.google.com/document/d/1WRq8mGZEnvvga1LcEk2CRKrxXypFhq0ljx3mh9TryxI/edit | 몬스터 등급, 의도 표시, 동전 패턴 기반 행동 |
@@ -27,7 +28,7 @@
 | --- | --- | --- |
 | Stage 1: 벙커 외곽 | 전투 그룹과 기본 루프 구현 가능 | 기존 빌드 유지 |
 | Stage 2: 중립 지대 | `몬스터 컨셉` 문서에 일반 몬스터 3종, 미니보스 1종, 보스 1종 상세 기재 | 문서 수치 기반으로 몬스터/패턴 추가 |
-| Stage 3: 최종 심층 | 상위 테마는 있으나 몬스터/보스/이벤트 상세가 빈 항목 위주 | 이름/테마만 등록하고 플레이 불가 잠금 처리. 추후 대체/변경 필요 |
+| Stage 3: 최종 심층 | `기획서` 기준 관문 루프, 3관문 적 수/필드 최대치, 보스 후 `비기` 보상 구조만 확인됨 | 구조 문서만 추가하고 플레이 불가 잠금 처리. 몬스터/보스/이벤트 상세는 추후 대체/변경 필요 |
 
 ## 임시 적용 항목
 

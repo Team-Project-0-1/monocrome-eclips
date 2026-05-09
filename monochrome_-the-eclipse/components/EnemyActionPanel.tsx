@@ -5,6 +5,7 @@ import { Swords, Shield, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EffectSummary from './EffectSummary';
 import { summarizeAbility } from '../utils/effectSummary';
+import EnemyIntentDisplay from './EnemyIntentDisplay';
 
 interface EnemyActionPanelProps {
   enemy: EnemyCharacter | null;
@@ -40,7 +41,7 @@ const EnemyActionPanel = ({ enemy, intent }: EnemyActionPanelProps): React.JSX.E
       </h3>
 
       <motion.div 
-        className="p-3 mb-4 bg-gray-900/50 rounded-md text-center border border-gray-700 flex-shrink-0"
+        className="enemy-action-intent-card p-3 mb-4 bg-gray-900/50 rounded-md border border-gray-700 flex-shrink-0"
         animate={{
             borderColor: ["rgba(220, 38, 38, 0.5)", "rgba(252, 165, 165, 0.7)", "rgba(220, 38, 38, 0.5)"],
             boxShadow: ["0 0 5px rgba(220, 38, 38, 0.3)", "0 0 15px rgba(252, 165, 165, 0.5)", "0 0 5px rgba(220, 38, 38, 0.3)"],
@@ -51,21 +52,7 @@ const EnemyActionPanel = ({ enemy, intent }: EnemyActionPanelProps): React.JSX.E
             ease: "easeInOut",
         }}
       >
-        <p className="font-bold text-lg text-white">{intent.description}</p>
-        <div className="flex justify-center items-center gap-4 text-sm mt-2 text-gray-300">
-          {intent.damage > 0 && (
-            <span className="flex items-center gap-1">
-              <Swords size={16} className="text-red-400" />
-              피해: {intent.damage}
-            </span>
-          )}
-          {intent.defense > 0 && (
-            <span className="flex items-center gap-1">
-              <Shield size={16} className="text-blue-400" />
-              방어: {intent.defense}
-            </span>
-          )}
-        </div>
+        <EnemyIntentDisplay enemy={enemy} intent={intent} variant="panel" />
       </motion.div>
 
       <div className="flex justify-center gap-3 mb-4 flex-shrink-0">

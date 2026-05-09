@@ -1,7 +1,7 @@
 # Prototype Product Brief
 
 Version: Prototype v0.1
-Last updated: 2026-05-01
+Last updated: 2026-05-09
 
 ## Positioning
 
@@ -27,6 +27,7 @@ Included:
 
 Explicitly not included:
 - Finished Stage 3 content.
+- Playable Stage 3 route nodes, boss data, or ending flow.
 - Final paid-release asset provenance approval.
 - Production analytics dashboard.
 - Full automated browser E2E suite.
@@ -43,7 +44,7 @@ The prototype is shippable when:
 - `npm run prototype:check` passes.
 - The first screen clearly labels the build as `Prototype v0.1`.
 - The public copy does not imply a finished paid game.
-- Stage 3 stays locked until its design is documented.
+- Stage 3 stays locked in code; its current repo docs describe only the next design target.
 - A reviewer can find the product brief, release criteria, user-required actions, and operations playbook without asking the developer.
 
 ## Demo Script
@@ -59,8 +60,13 @@ Recommended 3-5 minute portfolio walkthrough:
 ## Next Product Gates
 
 Before calling it Early Access:
-- Stage 3 PRD, monster table, boss identity, event table, and reward pressure are written.
+- Stage 3 monster table, boss identity, event table, and reward pressure expand beyond the structural PRD.
 - At least 10 external playtest notes exist.
 - Two or more characters have clear replay appeal.
 - Asset/audio commercial rights are approved.
 - A committed browser smoke suite replaces ad hoc manual smoke checks.
+
+## Stage 3 Planning Docs
+
+- [stage-3-prd.md](./stage-3-prd.md) records the source-derived gate, boss, and reward requirements.
+- [stage-3-content-brief.md](./stage-3-content-brief.md) keeps public wording inside the Stage 1-2 playable prototype scope.

@@ -10,12 +10,12 @@ import {
 import {
   faceClass,
   faceLabel,
-  getIntentPatternLabel,
   hpPercent,
   statusLabels,
 } from '../../utils/combatPresentation';
 import { effectConfig, effectIconPaths } from '../../dataEffects';
 import { assetPath } from '../../utils/assetPath';
+import EnemyIntentDisplay from '../EnemyIntentDisplay';
 
 const getActiveStatuses = (character: PlayerCharacter | EnemyCharacter) => (
   Object.entries(character.statusEffects)
@@ -95,18 +95,10 @@ export const CombatOverheadVitals: React.FC<{
 
 export const EnemyCoinStrip: React.FC<{ enemy: EnemyCharacter; intent: EnemyIntent | null }> = ({ enemy, intent }) => {
   const sourceIndices = intent?.sourceCoinIndices ?? [];
-  const patternLabel = getIntentPatternLabel(intent, enemy);
-  const actionLabel = intent?.damage
-    ? `공격 ${intent.damage}`
-    : intent?.defense
-      ? `방어 ${intent.defense}`
-      : '대기';
 
   return (
-    <div className="combat-enemy-strip" aria-label="enemy coins">
-      <div className="combat-enemy-strip-head">
-        <b>{patternLabel ? `${patternLabel} / ${actionLabel}` : actionLabel}</b>
-      </div>
+    <div className={`combat-enemy-strip ${intent?.dangerLevel === 'high' ? 'is-danger-intent' : ''}`} aria-label="enemy intent and coins">
+      <EnemyIntentDisplay enemy={enemy} intent={intent} variant="strip" />
       <div className="combat-mini-coins">
         {enemy.coins.map((coin, index) => (
           <div
