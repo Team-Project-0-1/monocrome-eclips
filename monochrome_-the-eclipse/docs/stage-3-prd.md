@@ -1,7 +1,7 @@
 # Stage 3 PRD
 
-Last updated: 2026-05-09
-Source: Google Drive `기획서` (`1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8`, viewed 2026-05-08)
+Last updated: 2026-05-13
+Source: Google Drive `기획서` (`1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8`, viewed 2026-05-13)
 
 ## Status
 
@@ -43,3 +43,5 @@ Stage 3 should prove that the run can support a third escalation layer without e
 - Keep `stageData[3].combatPool`, `miniboss`, `boss`, and `eventPool` empty until content tables exist.
 - Treat this PRD as a gate for future data work: the next implementation pass needs concrete enemy, boss, event, and `비기` option IDs.
 - Use [stage-3-content-brief.md](./stage-3-content-brief.md) as the companion content contract.
+- Use `content/stage3/stage3-content-template.json` as the implementation input surface for Stage 3 normal monsters, the Stage 3 boss, and the Gate 3 `비기` draft.
+- Run `npm run check:stage3-content` while TBD markers are still allowed. Run `npm run check:stage3-content -- --strict` once final content tables replace every TBD marker.

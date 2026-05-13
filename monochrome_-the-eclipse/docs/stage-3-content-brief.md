@@ -1,7 +1,7 @@
 # Stage 3 Content Brief
 
-Last updated: 2026-05-09
-Source: Google Drive `기획서` (`1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8`, viewed 2026-05-08)
+Last updated: 2026-05-13
+Source: Google Drive `기획서` (`1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8`, viewed 2026-05-13)
 
 ## Current Prototype Boundary
 
@@ -61,3 +61,23 @@ The source document assigns Gate 3 boss victory to `비기` selection.
 - Stage 3 event pool if the route system continues to use event nodes.
 - `비기` option IDs, effects, one-per-combat or passive usage rules, and reward copy.
 - Balance targets for enemy HP/attack growth from Stage 2 into Stage 3.
+
+## Implementation Input Scaffold
+
+The repo now carries a locked input template at `content/stage3/stage3-content-template.json`.
+
+TBD marking rule:
+
+- Do not use empty strings, zeroes, or placeholder names for unknown content.
+- Use a `__stage3_tbd__` object with `expectedType`, `sourceNeeded`, and `owner`.
+- Replace the whole TBD object with the final value when the source table arrives.
+- Keep Stage 3 runtime pools empty until `npm run check:stage3-content -- --strict` passes.
+
+Validation:
+
+```bash
+npm run check:stage3-content
+npm run check:stage3-content -- --strict
+```
+
+The non-strict check confirms the scaffold shape, Gate 3 numbers, 3-option `비기` reward contract, locked `dataStages.ts` state, and public-copy guardrails. Strict mode additionally fails on any remaining TBD marker.

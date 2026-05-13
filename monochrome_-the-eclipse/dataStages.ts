@@ -20,9 +20,9 @@ export const stageData = {
     shopType: 'basic',
   },
   3: {
-    name: '최종 심층',
-    description: '동전 기반 전투 그룹이 기다리는 최종 구역',
-    theme: '동전 기반 이벤트 및 전투 그룹',
+    name: '3층 기획 중',
+    description: '잠금 상태의 다음 관문 설계',
+    theme: '비기 보상 구조 검증 예정',
     combatPool: [],
     miniboss: '',
     boss: '',

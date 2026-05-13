@@ -1,0 +1,442 @@
+{
+  "schemaVersion": "stage3-content-input-v1",
+  "stage": 3,
+  "status": "locked",
+  "source": {
+    "title": "\uae30\ud68d\uc11c",
+    "documentId": "1Ta50Zudk34_6qBi4sP3TjQVoPq7Su8cnQpqUBsXRbf8",
+    "verifiedAt": "2026-05-13"
+  },
+  "tbdRule": {
+    "marker": "__STAGE3_TBD__",
+    "rule": "Unknown Stage 3 content must use a __stage3_tbd__ object instead of empty strings, zeroes, or invented placeholder names.",
+    "strictCheck": "Run npm run check:stage3-content -- --strict after final source tables replace every TBD marker."
+  },
+  "gate": {
+    "normalCombatsBeforeBoss": 2,
+    "targetTotalEnemyCount": 8,
+    "maxEnemiesOnField": 3,
+    "bossReward": "secretTechniqueDraft",
+    "rewardOfferCount": 3,
+    "rewardChooseCount": 1
+  },
+  "normalMonsterTemplates": [
+    {
+      "id": "stage3_normal_tbd_01",
+      "status": "tbd",
+      "tier": "normal",
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Stage 3 normal monster name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "Monster role: warrior, assassin, mage, utility, or hybrid",
+        "owner": "combat"
+      },
+      "hp": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 normal monster HP target",
+        "owner": "balance"
+      },
+      "baseAtk": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 normal monster base attack",
+        "owner": "balance"
+      },
+      "baseDef": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 normal monster base defense",
+        "owner": "balance"
+      },
+      "patterns": [
+        {
+          "id": "stage3_normal_tbd_01_pattern_01",
+          "name": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Monster action name",
+            "owner": "content"
+          },
+          "trigger": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Intent preview trigger condition",
+            "owner": "combat"
+          },
+          "role": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "enum",
+            "sourceNeeded": "Action module role",
+            "owner": "combat"
+          },
+          "effect": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "effect",
+            "sourceNeeded": "Damage, defense, status, or movement effect",
+            "owner": "implementation"
+          },
+          "intent": {
+            "category": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "enum",
+              "sourceNeeded": "attack, buff, debuff, move, or idle",
+              "owner": "combat"
+            },
+            "dangerLevel": "normal",
+            "rangeLabel": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "string",
+              "sourceNeeded": "Player-facing range or target cue",
+              "owner": "combat"
+            },
+            "playerCue": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "string",
+              "sourceNeeded": "Short response cue shown to the player",
+              "owner": "content"
+            }
+          }
+        }
+      ],
+      "passives": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "array",
+        "sourceNeeded": "Monster passive IDs, or an empty array if none",
+        "owner": "combat"
+      }
+    },
+    {
+      "id": "stage3_normal_tbd_02",
+      "status": "tbd",
+      "tier": "normal",
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Second Stage 3 normal monster name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "Second normal monster AI role",
+        "owner": "combat"
+      },
+      "hp": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Second normal monster HP",
+        "owner": "balance"
+      },
+      "baseAtk": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Second normal monster base attack",
+        "owner": "balance"
+      },
+      "baseDef": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Second normal monster base defense",
+        "owner": "balance"
+      },
+      "patterns": [],
+      "passives": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "array",
+        "sourceNeeded": "Passive IDs, or an empty array if none",
+        "owner": "combat"
+      }
+    },
+    {
+      "id": "stage3_normal_tbd_03",
+      "status": "tbd",
+      "tier": "normal",
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Third Stage 3 normal monster name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "Third normal monster AI role",
+        "owner": "combat"
+      },
+      "hp": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Third normal monster HP",
+        "owner": "balance"
+      },
+      "baseAtk": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Third normal monster base attack",
+        "owner": "balance"
+      },
+      "baseDef": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Third normal monster base defense",
+        "owner": "balance"
+      },
+      "patterns": [],
+      "passives": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "array",
+        "sourceNeeded": "Passive IDs, or an empty array if none",
+        "owner": "combat"
+      }
+    }
+  ],
+  "bossTemplates": [
+    {
+      "id": "stage3_boss_tbd_01",
+      "status": "tbd",
+      "tier": "boss",
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Stage 3 boss name",
+        "owner": "content"
+      },
+      "hp": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 boss HP",
+        "owner": "balance"
+      },
+      "baseAtk": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 boss base attack",
+        "owner": "balance"
+      },
+      "baseDef": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "number",
+        "sourceNeeded": "Stage 3 boss base defense",
+        "owner": "balance"
+      },
+      "patterns": [
+        {
+          "id": "stage3_boss_tbd_01_pattern_01",
+          "name": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Boss action name",
+            "owner": "content"
+          },
+          "trigger": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Boss action preview condition",
+            "owner": "combat"
+          },
+          "role": "hybrid",
+          "effect": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "effect",
+            "sourceNeeded": "Boss action effect",
+            "owner": "implementation"
+          },
+          "intent": {
+            "category": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "enum",
+              "sourceNeeded": "Boss intent category",
+              "owner": "combat"
+            },
+            "dangerLevel": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "enum",
+              "sourceNeeded": "Use high for dangerous boss intent",
+              "owner": "combat"
+            },
+            "rangeLabel": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "string",
+              "sourceNeeded": "Boss action range label",
+              "owner": "combat"
+            },
+            "playerCue": {
+              "__stage3_tbd__": "__STAGE3_TBD__",
+              "expectedType": "string",
+              "sourceNeeded": "Short response cue shown to the player",
+              "owner": "content"
+            }
+          }
+        }
+      ],
+      "phases": [
+        {
+          "id": "stage3_boss_tbd_01_phase_01",
+          "label": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Boss phase label",
+            "owner": "content"
+          },
+          "hpBelow": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "number",
+            "sourceNeeded": "Phase transition HP ratio, or remove this field if unused",
+            "owner": "balance"
+          },
+          "patternIds": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "array",
+            "sourceNeeded": "Boss pattern IDs prioritized in this phase",
+            "owner": "combat"
+          },
+          "playerCue": {
+            "__stage3_tbd__": "__STAGE3_TBD__",
+            "expectedType": "string",
+            "sourceNeeded": "Phase entry cue shown to the player",
+            "owner": "content"
+          }
+        }
+      ],
+      "dangerIntentThreshold": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Rule for marking boss intent as high danger",
+        "owner": "combat"
+      }
+    }
+  ],
+  "secretTechniqueRewardTemplates": [
+    {
+      "id": "stage3_secret_technique_tbd_01",
+      "status": "tbd",
+      "kind": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "active or passive",
+        "owner": "combat"
+      },
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique combat role",
+        "owner": "content"
+      },
+      "usageRule": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Per-combat, passive, or other usage rule",
+        "owner": "combat"
+      },
+      "effect": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "effect",
+        "sourceNeeded": "Secret technique effect",
+        "owner": "implementation"
+      },
+      "playerCue": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Short reason for choosing this technique",
+        "owner": "content"
+      }
+    },
+    {
+      "id": "stage3_secret_technique_tbd_02",
+      "status": "tbd",
+      "kind": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "active or passive",
+        "owner": "combat"
+      },
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique combat role",
+        "owner": "content"
+      },
+      "usageRule": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Usage rule",
+        "owner": "combat"
+      },
+      "effect": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "effect",
+        "sourceNeeded": "Effect",
+        "owner": "implementation"
+      },
+      "playerCue": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Short player cue",
+        "owner": "content"
+      }
+    },
+    {
+      "id": "stage3_secret_technique_tbd_03",
+      "status": "tbd",
+      "kind": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "enum",
+        "sourceNeeded": "active or passive",
+        "owner": "combat"
+      },
+      "name": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique name",
+        "owner": "content"
+      },
+      "role": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Secret technique combat role",
+        "owner": "content"
+      },
+      "usageRule": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Usage rule",
+        "owner": "combat"
+      },
+      "effect": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "effect",
+        "sourceNeeded": "Effect",
+        "owner": "implementation"
+      },
+      "playerCue": {
+        "__stage3_tbd__": "__STAGE3_TBD__",
+        "expectedType": "string",
+        "sourceNeeded": "Short player cue",
+        "owner": "content"
+      }
+    }
+  ],
+  "lockGuard": {
+    "stageDataRule": "dataStages.ts Stage 3 combatPool, miniboss, boss, and eventPool stay empty until final content tables are ready.",
+    "publicCopyRule": "Public copy must keep Stage 3 framed as planned or locked, not playable."
+  }
+}

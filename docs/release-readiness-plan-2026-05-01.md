@@ -12,6 +12,7 @@ Ready locally:
 - Event, shop, rest, reward, exploration, menu, character select, desktop combat, and mobile combat screens have current browser smoke passes.
 - GitHub Pages fallback deployment exists.
 - Cloudflare Pages is documented as the preferred hosting path.
+- The web manifest already targets standalone display, so PC PWA/app-window launch is feasible after the public URL is chosen and verified.
 
 Still release-sensitive:
 - Final production domain is not fixed.
@@ -19,6 +20,7 @@ Still release-sensitive:
 - Generated art/audio provenance needs final owner approval before a broader public push.
 - Stage 3 remains intentionally locked or incomplete in the content ledger.
 - There is no committed browser E2E regression suite yet; current verification is build checks plus targeted browser smoke inspection.
+- PC install/PWA behavior has not been validated on a deployed public URL yet.
 - Prototype/portfolio operations are now documented in `monochrome_-the-eclipse/docs/prototype-product-brief.md` and `monochrome_-the-eclipse/docs/prototype-operations-playbook.md`.
 
 ## Verification Evidence - 2026-05-01
@@ -107,12 +109,14 @@ Acceptance criteria:
 - Static assets return long cache headers.
 - `index.html` returns no-cache or must-revalidate.
 - Open Graph image and manifest icons resolve at the public URL.
+- PC app-window/PWA install behavior is verified in Chrome or Edge if the release wants a desktop-app-like entry point.
 
 Work:
 - If using GitHub Pages first: keep `VITE_BASE_PATH=/monocrome-eclips/`.
 - If using Cloudflare Pages first: set `VITE_BASE_PATH=/`.
 - Publish only after the user confirms the canonical URL.
 - After deploy, run the public URL smoke check for menu, manifest, Open Graph image, and one short run.
+- If PC installability is part of the release, validate the deployed manifest, icons, `start_url`, base path, and standalone window launch from the canonical URL. Treat this as a browser-hosted PWA/app window, not a native desktop build.
 
 ### Phase 3 - Traffic Safety
 
