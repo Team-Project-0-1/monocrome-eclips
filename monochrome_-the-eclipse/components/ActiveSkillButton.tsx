@@ -39,7 +39,7 @@ const ActiveSkillButton: React.FC<ActiveSkillButtonProps> = ({ player, onClick, 
                     <Icon className={`w-6 h-6 ${disabled ? 'text-gray-600' : 'text-cyan-400'}`} />
                     <div>
                         <p className="font-bold text-left">{skill.name}</p>
-                        <EffectSummary text={skill.description} compact hideHeadline chipLimit={3} />
+                        <EffectSummary text={skill.description} compact hideHeadline chipLimit={3} showCue cueLabel="용도" />
                     </div>
                 </div>
                 <div className={`px-3 py-1 rounded-md text-sm font-bold font-orbitron ${onCooldown ? 'bg-red-500/80 text-white' : 'bg-gray-600'}`}>

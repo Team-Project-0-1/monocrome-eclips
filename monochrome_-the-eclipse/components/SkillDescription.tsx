@@ -75,13 +75,16 @@ const SkillDescription: React.FC<{ text: string; className?: string }> = ({ text
         });
     };
 
-    const sentences = text.match(/[^.!?]+[.!?]?/g) || [text];
+    const sentences = text
+        .split(/(?<=[.!?])\s+|\n+/g)
+        .map(sentence => sentence.trim())
+        .filter(Boolean);
 
     return (
         <div className={`leading-relaxed space-y-1 ${className}`}>
-            {sentences.map((sentence, i) => (
+            {(sentences.length > 0 ? sentences : [text]).map((sentence, i) => (
                 <p key={i}>
-                    {parseAndRender(sentence.trim())}
+                    {parseAndRender(sentence)}
                 </p>
             ))}
         </div>

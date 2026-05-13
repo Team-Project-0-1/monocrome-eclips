@@ -95,7 +95,7 @@ export const CombatDecisionSummary: React.FC<CombatDecisionSummaryProps> = ({
   return (
     <aside className={`combat-decision-summary ${selectedPatterns.length > 0 ? 'is-ready' : 'is-empty'}`} aria-label="combat decision summary">
       <div className="combat-decision-main">
-        <span>내 선택</span>
+        <span>다음 행동</span>
         {selected.length > 0 ? (
           <div className="combat-decision-tags">
             {selected.slice(0, 3).map(item => (
@@ -108,7 +108,7 @@ export const CombatDecisionSummary: React.FC<CombatDecisionSummaryProps> = ({
             {selected.length > 3 ? <b>+{selected.length - 3}</b> : null}
           </div>
         ) : (
-          <strong>족보를 선택하세요</strong>
+          <strong>밝은 족보를 선택하세요</strong>
         )}
       </div>
 
@@ -119,13 +119,13 @@ export const CombatDecisionSummary: React.FC<CombatDecisionSummaryProps> = ({
 
       <div className="combat-decision-numbers">
         <span>
-          <small>적 피해</small>
+          <small>적에게</small>
           <b className={prediction && prediction.damageToEnemy > 0 ? 'is-good' : ''}>
             {prediction ? prediction.damageToEnemy : 0}
           </b>
         </span>
         <span>
-          <small>내 피해</small>
+          <small>내가 받음</small>
           <b className={prediction && prediction.damageToPlayer > 0 ? 'is-danger' : ''}>
             {prediction ? prediction.damageToPlayer : 0}
           </b>
@@ -261,14 +261,14 @@ export const FocusBanner: React.FC<FocusBannerProps> = ({ text, revealedFace, on
   return (
     <motion.div
       className="combat-focus-banner"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, x: '-50%', y: -20 }}
+      animate={{ opacity: 1, x: '-50%', y: 0 }}
+      exit={{ opacity: 0, x: '-50%', y: -20 }}
     >
       <Info size={18} />
       <span>{text}</span>
       {revealedFace ? <b>{faceLabel(revealedFace)}</b> : null}
-      <button type="button" onClick={onCancel} aria-label="cancel focus action">
+      <button type="button" onClick={onCancel} aria-label="취소">
         <X size={16} />
       </button>
     </motion.div>

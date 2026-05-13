@@ -14,7 +14,11 @@ const toneClasses: Record<NonNullable<PanelProps['tone']>, string> = {
 };
 
 const Panel: React.FC<PanelProps> = ({ children, className = '', tone = 'neutral', ...props }) => (
-  <section {...props} className={`rounded-lg border shadow-xl backdrop-blur-sm ${toneClasses[tone]} ${className}`}>
+  <section
+    {...props}
+    data-card-tone={tone}
+    className={`game-card-panel rounded-lg border shadow-xl backdrop-blur-sm ${toneClasses[tone]} ${className}`}
+  >
     {children}
   </section>
 );

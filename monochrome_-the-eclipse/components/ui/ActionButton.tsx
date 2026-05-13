@@ -21,7 +21,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 }) => (
   <button
     type={type}
-    className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400 ${variantClasses[variant]} ${className}`}
+    className={`game-action-button game-action-${variant} inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 disabled:cursor-not-allowed disabled:bg-gray-600 disabled:text-gray-400 ${variantClasses[variant]} ${className}`}
     {...props}
   >
     {children}

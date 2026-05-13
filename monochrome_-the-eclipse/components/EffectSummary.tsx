@@ -28,6 +28,8 @@ interface EffectSummaryProps {
   chipLimit?: number;
   compact?: boolean;
   hideHeadline?: boolean;
+  showCue?: boolean;
+  cueLabel?: string;
   showDetail?: 'none' | 'details';
   detailLabel?: string;
 }
@@ -69,8 +71,10 @@ const EffectSummary: React.FC<EffectSummaryProps> = ({
   chipLimit = 5,
   compact = false,
   hideHeadline = false,
+  showCue = false,
+  cueLabel = '먼저 볼 것',
   showDetail = 'none',
-  detailLabel = '상세',
+  detailLabel = '원문',
 }) => {
   const resolved = summary ?? summarizeDescription(text ?? '');
   const visibleChips = resolved.chips.slice(0, chipLimit);
@@ -78,6 +82,12 @@ const EffectSummary: React.FC<EffectSummaryProps> = ({
 
   return (
     <div className={`effect-summary ${compact ? 'is-compact' : ''} ${className}`}>
+      {showCue ? (
+        <div className={`effect-summary-cue tone-${resolved.priorityTone}`}>
+          <span>{cueLabel}</span>
+          <b>{resolved.cue}</b>
+        </div>
+      ) : null}
       {!hideHeadline ? <strong className="effect-summary-headline">{resolved.headline}</strong> : null}
       <div className="effect-chip-row" aria-label={resolved.headline}>
         {visibleChips.map(chip => <EffectChipView key={chip.id} chip={chip} />)}

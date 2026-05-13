@@ -20,6 +20,7 @@ import {
 import { assetPath } from '../../utils/assetPath';
 import EffectSummary from '../EffectSummary';
 import { summarizeAbility } from '../../utils/effectSummary';
+import { MAX_RESERVE_COINS } from '../../constants';
 
 const activeSkillIconPaths: Record<CharacterClass, string> = {
   [CharacterClass.WARRIOR]: 'assets/icons/combat/active-warrior-reroll.png',
@@ -111,17 +112,25 @@ export const PatternRail: React.FC<PatternRailProps> = ({
             title={ability.description}
             data-testid={`combat-pattern-${group.type.toLowerCase()}-${group.face?.toLowerCase() ?? 'mixed'}`}
           >
-            <img
-              className="combat-pattern-icon-img"
-              src={assetPath(patternIconPaths[group.type])}
-              alt=""
-              loading="lazy"
-              aria-hidden="true"
-            />
+            <span className="combat-card-topline">
+              <span className="combat-card-corner">{patternLabels[group.type]}</span>
+              <span className="combat-card-face">
+                {faceLabel(group.face)}
+                {selectedCount > 0 ? <small>선택 {selectedCount}</small> : null}
+              </span>
+            </span>
+            <span className="combat-pattern-art">
+              <img
+                className="combat-pattern-icon-img"
+                src={assetPath(patternIconPaths[group.type])}
+                alt=""
+                loading="lazy"
+                aria-hidden="true"
+              />
+            </span>
             <span className="combat-pattern-text">
-              <EffectSummary summary={summary} compact hideHeadline chipLimit={3} className="combat-pattern-summary" />
+              <EffectSummary summary={summary} compact hideHeadline chipLimit={3} showCue cueLabel="역할" className="combat-pattern-summary" />
               <strong>{ability.name}</strong>
-              <span className="combat-pattern-kind">{patternLabels[group.type]} {faceLabel(group.face)}</span>
               <span>{selectedCount > 0 ? `선택 ${selectedCount}` : `후보 ${group.patterns.length}`}</span>
             </span>
           </button>
@@ -162,9 +171,9 @@ export const ActiveSkillPill: React.FC<ActiveSkillPillProps> = ({ player, disabl
       />
       <span className="combat-active-skill-copy">
         <strong>{skill.name}</strong>
-        <EffectSummary text={skill.description} compact hideHeadline chipLimit={2} />
+        <EffectSummary text={skill.description} compact hideHeadline chipLimit={2} showCue cueLabel="용도" />
       </span>
-      <b>{onCooldown ? player.activeSkillCooldown : 'OK'}</b>
+      <b>{onCooldown ? `쿨 ${player.activeSkillCooldown}` : 'OK'}</b>
     </button>
   );
 };
@@ -173,6 +182,7 @@ interface ReserveCoinStripProps {
   reserveCoins: Coin[];
   isSwapping: boolean;
   selectedIndex: number | null;
+  revealedFace?: CoinFace | null;
   testMode: boolean;
   onFlip: (index: number) => void;
   onSwap: (index: number) => void;
@@ -182,32 +192,69 @@ export const ReserveCoinStrip: React.FC<ReserveCoinStripProps> = ({
   reserveCoins,
   isSwapping,
   selectedIndex,
+  revealedFace,
   testMode,
   onFlip,
   onSwap,
 }) => {
+  const [pendingIndex, setPendingIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (selectedIndex !== null) {
+      setPendingIndex(selectedIndex);
+      return;
+    }
+
+    if (pendingIndex >= reserveCoins.length) {
+      setPendingIndex(Math.max(0, reserveCoins.length - 1));
+    }
+  }, [pendingIndex, reserveCoins.length, selectedIndex]);
+
   if (reserveCoins.length === 0) {
     return <div className="combat-reserve-empty">행운 없음</div>;
   }
 
+  const activeIndex = selectedIndex ?? pendingIndex;
+  const canSwap = activeIndex >= 0 && activeIndex < reserveCoins.length && !isSwapping;
+
   return (
-    <div className="combat-reserve-strip" aria-label="reserve coins">
-      {reserveCoins.map((coin, index) => (
-        <div key={coin.id} className="combat-reserve-item">
+    <div className="combat-reserve-control">
+      <div className="combat-reserve-head">
+        <span>행운</span>
+        <b>{reserveCoins.length}/{MAX_RESERVE_COINS}</b>
+      </div>
+      <div className="combat-reserve-strip" aria-label="reserve coins">
+        {reserveCoins.map((coin, index) => {
+          const isActive = activeIndex === index;
+          const shownFace = selectedIndex === index && revealedFace ? revealedFace : coin.face;
+          const isHeads = shownFace === CoinFace.HEADS;
+          const isTails = shownFace === CoinFace.TAILS;
+
+          return (
           <button
+            key={coin.id}
             type="button"
-            className={`combat-mini-coin ${faceClass(coin.face)} ${selectedIndex === index ? 'is-used' : ''}`}
-            disabled={!testMode}
-            onClick={() => onFlip(index)}
-            title={`행운 동전 ${index + 1}`}
+            className={`combat-reserve-slot ${faceClass(shownFace)} ${isActive ? 'is-selected' : ''} ${selectedIndex === index ? 'is-revealed' : ''}`}
+            disabled={isSwapping}
+            onClick={() => setPendingIndex(index)}
+            title={`행운 동전 ${index + 1}${shownFace ? `: ${faceLabel(shownFace)}` : ''}`}
           >
-            {coin.face === null ? <HelpCircle size={15} /> : coin.face === CoinFace.HEADS ? <Swords size={15} /> : <Shield size={15} />}
+            <small>{index + 1}</small>
+            <span className="combat-reserve-face">
+              {shownFace === null ? <HelpCircle size={15} /> : isHeads ? <Swords size={15} /> : isTails ? <Shield size={15} /> : <HelpCircle size={15} />}
+            </span>
           </button>
-          <button type="button" className="combat-swap-button" disabled={isSwapping} onClick={() => onSwap(index)}>
-            교체
-          </button>
-        </div>
-      ))}
+          );
+        })}
+      </div>
+      <button type="button" className="combat-swap-button combat-reserve-action" disabled={!canSwap} onClick={() => onSwap(activeIndex)}>
+        {isSwapping ? '대상' : '교체'}
+      </button>
+      {testMode ? (
+        <button type="button" className="combat-reserve-debug" disabled={isSwapping} onClick={() => onFlip(activeIndex)}>
+          뒤집기
+        </button>
+      ) : null}
     </div>
   );
 };

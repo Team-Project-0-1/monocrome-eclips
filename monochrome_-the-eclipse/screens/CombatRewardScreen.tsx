@@ -9,6 +9,18 @@ import { playGameSfx, playUiSound } from '../utils/sound';
 import { playerSkillUnlocks } from '../dataSkills';
 import { patternUpgrades } from '../dataUpgrades';
 import { getRewardIconPath } from '../utils/resourceAssets';
+import EffectSummary from '../components/EffectSummary';
+import { summarizeDescription } from '../utils/effectSummary';
+import type { CombatRewardChoice } from '../utils/combatRewards';
+
+const getRewardChoiceCue = (choice: CombatRewardChoice) => {
+  if (choice.skillId) return '기술 슬롯을 바꿔 전투 선택지 확장';
+  if (choice.passiveId) return '자동 효과를 추가해 빌드 강화';
+  if (choice.rewards.reserveCoin) return '다음 전투의 동전 사고를 줄이기';
+  if ((choice.rewards.memoryPieces ?? 0) > 0) return '영구 성장 자원 확보';
+  if ((choice.rewards.senseFragments ?? 0) > 0) return '족보 강화 재료 확보';
+  return '자원을 고르게 챙기는 안정 선택';
+};
 
 export const CombatRewardScreen = () => {
   const pendingCombatReward = useGameStore(state => state.pendingCombatReward);
@@ -79,11 +91,9 @@ export const CombatRewardScreen = () => {
               : null;
 
             return (
-              <button
+              <article
                 key={choice.id}
-                type="button"
-                onClick={() => claimReward(choice.id)}
-                className="combat-reward-choice group min-h-[220px] rounded-lg border border-yellow-200/20 bg-black/52 p-4 text-left shadow-2xl shadow-black/30 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-yellow-200/55 hover:bg-yellow-950/26 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-200"
+                className="combat-reward-choice group min-h-[220px] rounded-lg border border-yellow-200/20 bg-black/52 p-4 text-left shadow-2xl shadow-black/30 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-yellow-200/55 hover:bg-yellow-950/26 focus-within:ring-2 focus-within:ring-yellow-200"
               >
                 <div className="flex h-full flex-col">
                   <div className="mb-3 flex items-start justify-between gap-3">
@@ -94,26 +104,47 @@ export const CombatRewardScreen = () => {
                     <ArrowRight className="h-5 w-5 text-yellow-100 transition-transform group-hover:translate-x-1" />
                   </div>
 
-                  <p className="flex-1 text-sm leading-relaxed text-slate-300">{choice.description}</p>
+                  <div className="combat-reward-choice-cue">
+                    <span>선택 이유</span>
+                    <strong>{getRewardChoiceCue(choice)}</strong>
+                  </div>
+                  <details className="combat-reward-choice-detail">
+                    <summary>상세</summary>
+                    <p>{choice.description}</p>
+                  </details>
 
                   <div className="mt-4 grid gap-2">
                     {skillReward && (
-                      <span className="inline-flex items-center justify-between rounded-md border border-white/10 bg-white/7 px-3 py-2 text-sm font-bold text-white">
-                        <span className="inline-flex items-center gap-2">
+                      <div className="combat-reward-detail-chip">
+                        <span className="inline-flex items-center gap-2 text-sm font-bold text-white">
                           <Sparkles className="h-4 w-4 text-yellow-200" />
-                          기술
+                          기술 · <strong className="text-yellow-100">{skillReward.name}</strong>
                         </span>
-                        <strong className="text-yellow-100">{skillReward.name}</strong>
-                      </span>
+                        <EffectSummary
+                          summary={summarizeDescription(skillReward.description)}
+                          compact
+                          hideHeadline
+                          chipLimit={4}
+                          showCue
+                          cueLabel="판단"
+                        />
+                      </div>
                     )}
                     {passiveReward && (
-                      <span className="inline-flex items-center justify-between rounded-md border border-white/10 bg-white/7 px-3 py-2 text-sm font-bold text-white">
-                        <span className="inline-flex items-center gap-2">
+                      <div className="combat-reward-detail-chip">
+                        <span className="inline-flex items-center gap-2 text-sm font-bold text-white">
                           <Sparkles className="h-4 w-4 text-cyan-200" />
-                          패시브
+                          패시브 · <strong className="text-cyan-100">{passiveReward.name}</strong>
                         </span>
-                        <strong className="text-cyan-100">{passiveReward.name}</strong>
-                      </span>
+                        <EffectSummary
+                          summary={summarizeDescription(passiveReward.description)}
+                          compact
+                          hideHeadline
+                          chipLimit={4}
+                          showCue
+                          cueLabel="역할"
+                        />
+                      </div>
                     )}
                     {rewardEntries.map(([key, value]) => {
                       const rewardImagePath = getRewardIconPath(key);
@@ -141,8 +172,17 @@ export const CombatRewardScreen = () => {
                       );
                     })}
                   </div>
+                  <ActionButton
+                    type="button"
+                    onClick={() => claimReward(choice.id)}
+                    variant="primary"
+                    className="mt-auto w-full justify-center"
+                  >
+                    이 보상 선택
+                    <ArrowRight className="h-4 w-4" />
+                  </ActionButton>
                 </div>
-              </button>
+              </article>
             );
           })}
         </div>

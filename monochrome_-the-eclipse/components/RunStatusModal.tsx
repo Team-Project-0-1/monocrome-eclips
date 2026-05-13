@@ -225,7 +225,10 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                           compact
                           hideHeadline
                           chipLimit={4}
+                          showCue
+                          cueLabel={slot.isReplaced ? '현재 역할' : '기본 역할'}
                           showDetail="details"
+                          detailLabel="상세"
                           className="run-status-effect-summary"
                         />
                       </div>
@@ -246,7 +249,10 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                           summary={summarizeDescription(skill.description)}
                           compact
                           chipLimit={4}
+                          showCue
+                          cueLabel="기술 역할"
                           showDetail="details"
+                          detailLabel="상세"
                           className="run-status-effect-summary"
                         />
                       </div>
@@ -269,7 +275,10 @@ const RunStatusModal: React.FC<RunStatusModalProps> = ({ isOpen, onClose }) => {
                           summary={summarizeDescription(passive.description)}
                           compact
                           chipLimit={4}
+                          showCue
+                          cueLabel="패시브 역할"
                           showDetail="details"
+                          detailLabel="상세"
                           className="run-status-effect-summary"
                         />
                       </div>

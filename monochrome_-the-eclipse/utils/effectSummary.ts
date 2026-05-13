@@ -26,6 +26,8 @@ export interface EffectSummary {
   headline: string;
   chips: EffectChip[];
   detail: string;
+  cue: string;
+  priorityTone: EffectTone;
 }
 
 interface AbilityLike {
@@ -173,6 +175,57 @@ const buildHeadline = (text: string, chips: EffectChip[]) => {
   return primary.length > 0 ? primary.join(' · ') : sentenceFrom(text);
 };
 
+const hasTone = (chips: EffectChip[], tone: EffectTone) => chips.some(chip => chip.tone === tone);
+
+const firstChipValue = (chips: EffectChip[], tone: EffectTone) => (
+  chips.find(chip => chip.tone === tone)?.value
+);
+
+const getPriorityTone = (chips: EffectChip[]): EffectTone => {
+  const priority: EffectTone[] = ['damage', 'defense', 'heal', 'debuff', 'buff', 'coin', 'timing', 'condition', 'resource'];
+  return priority.find(tone => hasTone(chips, tone)) ?? 'neutral';
+};
+
+const buildCue = (text: string, chips: EffectChip[]) => {
+  const damage = firstChipValue(chips, 'damage');
+  const defense = firstChipValue(chips, 'defense');
+
+  if (hasTone(chips, 'damage') && hasTone(chips, 'defense')) {
+    return '공격과 생존을 같이 챙기는 선택';
+  }
+  if (hasTone(chips, 'damage') && hasTone(chips, 'condition')) {
+    return `${damage ? `피해 ${damage}` : '공격'} 조건을 먼저 맞추기`;
+  }
+  if (hasTone(chips, 'damage')) {
+    return `${damage ? `피해 ${damage}` : '피해'}로 적 HP 줄이기`;
+  }
+  if (hasTone(chips, 'defense') && hasTone(chips, 'heal')) {
+    return '이번 턴 생존을 우선하기';
+  }
+  if (hasTone(chips, 'defense')) {
+    return `${defense ? `방어 ${defense}` : '방어'} 확보해 받는 피해 줄이기`;
+  }
+  if (hasTone(chips, 'heal')) {
+    return '체력을 회복해 다음 전투 준비';
+  }
+  if (hasTone(chips, 'coin')) {
+    return '동전 결과를 바꿔 필요한 족보 만들기';
+  }
+  if (hasTone(chips, 'debuff')) {
+    return '상태를 걸어 다음 턴 고점 만들기';
+  }
+  if (hasTone(chips, 'buff')) {
+    return '내 상태를 쌓아 다음 행동 강화';
+  }
+  if (hasTone(chips, 'resource')) {
+    return '비용과 구매 가능 여부 먼저 확인';
+  }
+  if (/패시브|강화|영구/.test(text)) {
+    return '자동으로 쌓이는 성장 효과';
+  }
+  return '핵심 태그만 보고 필요하면 원문 확인';
+};
+
 export const summarizeDescription = (text: string): EffectSummary => {
   const detail = text.trim();
   const chips = extractCoreChips(detail);
@@ -185,6 +238,8 @@ export const summarizeDescription = (text: string): EffectSummary => {
     headline: buildHeadline(detail, chips),
     chips,
     detail,
+    cue: buildCue(detail, chips),
+    priorityTone: getPriorityTone(chips),
   };
 };
 
@@ -207,5 +262,7 @@ export const summarizeShopEntry = ({ description, presentation, tab }: ShopEntry
     ...summary,
     headline: buildHeadline(description, chips),
     chips,
+    cue: buildCue(description, chips),
+    priorityTone: getPriorityTone(chips),
   };
 };

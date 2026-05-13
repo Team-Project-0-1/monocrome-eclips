@@ -37,9 +37,9 @@ interface ShopEntry {
 }
 
 const tabs: { id: ShopTab; label: string; hint: string }[] = [
-  { id: 'items', label: '아이템', hint: '즉시 보급' },
-  { id: 'upgrades', label: '족보 강화', hint: '전투 성장' },
-  { id: 'skills', label: '기술 습득', hint: '패턴 기술' },
+  { id: 'items', label: '아이템', hint: '회복/행운' },
+  { id: 'upgrades', label: '족보 강화', hint: '자동 성장' },
+  { id: 'skills', label: '기술 습득', hint: '기술 교체' },
 ];
 
 const statusClasses: Record<ShopEntryPresentation['status'], string> = {
@@ -290,7 +290,15 @@ export const ShopScreen = () => {
                             {entry.presentation.statusLabel}
                           </span>
                         </div>
-                        <EffectSummary summary={summary} compact hideHeadline chipLimit={3} className="shop-entry-summary" />
+                        <EffectSummary
+                          summary={summary}
+                          compact
+                          hideHeadline
+                          chipLimit={4}
+                          showCue
+                          cueLabel="판단"
+                          className="shop-entry-summary"
+                        />
                         <p className="mt-1 text-xs text-slate-500">{entry.presentation.helperText}</p>
                       </div>
                       <button
@@ -326,10 +334,17 @@ export const ShopScreen = () => {
                 ) : null}
                 <div>
                   <h2 className="text-2xl font-black text-white">{selectedEntry.name}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{selectedEntry.detail}</p>
                 </div>
                 {selectedSummary ? (
-                  <EffectSummary summary={selectedSummary} chipLimit={6} showDetail="details" className="shop-preview-summary" />
+                  <EffectSummary
+                    summary={selectedSummary}
+                    chipLimit={6}
+                    showCue
+                    cueLabel="구매 판단"
+                    showDetail="details"
+                    detailLabel="상세"
+                    className="shop-preview-summary"
+                  />
                 ) : null}
                 <div className="grid gap-2 text-sm">
                   <div className="flex justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2">

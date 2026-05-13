@@ -85,7 +85,7 @@ const CharacterStatus = ({ character, isPlayer = false, prediction }: CharacterS
   return (
     <motion.div
       animate={shakeControls}
-      className={`p-4 rounded-lg border shadow-xl ${containerClass} relative backdrop-blur-sm`}
+      className={`entity-status-card p-4 rounded-lg border shadow-xl ${containerClass} relative backdrop-blur-sm`}
     >
        <motion.div
         className="absolute inset-0 rounded-lg pointer-events-none z-0"

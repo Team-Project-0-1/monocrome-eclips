@@ -122,12 +122,12 @@ export const ExplorationScreen = () => {
                   <div className="h-full rounded-full bg-cyan-200" style={{ width: `${progressPercent}%` }} />
                 </div>
               </div>
-              <div className="rounded-md border border-yellow-200/20 bg-yellow-950/18 px-3 py-2 text-yellow-50">
+              <div className="route-pressure-card rounded-md border border-yellow-200/20 bg-yellow-950/18 px-3 py-2 text-yellow-50">
                 <div className="mb-1 flex items-center gap-2 font-bold">
                   <ShieldAlert className="h-4 w-4" />
                   현재 압력
                 </div>
-                <p className="leading-relaxed text-yellow-100/80">{routePressureText(nodeCounts)}</p>
+                <p className="route-pressure-copy leading-relaxed text-yellow-100/80">{routePressureText(nodeCounts)}</p>
               </div>
             </div>
           </Panel>

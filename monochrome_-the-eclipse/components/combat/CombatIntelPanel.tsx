@@ -122,6 +122,20 @@ const getStatusRows = (character: PlayerCharacter | EnemyCharacter) => (
 
 const getEffectiveDefense = (attack: number, damage: number) => Math.max(0, attack - damage);
 
+const getCombatNextCue = (
+  player: PlayerCharacter,
+  enemy: EnemyCharacter,
+  selectedPatterns: DetectedPattern[],
+  prediction: CombatPrediction | null,
+) => {
+  if (selectedPatterns.length === 0) return '족보 1개 선택';
+  if (!prediction) return '결과 확인 후 실행';
+  if (prediction.damageToEnemy >= enemy.currentHp) return '실행하면 처치';
+  if (prediction.damageToPlayer >= player.currentHp) return '방어/회복 먼저';
+  if (prediction.damageToPlayer > prediction.damageToEnemy) return '받는 피해 줄이기';
+  return '행운/액티브 확인 후 실행';
+};
+
 export const CombatIntelBar: React.FC<CombatIntelBarProps> = ({
   player,
   enemy,
@@ -138,6 +152,7 @@ export const CombatIntelBar: React.FC<CombatIntelBarProps> = ({
   const damageToEnemy = prediction?.damageToEnemy ?? 0;
   const damageToPlayer = prediction?.damageToPlayer ?? 0;
   const currentIntent = intent?.description ?? '대기';
+  const nextCue = getCombatNextCue(player, enemy, selectedPatterns, prediction);
 
   const toggleView = (view: CombatIntelView) => {
     if (activeView === view) {
@@ -155,6 +170,10 @@ export const CombatIntelBar: React.FC<CombatIntelBarProps> = ({
           <b className="player">적 -{damageToEnemy}</b>
           <b className="enemy">내 -{damageToPlayer}</b>
         </div>
+        <div className="combat-intel-snapshot is-next">
+          <span>다음</span>
+          <b>{nextCue}</b>
+        </div>
         <div className="combat-intel-snapshot is-wide">
           <span>적 예고</span>
           <b>{enemyPatternLabel ?? currentIntent}</b>
@@ -162,19 +181,19 @@ export const CombatIntelBar: React.FC<CombatIntelBarProps> = ({
         <div className="combat-intel-buttons">
           <button type="button" className={activeView === 'player' ? 'is-active' : ''} onClick={() => toggleView('player')}>
             <BookOpen size={15} />
-            <span>내 족보</span>
+            <span>쓸 기술</span>
           </button>
           <button type="button" className={activeView === 'enemy' ? 'is-active' : ''} onClick={() => toggleView('enemy')}>
             <Crosshair size={15} />
-            <span>적 정보</span>
+            <span>적 읽기</span>
           </button>
           <button type="button" className={activeView === 'calc' ? 'is-active' : ''} onClick={() => toggleView('calc')}>
             <Calculator size={15} />
-            <span>계산</span>
+            <span>결과</span>
           </button>
           <button type="button" className={activeView === 'passives' ? 'is-active' : ''} onClick={() => toggleView('passives')}>
             <Sparkles size={15} />
-            <span>상태·패시브</span>
+            <span>상태</span>
           </button>
         </div>
       </nav>
@@ -232,8 +251,14 @@ const PlayerPatternIntel: React.FC<{
   detectedPatterns: DetectedPattern[];
   selectedPatterns: DetectedPattern[];
 }> = ({ player, detectedPatterns, selectedPatterns }) => (
-  <div className="combat-intel-grid player-patterns">
-    {patternTypes.flatMap(type => patternFaces.map(face => {
+  <div className="combat-intel-stack">
+    <div className="combat-intel-note player-cue">
+      <span>다음 행동</span>
+      <b>{selectedPatterns.length > 0 ? '선택한 기술의 태그를 확인하고 실행' : '밝게 표시된 족보부터 선택'}</b>
+      <small>원문은 필요할 때만 펼칩니다.</small>
+    </div>
+    <div className="combat-intel-grid player-patterns">
+      {patternTypes.flatMap(type => patternFaces.map(face => {
       const ability = getPlayerAbility(player.class, player.acquiredSkills, type, face);
       const matches = detectedPatterns.filter(pattern => pattern.type === type && pattern.face === face);
       const selected = selectedPatterns.filter(pattern => pattern.type === type && pattern.face === face);
@@ -246,9 +271,16 @@ const PlayerPatternIntel: React.FC<{
           <div className="combat-intel-row-main">
             <div className="combat-intel-row-title">
               <span>{patternLabels[type]} {faceLabel(face)}</span>
-              <strong>{ability.name}</strong>
-            </div>
-            <EffectSummary summary={summarizeAbility(ability)} compact chipLimit={4} showDetail="details" />
+                <strong>{ability.name}</strong>
+              </div>
+              <EffectSummary
+                summary={summarizeAbility(ability)}
+                compact
+                chipLimit={4}
+                showCue
+                cueLabel="판단"
+                showDetail="details"
+              />
           </div>
           <div className="combat-intel-tags">
             {selected.length > 0 ? <b>선택 {selected.length}</b> : null}
@@ -257,7 +289,8 @@ const PlayerPatternIntel: React.FC<{
           </div>
         </article>
       );
-    }))}
+      }))}
+    </div>
   </div>
 );
 
@@ -369,7 +402,7 @@ const CalculationIntel: React.FC<{
                   <span>{patternLabels[pattern.type]} {faceLabel(pattern.face)} · {formatCoinIndices(pattern.indices)}</span>
                   <strong>{ability.name}</strong>
                 </div>
-                <EffectSummary summary={summarizeAbility(ability)} compact chipLimit={3} showDetail="details" />
+                <EffectSummary summary={summarizeAbility(ability)} compact chipLimit={3} showCue cueLabel="판단" showDetail="details" />
               </div>
             </article>
           )) : <p className="combat-intel-empty">아직 선택한 족보가 없습니다.</p>}
@@ -408,13 +441,13 @@ const PassiveIntel: React.FC<{
         {innatePassives.map((description, index) => (
           <article key={`innate-${index}`} className="combat-intel-passive">
             <strong>고유 패시브</strong>
-            <EffectSummary summary={summarizeDescription(description)} compact chipLimit={4} showDetail="details" />
+            <EffectSummary summary={summarizeDescription(description)} compact chipLimit={4} showCue cueLabel="역할" showDetail="details" />
           </article>
         ))}
         {playerPassiveRows.length > 0 ? playerPassiveRows.map(passive => (
           <article key={passive.id} className="combat-intel-passive">
             <strong>{passive.name}</strong>
-            <EffectSummary summary={summarizeDescription(passive.description)} compact chipLimit={4} showDetail="details" />
+            <EffectSummary summary={summarizeDescription(passive.description)} compact chipLimit={4} showCue cueLabel="역할" showDetail="details" />
           </article>
         )) : <p className="combat-intel-empty">습득한 추가 패시브가 없습니다.</p>}
       </section>

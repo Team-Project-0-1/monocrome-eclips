@@ -156,7 +156,10 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ isOpen, onClose, player
     <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-[100] p-4">
       <div className="inventory-modal-frame bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-4xl h-[90vh] flex flex-col border-2 border-cyan-500/50" data-testid="inventory-modal">
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
-          <h2 className="text-3xl font-bold text-cyan-300">능력 목록</h2>
+          <div>
+            <h2 className="text-3xl font-bold text-cyan-300">능력 목록</h2>
+            <p className="inventory-modal-subtitle">먼저 판단 문구와 태그를 보고, 자세한 설명은 필요할 때만 펼치세요.</p>
+          </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-700" aria-label="인벤토리 닫기" data-testid="close-inventory-button">
             <X className="w-7 h-7 text-white" />
           </button>
@@ -252,7 +255,10 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ isOpen, onClose, player
                       summary={summary}
                       hideHeadline
                       chipLimit={5}
+                      showCue
+                      cueLabel="판단"
                       showDetail="details"
+                      detailLabel="상세"
                       className="inventory-effect-summary"
                     />
                   </article>
@@ -280,7 +286,10 @@ const InventoryPanel: React.FC<InventoryPanelProps> = ({ isOpen, onClose, player
                     summary={summarizeDescription(skill.description)}
                     hideHeadline
                     chipLimit={5}
+                    showCue
+                    cueLabel="역할"
                     showDetail="details"
+                    detailLabel="상세"
                     className="inventory-effect-summary"
                   />
                 </article>

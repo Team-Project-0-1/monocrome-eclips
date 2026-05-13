@@ -7,6 +7,7 @@ import GameShell from '../components/ui/GameShell';
 import ScreenHeader from '../components/ui/ScreenHeader';
 import Panel from '../components/ui/Panel';
 import ActionButton from '../components/ui/ActionButton';
+import EffectSummary from '../components/EffectSummary';
 
 const playerClassIcons: { [key in CharacterClass]: LucideIcon } = {
   [CharacterClass.WARRIOR]: Zap,
@@ -30,7 +31,7 @@ export const CharacterSelectScreen = () => {
     };
 
     return (
-        <GameShell contentClassName="max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <GameShell className="character-select-screen" contentClassName="character-select-content max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
             <ScreenHeader
                 eyebrow="Expedition roster"
                 title="캐릭터 선택"
@@ -65,7 +66,7 @@ export const CharacterSelectScreen = () => {
                                 onClick={() => isUnlocked && selectCharacter(characterClass)}
                                 disabled={!isUnlocked}
                                 data-testid={`character-card-${characterClass.toLowerCase()}`}
-                                className={`group relative min-h-[280px] overflow-hidden rounded-lg border text-left shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300
+                                className={`character-class-card group relative min-h-[280px] overflow-hidden rounded-lg border text-left shadow-xl transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300
                                     ${isUnlocked ? "border-white/12 bg-gray-900 hover:-translate-y-0.5 hover:border-cyan-300/70 hover:shadow-cyan-950/30" : "border-gray-700 bg-gray-800 opacity-70 cursor-not-allowed"}`}
                             >
                                 <img
@@ -99,13 +100,13 @@ export const CharacterSelectScreen = () => {
                                         </div>
                                         {isUnlocked ? (
                                             <div className="space-y-2 text-sm text-gray-200">
-                                                <p className="line-clamp-2 sm:line-clamp-none">{data.innatePassives[0]}</p>
+                                                <EffectSummary text={data.innatePassives[0]} compact hideHeadline chipLimit={3} showCue cueLabel="패시브" />
                                                 <div className="hidden border-t border-white/10 pt-2 text-xs text-gray-300 sm:block">
                                                     <div className="mb-1 flex items-center gap-1 font-bold text-cyan-200">
                                                         <Cpu size={13} />
                                                         액티브 스킬
                                                     </div>
-                                                    {activeSkill.description}
+                                                    <EffectSummary text={activeSkill.description} compact hideHeadline chipLimit={3} showCue cueLabel="용도" />
                                                 </div>
                                             </div>
                                         ) : (

@@ -7,46 +7,53 @@ import { TutorialKey } from '../store/slices/uiSlice';
 interface TutorialCopy {
   key: TutorialKey;
   title: string;
-  body: string;
-  hints: string[];
+  next: string;
+  watch: string;
+  fallback: string;
 }
 
 const tutorialByState: Partial<Record<GameState, TutorialCopy>> = {
   [GameState.MENU]: {
     key: 'menu',
     title: '로비',
-    body: '이어하기와 새 탐험을 분리했습니다. 옵션은 저장되어 다음 실행에도 유지됩니다.',
-    hints: ['Enter로 바로 시작', '사운드와 전투 보조는 여기서 전환'],
+    next: '이어하기 또는 새 탐험 선택',
+    watch: 'Prototype v0.1, 접근성, 사운드',
+    fallback: '전투 보조는 켜 둔 상태로 시작하세요.',
   },
   [GameState.CHARACTER_SELECT]: {
     key: 'character',
     title: '캐릭터 선택',
-    body: '각 캐릭터는 무기와 전투 리듬이 다릅니다. HP, 역할, 대표 스킬을 먼저 비교하세요.',
-    hints: ['전사는 소리굽쇠로 공명 누적', '초반에는 생존력과 조작 난이도 확인'],
+    next: 'HP와 고유 기술을 보고 한 명 선택',
+    watch: '역할 태그, 액티브 스킬, 잠금 조건',
+    fallback: '처음이면 HP가 높거나 조작이 단순한 캐릭터가 안정적입니다.',
   },
   [GameState.EXPLORATION]: {
     key: 'exploration',
     title: '경로 선택',
-    body: '전투, 상점, 이벤트, 휴식 노드를 보고 다음 턴의 리스크와 보상을 고릅니다.',
-    hints: ['자원이 부족하면 상점 가치 하락', '보스 전에는 휴식과 보급을 우선'],
+    next: '다음 노드 하나를 고르기',
+    watch: '체력, 보스 거리, 보유 자원',
+    fallback: '체력이 낮으면 휴식, 자원이 많으면 상점 가치가 큽니다.',
   },
   [GameState.COMBAT]: {
     key: 'combat',
     title: '동전 전투',
-    body: '내 동전과 적 의도를 한 화면에서 비교하고, 가능한 족보를 선택한 뒤 실행하세요.',
-    hints: ['PC는 좌우 대치, 모바일은 상하 흐름', '행운 동전과 액티브 스킬은 실행 전 사용'],
+    next: '가능한 족보 선택 후 실행',
+    watch: '받는 피해, 적 예고, 내 선택 태그',
+    fallback: '받는 피해가 크면 방어 족보나 액티브를 먼저 확인하세요.',
   },
   [GameState.SHOP]: {
     key: 'shop',
     title: '상점',
-    body: '자원, 구매 가능 여부, 효과 미리보기를 같은 화면에서 비교하도록 정리했습니다.',
-    hints: ['불가능한 구매는 이유를 먼저 확인', '행운 동전은 전투 안정성을 크게 올림'],
+    next: '구매 가능 표시가 뜬 항목만 비교',
+    watch: '비용, 상태 라벨, 효과 태그',
+    fallback: '막혔으면 우측 이유를 보고 다른 탭으로 이동하세요.',
   },
   [GameState.EVENT]: {
     key: 'event',
     title: '이벤트',
-    body: '선택지별 성공 확률, 보상, 위험을 확인하고 캐릭터 조건이 맞는 선택을 고르세요.',
-    hints: ['잠긴 선택지는 조건이 부족한 상태', '확률 선택은 즉시 진행됨'],
+    next: '조건이 맞는 선택지 하나 고르기',
+    watch: '성공률, 비용, 실패 위험',
+    fallback: '확률이 애매하면 확정 보상이나 이탈을 우선하세요.',
   },
 };
 
@@ -83,12 +90,17 @@ const TutorialCoachmark: React.FC = () => {
         </button>
       </div>
       <h2>{copy.title}</h2>
-      <p>{copy.body}</p>
-      <div className="tutorial-coachmark-hints">
-        {copy.hints.map((hint) => (
-          <span key={hint}>{hint}</span>
-        ))}
+      <div className="tutorial-coachmark-hints" aria-label="tutorial next steps">
+        <span className="is-primary">
+          <b>다음 행동</b>
+          {copy.next}
+        </span>
+        <span>
+          <b>먼저 볼 정보</b>
+          {copy.watch}
+        </span>
       </div>
+      <p className="tutorial-coachmark-fallback">{copy.fallback}</p>
       <div className="tutorial-coachmark-actions">
         <button type="button" onClick={() => dismissTutorial(copy.key)}>
           확인
